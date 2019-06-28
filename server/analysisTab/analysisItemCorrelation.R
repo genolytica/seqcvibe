@@ -306,8 +306,8 @@ correlationTabPanelRenderUI <- function(output,session,allReactiveVars,
                 }
                 else
                     labrow <- labcol <- rownames(currentCorrelation$corMatrix)
-                output$correlation <- renderD3heatmap({
-                    d3heatmap(
+                output$correlation <- renderPlotly({
+                    heatmaply(
                         currentCorrelation$corMatrix,
                         dendrogram="both",
                         Rowv=TRUE,
@@ -321,7 +321,7 @@ correlationTabPanelRenderUI <- function(output,session,allReactiveVars,
                 })
                 #div(
                 #    class="heatmap-container",
-                    d3heatmapOutput("correlation",height="640px")
+                    plotlyOutput("correlation",height="640px")
                 #)
             }
         }

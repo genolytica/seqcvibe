@@ -255,9 +255,9 @@ clusteringTabPanelRenderUI <- function(output,session,allReactiveVars,
             distFun <- distFuns()
             hclustFun <- hclustFuns()
             tryCatch({
-                evalWithTimeout({
-                    output$heatmap <- renderD3heatmap({
-                        d3heatmap(
+                withTimeout({
+                    output$heatmap <- renderPlotly({
+                        heatmaply(
                             currentHeatmap$data,
                             dendrogram=currentHeatmap$opts$dendrogram,
                             Rowv=currentHeatmap$opts$Rowv,
@@ -272,7 +272,7 @@ clusteringTabPanelRenderUI <- function(output,session,allReactiveVars,
                     })
                     div(
                         class="heatmap-container",
-                        d3heatmapOutput("heatmap",height="800px")
+                        plotlyOutput("heatmap",height="800px")
                     )
                 },
                 timeout=300)

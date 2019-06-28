@@ -427,14 +427,16 @@ areaSignalTabPanelReactive <- function(input,output,session,allReactiveVars,
             updateSelectizeInput(session,"areaGeneName",
                 choices=NULL,
                 server=TRUE)
-        g <- isolate({input$areaGeneName})
-        geneNames <- loadedGenomes[[currentMetadata$genome]]$geneNames
-        i <- grep(paste0("^",g),geneNames,perl=TRUE)
-        if (length(i)>0) {
-            updateSelectizeInput(session,"areaGeneName",
-                choices=geneNames[i],
-                selected=input$areaGeneName,
-                server=TRUE)
+        else{
+            geneNames <- loadedGenomes[[currentMetadata$genome]]$geneNames
+            g <- isolate({input$areaGeneName})
+            i <- grep(paste0("^",g),geneNames,perl=TRUE)
+            if (length(i)>0) {
+                updateSelectizeInput(session,"areaGeneName",
+                    choices=geneNames,
+                    selected=g,
+                    server=TRUE)
+            }
         }
     })
     
@@ -662,6 +664,13 @@ areaSignalTabPanelObserve <- function(input,output,session,allReactiveVars,
     })
     
     observe({
+        updateAreaGeneNames()
+        updateFlanksA()
+        updateCurrentArea()
+        updateAreaColours()
+    })
+
+    observe({
         tryCatch({
             shinyjs::disable("createAreaProfile")
             createAreaProfile()
@@ -676,12 +685,5 @@ areaSignalTabPanelObserve <- function(input,output,session,allReactiveVars,
             else
                 shinyjs::enable("createAreaProfile")
         })
-    })
-    
-    observe({
-        updateAreaGeneNames()
-        updateFlanksA()
-        updateCurrentArea()
-        updateAreaColours()
     })
 }

@@ -2,7 +2,7 @@
 initPackages <- function(session) {
     # Initial page loading indicator, until all content is loaded
     ftProgress <- shiny::Progress$new()
-    ftProgress$initialize(session,min=0,max=8)
+    ftProgress$initialize(session,min=0,max=10)
     ftProgress$set(message="Starting:",value=0)
     on.exit(ftProgress$close())
     # Progress update function
@@ -29,7 +29,9 @@ initPackages <- function(session) {
     require(ggbio)
     updateFtProgress(value=7,detail="Loading metaseqR")
     require(GenomicRanges)
-    updateFtProgress(value=8,detail="Loading d3heatmap")
-    require(d3heatmap)
+    # updateFtProgress(value=8,detail="Loading d3heatmap")
+    # require(d3heatmap)
+    updateFtProgress(value=8,detail="Loading heatmaply")
+    require(heatmaply)
     #require(plotly)
 }

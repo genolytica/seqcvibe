@@ -458,9 +458,18 @@ dataSelectorTabPanelObserve <- function(input,output,session,
     observe({
         s <- currentMetadata$source
         d <- currentMetadata$dataset
-        if (is.null(loadedData[[s]][[d]]))
+        if (is.null(loadedData[[s]][[d]])) {
             shinyjs::disable("createDataset")
-        else
+            shinyjs::disable("showFastqc")
+
+        }else {
             shinyjs::enable("createDataset")
+            shinyjs::enable("showFastqc")   
+        }         
     })
+
+    observeEvent(input$showFastqc, {
+        toggleModal(session, "fqc", toggle="toggle")
+    })
+
 }

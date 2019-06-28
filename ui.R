@@ -2,6 +2,7 @@
 
 require(DT)
 require(shinyjs)
+require(shinyBS)
 
 source("config/init_server_globals.R")
 source("ui/dataSelectorTab/dataSelectorItem.R")

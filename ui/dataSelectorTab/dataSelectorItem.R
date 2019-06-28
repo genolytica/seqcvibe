@@ -16,13 +16,27 @@ dataSelectorTabPanel <- function() {
                 fluidRow(column(12,
                     htmlOutput("dataCustomSamples")
                 )),
-                fluidRow(column(6,
+                fluidRow(column(3,
                     div(
                         class="pull-left",
                         actionButton(
                             inputId="loadDataset",
                             label="Load selected data",
                             icon=icon("truck")
+                        )
+                    )
+                ),column(3,
+                    div(
+                        class="pull-left",
+                        actionButton(
+                            inputId="showFastqc",
+                            label="Dataset FastQC",
+                            icon=icon("truck"),
+                            class="btn-sample-select"
+                        ),
+                        tags$head(tags$style(".modal-dialog{ width:1400px}")),
+                        bsModal(id="fqc", title="FastQC", trigger="click",
+                            includeHTML("www/about.html")
                         )
                     )
                 ),column(3,
