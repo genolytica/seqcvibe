@@ -1,0 +1,183 @@
+.fullscreen {
+    background-color: #F6F6F6;
+    width: 100%;
+    height: auto;
+    bottom: 0px;
+    top: 0px;
+    left: 0;
+    position: absolute;
+}
+
+.splash {
+    position: absolute;
+    width: 400px;
+    height: 200px;
+    top: 50%;
+    left: 50%;
+    margin-left: -200px; /* margin is -0.5 * dimension */
+    margin-top: -100px;
+    text-align: center;
+    line-height: 180px;
+    color: #007CFF;
+    font-family: "Arial Narrow", Arial, sans-serif;
+    font-size: 3em;
+}​
+
+.btn-sample-select {
+    background: #6F6F6F;
+    color: #FFFFFF;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #FFFFFF;
+}
+
+.btn-sample-select:disabled {
+    color: #787878;
+}
+
+.btn-with-margin {
+    margin-top: 10px;
+}
+
+.error-message {
+    color: #FF0000;
+    font-size: 0.8em;
+    font-weight: bold;
+}
+
+.message-box {
+    background-color: #FAFAFA;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 0.8em;   
+    border-style: solid;
+    border-width: 1px;
+    border-color: #DCDCDC;
+    margin-top: 0px;
+    padding-top: 0px;
+    padding-bottom: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
+    border-radius: 5px;
+    -moz-border-radius: 5px; 
+    height: 100%;
+    max-height:600px;
+    overflow: auto;
+}
+
+.info-box {
+    width: 100%;
+    padding: 2px;
+    margin-top: 5px;
+    color: #0000BB;
+    background: #CCCCFF;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #2727D0;
+    -moz-border-radius: 5px; 
+    border-radius: 5px;
+}
+
+.success-box {
+    width: 100%;
+    padding: 2px;
+    margin-top: 5px;
+    color: #006B00;
+    background: #CCFFCC;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #2DC72D;
+    -moz-border-radius: 5px; 
+    border-radius: 5px;
+}
+
+.error-box {
+    width: 100%;
+    padding: 2px;
+    margin-top: 5px;
+    color: #BA0000;
+    background: #FFC6C6;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #E15555;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+
+.warn-box {
+    width: 100%;
+    padding: 2px;
+    margin-top: 5px;
+    color: #946A00;
+    background: #FFECB8;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #D5AA40;
+    -moz-border-radius: 5px; 
+    border-radius: 5px;
+}
+
+.bsv-textarea {
+    padding: 2px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #ACACAC;
+    /*outline: 1px solid #CECECE*/;
+    -moz-border-radius: 5px; 
+    border-radius: 5px;
+}
+
+.table-container {
+    max-height: 600px;
+    overflow: auto;
+}
+
+.plot-container {
+    height: 600px;
+}
+
+.heatmap-container {
+    min-height: 640px;
+    max-height: 960px;
+    overflow-y: auto;
+}
+
+.vertical-center {
+    display: inline-block;
+    vertical-align: middle !important;
+    float: none;
+}
+.vertical-top {
+    display: inline-block;
+    vertical-align: top !important;
+    float: none;
+}
+.vertical-bottom {
+    display: inline-block;
+    vertical-align: bottom  !important;
+    float: none;
+}
+
+#dataSamples option {
+    font-size: 0.9em;
+}
+
+#addCustomRegion {
+    float: right;
+}
+
+/*#maplot-container {
+  position: relative;
+}
+
+#loading-pacman {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: -1;
+  margin-top: -100px;
+  margin-left: -100px;
+}
+
+#rnaDeMAPlot.recalculating {
+    z-index: -2;
+}*/

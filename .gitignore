@@ -1,0 +1,7 @@
+.RData
+.Rhistory
+config/metadata.txt
+/data/
+/genome/
+www/GSE59017_multiqc_report.html
+www/ngsReports_Fastqc.html
