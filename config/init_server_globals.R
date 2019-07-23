@@ -5,6 +5,7 @@
 require(shiny)
 require(shinyjs)
 require(colourpicker)
+require(RSQLite)
 
 # Load additional functions
 source("lib/control.R")
@@ -12,22 +13,23 @@ source("lib/util.R")
 
 # Load metadata
 metadata <- dbConnect(drv=RSQLite::SQLite(),dbname='data/metadata.sqlite')
+#metadata <- read.delim("config/metadata.txt")
 #rownames(metadata) <- as.character(metadata$sample_id)
 
 # Intialize metadata reactive content
-sources <- as.character(dbGetQuery(metadata_new, "SELECT DISTINCT(source) FROM metadata")$source)
+sources <- as.character(dbGetQuery(metadata, "SELECT DISTINCT(source) FROM metadata")$source)
 
-datasets <- as.character(dbGetQuery(metadata_new, "SELECT DISTINCT(dataset) FROM metadata")$dataset[1])
+datasets <- as.character(dbGetQuery(metadata, paste0("SELECT DISTINCT(dataset) FROM metadata WHERE source == '",sources[1],"'"))$dataset)
 
-classes <- as.character(dbGetQuery(metadata_new, paste0("SELECT DISTINCT(class) FROM metadata WHERE source == '",sources[1],"' AND dataset == '",datasets[1],"'"))$class)
+classes <- as.character(dbGetQuery(metadata, paste0("SELECT DISTINCT(class) FROM metadata WHERE source == '",sources[1],"' AND dataset == '",datasets[1],"'"))$class)
 
-genomes <- as.character(dbGetQuery(metadata_new, "SELECT DISTINCT(source) FROM metadata")$source)
+genomes <- as.character(dbGetQuery(metadata, "SELECT DISTINCT(genome) FROM metadata")$genome)
 
 genome <- genomes[1]
 
 # Load data file hash
 source("config/data_files.R")
-allClasses <- as.character(dbGetQuery(metadata_new, "SELECT DISTINCT(class) FROM metadata")$class)
+allClasses <- as.character(dbGetQuery(metadata, "SELECT DISTINCT(class) FROM metadata")$class)
 baseColours <- c("#B40000","#00B400","#0000B4","#B45200","#9B59B6","#21BCBF",
     "#BC4800","#135C34","#838F00","#4900B5")
 baseColours <- rep(baseColours,length.out=length(allClasses))
@@ -58,7 +60,7 @@ for (gen in genomes) {
 loadedData <- vector("list",length(sources))
 names(loadedData) <- sources
 for (s in sources) {
-    dd <- as.character(dbGetQuery(metadata_new, paste0("SELECT DISTINCT(dataset) FROM metadata WHERE source == '",s,"'"))$dataset)
+    dd <- as.character(dbGetQuery(metadata, paste0("SELECT DISTINCT(dataset) FROM metadata WHERE source == '",s,"'"))$dataset)
     loadedData[[s]] <- vector("list",length(dd))
     names(loadedData[[s]]) <- dd
 }
