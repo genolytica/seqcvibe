@@ -1,8 +1,8 @@
 dataFiles <- list(
-    elixir=list(
+    GEO=list(
         GSE59017="data/GSE59017/GSE59017.rda"
     ),
-    PHLab=list(
+    ENA=list(
         ASCL2_KD_3I4="data/ASCL2_KD_3I4/ascl2_kd_3i4_b2c.rda"
     )
 )

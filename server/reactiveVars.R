@@ -1,7 +1,7 @@
 initReactiveVars <- function() {
     currentMetadata <- reactiveValues(
         source=sources[1],
-        dataset=datasets,
+        dataset=datasets[1],
         class=classes,
         genome=genomes[1],
         metadata=NULL,

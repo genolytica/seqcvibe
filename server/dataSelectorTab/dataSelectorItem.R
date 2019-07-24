@@ -182,6 +182,7 @@ dataSelectorTabPanelReactive <- function(input,output,session,
         s <- currentMetadata$source
         d <- currentMetadata$dataset
         c <- currentMetadata$class
+
         lapply(c,function(x) {
             observeEvent(input[[paste("clearSelection_",x,sep="")]],{
                 proxy <- dataTableProxy(paste("classTable_",x,sep=""))
@@ -189,9 +190,8 @@ dataSelectorTabPanelReactive <- function(input,output,session,
             })
         })
         lapply(c,function(x) {
-            N <- 1:nrow(metadata[which(as.character(metadata$source)==s 
-                & as.character(metadata$dataset)==d
-                & as.character(metadata$class)==x),])
+            relevant_rows <- as.numeric(dbGetQuery(metadata, paste0("SELECT COUNT(*) FROM metadata WHERE source == '",s,"' AND dataset == '",d,"' AND class == '",x,"'")))
+            N <- 1:relevant_rows
             observeEvent(input[[paste("invertSelection_",x,sep="")]],{
                 sel <- input[[paste("classTable_",x,
                     "_rows_selected",sep="")]]
@@ -270,7 +270,7 @@ dataSelectorTabPanelRenderUI <- function(output,session,allReactiveVars,
         selectInput(
             inputId="dataDataset",
             label="Select dataset",
-            choices=as.character(dbGetQuery(metadata, paste0("SELECT DISTINCT(dataset) FROM metadata WHERE source == '",sources[2],"'"))$dataset)
+            choices=as.character(dbGetQuery(metadata, paste0("SELECT DISTINCT(dataset) FROM metadata WHERE source == '",sources[1],"'"))$dataset)
         )
     })
     

@@ -15,7 +15,7 @@ metadata$source[c(grep(pattern = "ASCL2", x = metadata$dataset))] <- "ENA"
 metadata$source[c(grep(pattern = "GSE", x = metadata$dataset))] <- "GEO"
 metadata$sample_dir <- paste0(files_dir, "data/", metadata$dataset, "/", metadata$class)
 metadata$alt_id <- paste0(metadata$sample_id, "_", metadata$class)
-metadata$lib_strategy <- "RNASeq"
+metadata$library_strategy <- "RNASeq"
 metadata$quality <- 0
 
 
@@ -27,7 +27,7 @@ fillNormFactor <- function(ID) {
   ID <- read_table2(paste0(ID, "/", ID, "_factors.txt"))
   ID<-ID[,c(1:2)]
   ID$genome <- as.character(genome[[1]])
-  colnames(ID) <- c("sample_id", "normFactor", "genome")
+  colnames(ID) <- c("sample_id", "norm_factor", "genome")
   ID$sample_id <- gsub(pattern = ".bedGraph", replacement = "", ID$sample_id)
   metadata <- merge(x = metadata, y = ID, by = 'sample_id')
 }
@@ -35,7 +35,7 @@ fillNormFactor <- function(ID) {
 final_metadata <- lapply(IDs, fillNormFactor)%>% bind_rows()
 
 
-conn <- dbConnect(RSQLite::SQLite(), "/home/makis/elixir-RNAseq/config/metadata.sqlite")
+conn <- dbConnect(RSQLite::SQLite(), "/home/makis/elixir-RNAseq/data/metadata.sqlite")
 dbWriteTable(conn, "metadata", final_metadata, overwrite = T)
 
 #dbGetQuery(conn, "SELECT * FROM metadata WHERE genome = 'mm10'")
