@@ -14,6 +14,7 @@ metadata$sample_id <- gsub(pattern = ".bam", replacement = "", x = metadata$samp
 metadata$source[c(grep(pattern = "ASCL2", x = metadata$dataset))] <- "ENA"
 metadata$source[c(grep(pattern = "GSE", x = metadata$dataset))] <- "GEO"
 metadata$sample_dir <- paste0(files_dir, "data/", metadata$dataset, "/", metadata$class)
+metadata$track_dir <- paste0(files_dir, "data/", metadata$dataset, "/", metadata$class)
 metadata$alt_id <- paste0(metadata$sample_id, "_", metadata$class)
 metadata$library_strategy <- "RNASeq"
 metadata$quality <- 0
