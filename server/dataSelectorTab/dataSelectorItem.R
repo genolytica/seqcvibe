@@ -20,7 +20,7 @@ dataSelectorTabPanelEventReactive <- function(input,output,session,
         currInd <- paste0("FROM metadata WHERE source == '",s,"' AND dataset == '",d,"'")
         currentMetadata$class <- as.character(dbGetQuery(metadata, paste0("SELECT DISTINCT(class) ",currInd))$class)
         currentMetadata$metadata <- dbGetQuery(metadata, paste0("SELECT * ",currInd))
-        currentMetadata$genome <- as.character(dbGetQuery(metadata, paste0("SELECT DISTINCT(genome) ",currInd))$genome)
+        currentMetadata$genome <- as.character(dbGetQuery(metadata, paste0("SELECT DISTINCT(genome) ",currInd))$genome)[1]
         if (!is.na(currentMetadata$genome)
             && is.null(loadedGenomes[[currentMetadata$genome]]$dbGene)) {
             load(file.path("genome",currentMetadata$genome,"gene.rda"))
@@ -270,7 +270,7 @@ dataSelectorTabPanelRenderUI <- function(output,session,allReactiveVars,
         selectInput(
             inputId="dataDataset",
             label="Select dataset",
-            choices=as.character(dbGetQuery(metadata, paste0("SELECT DISTINCT(dataset) FROM metadata WHERE source == '",sources[1],"'"))$dataset)
+            choices=as.character(dbGetQuery(metadata, paste0("SELECT DISTINCT(dataset) FROM metadata WHERE source == '",input$dataSource,"'"))$dataset)
         )
     })
     
@@ -279,7 +279,7 @@ dataSelectorTabPanelRenderUI <- function(output,session,allReactiveVars,
         disabled(textInput(
             inputId="dataGenome",
             label="Genome",
-            value=genome
+            value=currentMetadata$genome
         ))
     })
     
@@ -309,7 +309,7 @@ dataSelectorTabPanelRenderUI <- function(output,session,allReactiveVars,
                 d <- input$dataDataset
                 c <- currentMetadata$class
                 lapply(c,function(x,s,d) {
-                    tab <- as.character(dbGetQuery(metadata, paste0("SELECT sample_id,alt_id,norm_factor,library_strategy FROM metadata WHERE dataset == '",d,"' AND class == '",x,"'"))$source)
+                    tab <- dbGetQuery(metadata, paste0("SELECT sample_id,alt_id,norm_factor,library_strategy FROM metadata WHERE dataset == '",d,"' AND class == '",x,"' AND source == '",s,"'"))
                     
                     output[[paste("classTable",x,sep="_")]] <- 
                         DT::renderDataTable(
