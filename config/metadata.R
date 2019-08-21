@@ -11,7 +11,7 @@ rownames(core)<-NULL
 metadata<-as.data.frame(core)
 
 metadata$sample_id <- gsub(pattern = ".bam", replacement = "", x = metadata$sample_id)
-metadata$source[c(grep(pattern = "ASCL2", x = metadata$dataset))] <- "ENA"
+metadata$source[c(grep(pattern = "PRJEB", x = metadata$dataset))] <- "ENA"
 metadata$source[c(grep(pattern = "GSE", x = metadata$dataset))] <- "GEO"
 metadata$sample_dir <- paste0(files_dir, "data/", metadata$dataset, "/", metadata$class)
 metadata$track_dir <- paste0(files_dir, "data/", metadata$dataset, "/", metadata$class)
@@ -21,7 +21,7 @@ metadata$quality <- 0
 
 
 # FUNCTION 1 apply to all norm_factor files and merge into 1 DF
-IDs <- as.list(list.files(recursive = F, pattern = "PRJEB|GSE|ASCL2"))
+IDs <- as.list(list.files(recursive = F, pattern = "PRJEB|GSE"))
 
 fillNormFactor <- function(ID) {
   genome <- read.table(paste0(ID,"/genome"), quote="\"", comment.char="")
