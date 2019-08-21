@@ -126,8 +126,10 @@ getProfile <- function(gene,flank,source,dataset,class,sumStat,config,
                 subconf <- as.character(config$sample_dir[ind])
                 names(subconf) <- as.character(config$sample_id[ind])
                 theCoverage[[n]][[st]] <- cmclapply(subconf,function(x,coords) {
-                    bam.file <- dir(x,pattern=".bam$",full.names=TRUE)
-                    bam.index <- dir(x,pattern=".bai$",full.names=TRUE)
+                    bam.file <- dir(x,pattern=paste0(names(subconf),".bam$"),full.names=TRUE)
+                    bam.index <- dir(x,pattern=paste0(names(subconf),".bam.bai$"),full.names=TRUE)
+                    #bsvMessage("*******TESTING:", names(subconf))
+                    #bsvMessage("*******TESTING:", names(theCoverage[[n]]))
                     bp <- ScanBamParam(which=coords)                
                     reads <- unlist(grglist(readGAlignments(file=bam.file,
                         index=bam.index,param=bp,with.which_label=TRUE)))
@@ -135,6 +137,7 @@ getProfile <- function(gene,flank,source,dataset,class,sumStat,config,
                     return(calcCoverage(reads,coords,assign.names=FALSE,
                         verbose=FALSE)[[1]])
                 },coords[n],rc=rc)
+                #bsvMessage("*******TESTING:", theCoverage)
             }
         }
         
@@ -365,8 +368,8 @@ getTrack <- function(refArea,customGene=NULL,source,dataset,class,sumStat,
             subconf <- as.character(config$sample_dir[ind])
             names(subconf) <- as.character(config$sample_id[ind])
             theCoverage[[st]] <- cmclapply(subconf,function(x,coords) {
-                bam.file <- dir(x,pattern=".bam$",full.names=TRUE)
-                bam.index <- dir(x,pattern=".bai$",full.names=TRUE)
+                bam.file <- dir(x,pattern=paste0(names(subconf),".bam$"),full.names=TRUE)
+                bam.index <- dir(x,pattern=paste0(names(subconf),".bam.bai$"),full.names=TRUE)
                 bp <- ScanBamParam(which=coords)
                 reads <- unlist(grglist(readGAlignments(file=bam.file,
                     index=bam.index,param=bp,with.which_label=TRUE)))
