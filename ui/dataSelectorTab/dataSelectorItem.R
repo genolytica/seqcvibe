@@ -60,6 +60,17 @@ dataSelectorTabPanel <- function() {
                     )
                 ))
             )
+        )),
+        fluidRow(column(12,
+            wellPanel(
+                h4("Bookmark Application Status"),
+                fluidRow(column(12,
+                    div(
+                        class="center",
+                        bookmarkButton()
+                    )
+                ))
+            )
         ))
     ),column(6,
         fluidRow(column(12,
