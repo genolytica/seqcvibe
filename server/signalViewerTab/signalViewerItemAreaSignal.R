@@ -433,7 +433,7 @@ areaSignalTabPanelReactive <- function(input,output,session,allReactiveVars,
             i <- grep(paste0("^",g),geneNames,perl=TRUE)
             if (length(i)>0) {
                 updateSelectizeInput(session,"areaGeneName",
-                    choices=geneNames[i],
+                    choices=geneNames,
                     selected=g,
                     server=TRUE)
             }

@@ -19,7 +19,7 @@ source("ui/genomeBrowserTab/genomeBrowserItem.R")
 source("ui/helpTab/helpItemDoc.R")
 source("ui/helpTab/helpItemFaq.R")
 
-shinyUI(fluidPage(
+shinyUI(function(request) fluidPage(
     shinyjs::useShinyjs(),
     tags$head(
         tags$link(

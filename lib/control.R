@@ -254,9 +254,7 @@ getProfile <- function(gene,flank,source,dataset,class,sumStat,config,
     ymin <- unlist(low,use.names=FALSE)
     ymax <- unlist(high,use.names=FALSE)
     
-    position=unlist(lapply(coords,function(x,h) {
-        return(rep(start(x):end(x),h))
-    },length(class)))
+    position=unlist(lapply(1:length(coords),function(i,h,co) {return(rep(start(co[i]):end(co[i]),h))},length(class),coords))
     ss <- locus <- vector("list",length(coords))
     names(ss) <- names(locus) <- names(fit)
     for (n in names(fit)) {
@@ -339,12 +337,12 @@ getTrack <- function(refArea,customGene=NULL,source,dataset,class,sumStat,
             }
         }
     }
-    
+    # bsvMessage("*** TESTING: ",gene$gene_name)
     if (length(gene)>0) {
-        names(gene) <- unlist(lapply(gene,function(x) return(x$gene_name)))
+        names(gene) <- unlist(lapply(split(gene, as.factor(gene)),function(x) return(x$gene_name)))
         # Get a GRangesList with requested gene strcuture 
-        labelHelper <- getGeneCoordinatesForSpline(as.list(gene),dbGene)
-        geneList <- getGeneCoordinatesForTrack(as.list(gene),dbGene,dbExon)
+        labelHelper <- getGeneCoordinatesForSpline(as.list(split(gene, as.factor(gene))),dbGene)
+        geneList <- getGeneCoordinatesForTrack(as.list(split(gene, as.factor(gene))),dbGene,dbExon)
     }
     else
         labelHelper <- geneList <- NULL

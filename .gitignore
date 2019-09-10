@@ -6,3 +6,4 @@ config/metadata.txt
 /shiny_bookmarks/
 www/GSE59017_multiqc_report.html
 www/ngsReports_Fastqc.html
+/test/
