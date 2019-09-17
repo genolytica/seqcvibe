@@ -1,3 +1,4 @@
+*.rds
 .RData
 .Rhistory
 config/metadata.txt

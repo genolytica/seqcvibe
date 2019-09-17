@@ -73,6 +73,33 @@ shinyServer(
         # Genome browser
         genomeBrowserTabPanelObserve(input,output,session,allReactiveVars,
             allReactiveMsgs)
-        
+
+        onRestore(function(state){
+            showModal(modalDialog(title = "Session Bookmark", "Please wait while the session is being restored to its bookmarked state.", easyClose = TRUE, footer = NULL))
+            # Reruning the whole server script to restore Bookmarked session
+            shinyjs::delay(3000, {
+            dataSelectorTabPanelObserve(state$input,state$output,session,allReactiveVars,
+                allReactiveMsgs)
+            geneSignalTabPanelObserve(state$input,state$output,session,allReactiveVars,
+                allReactiveMsgs)
+            areaSignalTabPanelObserve(state$input,output,session,allReactiveVars,
+                allReactiveMsgs)  
+            expressionExplorerTabPanelObserve(state$input,output,session,allReactiveVars,
+                allReactiveMsgs)
+            expressionCalculatorTabPanelObserve(state$input,output,session,
+                allReactiveVars,allReactiveMsgs)        
+            diffExprTabPanelObserve(state$input,state$output,session,allReactiveVars,
+                allReactiveMsgs)
+            clusteringTabPanelObserve(state$input,state$output,session,allReactiveVars,
+                allReactiveMsgs)
+            correlationTabPanelObserve(state$input,state$output,session,allReactiveVars,
+                allReactiveMsgs)
+            mdsPcaTabPanelObserve(state$input,state$output,session,allReactiveVars,
+                allReactiveMsgs)
+            genomeBrowserTabPanelObserve(state$input,output,session,allReactiveVars,
+                allReactiveMsgs)
+            showNotification('Restoring bookmarked state...',  duration = 10, type = 'message')
+            })
+        })
     }
 )

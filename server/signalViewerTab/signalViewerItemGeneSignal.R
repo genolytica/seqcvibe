@@ -279,7 +279,7 @@ geneSignalTabPanelEventReactive <- function(input,output,session,
             isolate(input$geneType)
             knownGenes <- as.list(currentGenes$genes)
             names(knownGenes) <- currentGenes$genes
-            customGenes <- as.list(makeGRangesFromDataFrame(
+            customGenes <- makeGRangesFromDataFrame(
                 df=data.frame(
                     chromosome=as.character(customRegions$chromosome),
                     start=as.numeric(customRegions$start),
@@ -288,7 +288,8 @@ geneSignalTabPanelEventReactive <- function(input,output,session,
                     gene_id=as.character(customRegions$name)
                 ),
                 keep.extra.columns=TRUE
-            ))
+            )
+            customGenes <- as.list(split(customGenes, as.factor(customGenes)))
             names(customGenes) <- as.character(customRegions$name)
             theGenes <- c(knownGenes,customGenes)
             progress <- shiny::Progress$new()
