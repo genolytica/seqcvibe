@@ -12,7 +12,7 @@ dataSelectorTabPanelEventReactive <- function(input,output,session,
         currentMetadata$dataset <- input$dataDataset
         allReactiveVars <- clearReactiveVars(allReactiveVars)
     })
-    
+
     updateCurrentMetadata <- eventReactive(input$dataDataset,{
         s <- currentMetadata$source
         d <- input$dataDataset
@@ -462,7 +462,20 @@ dataSelectorTabPanelObserve <- function(input,output,session,
     })
 
     observeEvent(input$showFastqc, {
-        toggleModal(session, "fqc", toggle="toggle")
+        d <- currentMetadata$dataset
+        addResourcePath(d,paste0(getwd(),"/data/",d))
+        showModal(modalDialog(
+            title=paste("Fastq sample quality control for dataset",d),
+            #includeHTML("www/GSE59017_multiqc_report.html")
+            tags$iframe(
+                src=paste0(d,"/",d,"_multiqc_report.html"),
+                width="100%",height=640,
+                #sandbox=paste("allow-forms allow-popups allow-pointer-lock",
+                #   "allow-same-origin allow-scripts allow-top-navigation"),
+                frameborder=0
+            ),
+            size="l"
+        ))
     })
 
 }

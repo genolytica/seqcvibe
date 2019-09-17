@@ -26,19 +26,17 @@ dataSelectorTabPanel <- function() {
                         )
                     )
                 ),column(3,
-                    div(
+                        div(
                         class="pull-left",
+                        tags$head(tags$style(".modal-dialog{ width:1400px}")),
+                        id="Dataset_ID here",
+                        title="MultiQC",
                         actionButton(
                             inputId="showFastqc",
                             label="Dataset FastQC",
-                            icon=icon("truck"),
-                            class="btn-sample-select"
-                        ),
-                        tags$head(tags$style(".modal-dialog{ width:1400px}")),
-                        bsModal(id="fqc", title="FastQC", trigger="click",
-                            includeHTML("www/about.html")
-                        )
-                    )
+                            class="btn-sample-select",
+                            icon=icon("chart-bar")
+                        ))
                 ),column(3,
                     div(
                         class="pull-right",
