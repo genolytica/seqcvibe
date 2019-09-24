@@ -166,11 +166,16 @@ geneSignalTabPanelEventReactive <- function(input,output,session,
             regionValidate["strand"] <- TRUE
             errMsg["strand"] <- "A region strand is required!"
         }
-        if (input$customChr=="") {
-            regionValidate["chrom"] <- TRUE
-            errMsg["chrom"] <- "A region chromosome is required!"
+        # HACK: Temporarily removing this validator
+        #       This selectize input is a rendered UI so it delays takes some more time to be rendered on Restore
+        #       As a result input$customChr won't be set by the time this validator runs and the app breaks
+        #
         
-        }
+        # if (input$customChr=="") {
+        #     regionValidate["chrom"] <- TRUE
+        #     errMsg["chrom"] <- "A region chromosome is required!"
+        
+        # }
         if (input$customStart=="" || as.integer(input$customStart)<=0
             || is.na(suppressWarnings(as.numeric(input$customStart)))) {
             regionValidate["start"] <- TRUE

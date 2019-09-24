@@ -82,7 +82,7 @@ shinyServer(
                 allReactiveMsgs)
             geneSignalTabPanelObserve(state$input,state$output,session,allReactiveVars,
                 allReactiveMsgs)
-            areaSignalTabPanelObserve(state$input,output,session,allReactiveVars,
+            areaSignalTabPanelObserve(state$input,state$output,session,allReactiveVars,
                 allReactiveMsgs)  
             expressionExplorerTabPanelObserve(state$input,output,session,allReactiveVars,
                 allReactiveMsgs)
