@@ -298,7 +298,7 @@ areaSignalTabPanelEventReactive <- function(input,output,session,
                     }
                 }
                 if (length(customRegionsInArea$chromosome)>0) {
-                    customTrans <- as.list(makeGRangesFromDataFrame(
+                    customTrans <- makeGRangesFromDataFrame(
                         df=data.frame(
                             chromosome=
                                 as.character(
@@ -309,7 +309,8 @@ areaSignalTabPanelEventReactive <- function(input,output,session,
                             gene_id=as.character(customRegionsInArea$name)
                         ),
                         keep.extra.columns=TRUE
-                    ))
+                    )
+                    customTrans <- as.list(split(customTrans, as.factor(customTrans)))
                     names(customTrans) <- as.character(customRegions$name)
                 }
                 else
@@ -604,27 +605,20 @@ areaSignalTabPanelObserve <- function(input,output,session,allReactiveVars,
         allReactiveMsgs)
     
     observe({
-        updateTextInput(session,"customChrInArea",label="",
-            value=input$customChrA)
-    })
-    
-    observe({
-        if (length(customRegionsInArea$name)==0)
-            shinyjs::disable("removeCustomRegionInArea")
+        if (isEmpty(input$areaGeneName) && length(customArea$name)==0)
+            shinyjs::disable("createAreaProfile")
         else
-            shinyjs::enable("removeCustomRegionInArea")
+            shinyjs::enable("createAreaProfile")
     })
     
-    observe({
-        addTheCustomRegionInArea()
-        removeTheCustomRegionInArea()
-    })
-    
-    # Trimming textbox
     observe({
         if (input$areaSumStatType!="trimmed") {
             shinyjs::disable("areaTrimPct")
-            shinyjs::enable("createAreaProfile")
+            if (isEmpty(input$areaGeneName) 
+                && length(customArea$name)==0)
+                shinyjs::disable("createAreaProfile")
+            else
+                shinyjs::enable("createAreaProfile")
         }
         else {
             shinyjs::enable("areaTrimPct")
@@ -649,27 +643,45 @@ areaSignalTabPanelObserve <- function(input,output,session,allReactiveVars,
     })
     
     observe({
-        # Engage button status
-        customArea$chromosome <- input$customChrA
-        customArea$start <- input$customStartA
-        customArea$end <- input$customEndA
-        if (any(is.null(customArea$chromosome) || customArea$chromosome=="",
-            is.null(customArea$start) || customArea$start=="",
-            is.null(customArea$end) || customArea$end=="",
-            customArea$start>=customArea$end)
-            && input$areaTypeRadio=="area")
-            shinyjs::disable("createAreaProfile")
+        if (length(customArea$name)==0)
+            shinyjs::disable("removeCustomRegion")
         else
-            shinyjs::enable("createAreaProfile")
+            shinyjs::enable("removeCustomRegion")
+    })
+    
+    # observe({
+    #     customArea$chromosome <- input$customChrA
+    #     customArea$start <- input$customStartA
+    #     customArea$end <- input$customEndA
+    #     if (input$areaTypeRadio=="area"
+    #         && input$addCustomRegionsInAreaCheck==TRUE
+    #         && input$customRegionsFromGeneExplorer=="other")
+    #         if (any(is.null(customArea$chromosome) || customArea$chromosome=="",
+    #         is.null(customArea$start) || customArea$start=="",
+    #         is.null(customArea$end) || customArea$end=="",
+    #         customArea$start>=customArea$end)){
+    #         shinyjs::disable("createAreaProfile")
+    #     }
+    #     else
+    #         shinyjs::enable("createAreaProfile")
+    # })
+
+    observe({
+        updateAreaGeneNames()
+        updateCurrentArea()
     })
     
     observe({
-        updateAreaGeneNames()
+        addTheCustomRegionInArea()
+        removeTheCustomRegionInArea()
+    })
+    
+    observe({
         updateFlanksA()
-        updateCurrentArea()
+        # updateClassColours()
         updateAreaColours()
     })
-
+    
     observe({
         tryCatch({
             shinyjs::disable("createAreaProfile")
