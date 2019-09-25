@@ -33,7 +33,7 @@ dataSelectorTabPanel <- function() {
                         title="MultiQC",
                         actionButton(
                             inputId="showFastqc",
-                            label="Dataset FastQC",
+                            label="Dataset MultiQC",
                             class="btn-sample-select",
                             icon=icon("chart-bar")
                         ))

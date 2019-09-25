@@ -245,12 +245,16 @@ areaSignalTabPanelEventReactive <- function(input,output,session,
                 load(file.path("genome",currentMetadata$genome,
                     "summarized_exon.rda"))
                 loadedGenomes[[currentMetadata$genome]]$dbExon <<- sexon
-                dataSelectorMessages <- updateMessages(
-                    dataSelectorMessages,
-                    type="SUCCESS",
-                    msg=paste(getTime("SUCCESS"),"Genome ",
-                        currentMetadata$genome," exons loaded!", sep="")
-                )
+
+                # Removed this part as it was causing 'createAreaProfile'
+                #   action button to require a second click to run
+                #
+                # dataSelectorMessages <- updateMessages(
+                #     dataSelectorMessages,
+                #     type="SUCCESS",
+                #     msg=paste(getTime("SUCCESS"),"Genome ",
+                #         currentMetadata$genome," exons loaded!", sep="")
+                # )
             }
             isolate(input$areaTypeRadio)
             output$areaExplorerError <- renderUI({div()})
