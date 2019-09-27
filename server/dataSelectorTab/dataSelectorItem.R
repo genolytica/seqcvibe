@@ -21,6 +21,7 @@ dataSelectorTabPanelEventReactive <- function(input,output,session,
         currentMetadata$class <- as.character(dbGetQuery(metadata, paste0("SELECT DISTINCT(class) ",currInd))$class)
         currentMetadata$metadata <- dbGetQuery(metadata, paste0("SELECT * ",currInd))
         currentMetadata$genome <- as.character(dbGetQuery(metadata, paste0("SELECT DISTINCT(genome) ",currInd))$genome)[1]
+        currentMetadata$short_summary <- as.character(dbGetQuery(metadata, paste0("SELECT DISTINCT(short_summary) ",currInd))$short_summary)[1]
         if (!is.na(currentMetadata$genome)
             && is.null(loadedGenomes[[currentMetadata$genome]]$dbGene)) {
             load(file.path("genome",currentMetadata$genome,"gene.rda"))
@@ -283,6 +284,18 @@ dataSelectorTabPanelRenderUI <- function(output,session,allReactiveVars,
         ))
     })
     
+    # Fill short summary
+    output$dataShortSummary <- renderUI({
+        s <- input$dataSource
+        d <- input$dataDataset
+        if (!isEmpty(s) && !isEmpty(d)) {
+            list(
+                h3("Dataset Short Summary"),
+                h5(paste(currentMetadata$short_summary))
+                )
+        }
+    })
+
     output$dataSelectHint <- renderUI({
         s <- input$dataSource
         d <- input$dataDataset

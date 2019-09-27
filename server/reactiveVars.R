@@ -4,6 +4,7 @@ initReactiveVars <- function() {
         dataset=datasets[1],
         class=classes,
         genome=genomes[1],
+        short_summary=short_summary[1],
         metadata=NULL,
         final=NULL
     )

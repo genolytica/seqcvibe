@@ -11,6 +11,11 @@ dataSelectorTabPanel <- function() {
                     htmlOutput("dataGenome")
                 )),
                 fluidRow(column(12,
+                    wellPanel(
+                    htmlOutput("dataShortSummary")
+                    )
+                )),
+                fluidRow(column(12,
                     htmlOutput("dataSelectHint")
                 )),
                 fluidRow(column(12,

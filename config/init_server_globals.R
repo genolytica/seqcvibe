@@ -27,6 +27,8 @@ genomes <- as.character(dbGetQuery(metadata, "SELECT DISTINCT(genome) FROM metad
 
 genome <- genomes[1]
 
+short_summary <- as.character(dbGetQuery(metadata, paste0("SELECT DISTINCT(short_summary) FROM metadata WHERE dataset == '",datasets[1],"'"))$short_summary)
+
 # Load data file hash
 source("config/data_files.R")
 allClasses <- as.character(dbGetQuery(metadata, "SELECT DISTINCT(class) FROM metadata")$class)
