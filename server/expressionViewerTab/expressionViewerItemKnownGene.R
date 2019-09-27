@@ -372,10 +372,10 @@ expressionExplorerTabPanelObserve <- function(input,output,session,
         else {
             geneNames <- loadedGenomes[[currentMetadata$genome]]$geneNames
             g <- isolate({input$selectExpressionGeneName})
-            i <- grep(paste0("^",g),geneNames,perl=TRUE)
+            i <- grep(paste0("^",paste(g,collapse="|")),geneNames,perl=TRUE)
             if (length(i)>0) {
                 updateSelectizeInput(session,"selectExpressionGeneName",
-                    choices=geneNames[i],
+                    choices=geneNames,
                     #selected=input$selectExpressionGeneName,
                     selected=g,
                     server=TRUE

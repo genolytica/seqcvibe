@@ -435,7 +435,7 @@ areaSignalTabPanelReactive <- function(input,output,session,allReactiveVars,
         else{
             geneNames <- loadedGenomes[[currentMetadata$genome]]$geneNames
             g <- isolate({input$areaGeneName})
-            i <- grep(paste0("^",g),geneNames,perl=TRUE)
+            i <- grep(paste0("^",paste(g,collapse="|")),geneNames,perl=TRUE)
             if (length(i)>0) {
                 updateSelectizeInput(session,"areaGeneName",
                     choices=geneNames,

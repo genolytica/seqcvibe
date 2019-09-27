@@ -455,10 +455,10 @@ geneSignalTabPanelReactive <- function(input,output,session,allReactiveVars,
         else {
             g <- isolate({input$geneGeneName})
             geneNames <- loadedGenomes[[currentMetadata$genome]]$geneNames
-            i <- grep(paste0("^",g),geneNames,perl=TRUE)
+            i <- grep(paste0("^",paste(g,collapse="|")),geneNames,perl=TRUE)
             if (length(i)>0) {
                 updateSelectizeInput(session,"geneGeneName",
-                    choices=geneNames[i],
+                    choices=geneNames,
                     selected=g,
                     server=TRUE)
             }

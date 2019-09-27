@@ -370,10 +370,10 @@ clusteringTabPanelObserve <- function(input,output,session,
         else {
             geneNames <- loadedGenomes[[currentMetadata$genome]]$geneNames
             g <- isolate({input$selectClusteringGeneName})
-            i <- grep(paste0("^",g),geneNames,perl=TRUE)
+            i <- grep(paste0("^",paste(g,collapse="|")),geneNames,perl=TRUE)
             if (length(i)>0) {
                 updateSelectizeInput(session,"selectClusteringGeneName",
-                    choices=geneNames[i],
+                    choices=geneNames,
                     selected=g,
                     server=TRUE
                 )
