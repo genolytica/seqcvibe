@@ -101,5 +101,8 @@ shinyServer(
             showNotification('Restoring bookmarked state...',  duration = 10, type = 'message')
             })
         })
+
+        # Excluding unnecessary actions from bookmarking
+        setBookmarkExclude(c("showFastqc","clearDataset"))
     }
 )

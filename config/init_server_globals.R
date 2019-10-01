@@ -18,15 +18,12 @@ metadata <- dbConnect(drv=RSQLite::SQLite(),dbname='data/metadata.sqlite')
 
 # Intialize metadata reactive content
 sources <- as.character(dbGetQuery(metadata, "SELECT DISTINCT(source) FROM metadata")$source)
-
 datasets <- as.character(dbGetQuery(metadata, paste0("SELECT DISTINCT(dataset) FROM metadata WHERE source == '",sources[1],"'"))$dataset)
-
 classes <- as.character(dbGetQuery(metadata, paste0("SELECT DISTINCT(class) FROM metadata WHERE source == '",sources[1],"' AND dataset == '",datasets[1],"'"))$class)
-
 genomes <- as.character(dbGetQuery(metadata, "SELECT DISTINCT(genome) FROM metadata")$genome)
-
 genome <- genomes[1]
-
+title <- as.character(dbGetQuery(metadata, paste0("SELECT DISTINCT(title) FROM metadata WHERE dataset == '",datasets[1],"'"))$title)
+link <- as.character(dbGetQuery(metadata, paste0("SELECT DISTINCT(link) FROM metadata WHERE dataset == '",datasets[1],"'"))$link)
 short_summary <- as.character(dbGetQuery(metadata, paste0("SELECT DISTINCT(short_summary) FROM metadata WHERE dataset == '",datasets[1],"'"))$short_summary)
 
 # Load data file hash
