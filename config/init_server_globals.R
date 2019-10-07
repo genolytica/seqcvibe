@@ -11,10 +11,11 @@ require(RSQLite)
 source("lib/control.R")
 source("lib/util.R")
 
-# Load metadata
+# Load metadata SQLite
 metadata <- dbConnect(drv=RSQLite::SQLite(),dbname='data/metadata.sqlite')
-#metadata <- read.delim("config/metadata.txt")
-#rownames(metadata) <- as.character(metadata$sample_id)
+
+# Load Bookmarks SQLite
+bookmarks <- dbConnect(drv=RSQLite::SQLite(),dbname='data/bookmarks.sqlite')
 
 # Intialize metadata reactive content
 sources <- as.character(dbGetQuery(metadata, "SELECT DISTINCT(source) FROM metadata")$source)

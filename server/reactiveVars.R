@@ -8,7 +8,8 @@ initReactiveVars <- function() {
         title=title[1],
         link=link[1],
         metadata=NULL,
-        final=NULL
+        final=NULL,
+        urlDF = NULL
     )
     
     currentGenes <- reactiveValues(

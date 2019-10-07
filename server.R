@@ -75,7 +75,12 @@ shinyServer(
             allReactiveMsgs)
 
         onRestore(function(state){
-            showModal(modalDialog(title = "Session Bookmark", "Please wait while the session is being restored to its bookmarked state.", easyClose = TRUE, footer = NULL))
+            showModal(modalDialog("Please wait while the session is being restored to its bookmarked state. Remember To 'Clear Dataset' if you want to start over!",
+                title = "Session Bookmark",
+                easyClose = TRUE,
+                footer = NULL,
+                fade = TRUE
+            ))
             # Reruning the whole server script to restore Bookmarked session
             shinyjs::delay(3000, {
             dataSelectorTabPanelObserve(state$input,state$output,session,allReactiveVars,
@@ -101,8 +106,7 @@ shinyServer(
             showNotification('Restoring bookmarked state...',  duration = 10, type = 'message')
             })
         })
-
         # Excluding unnecessary actions from bookmarking
-        setBookmarkExclude(c("showFastqc","clearDataset"))
+        setBookmarkExclude(c("bookmarkBtn","showFastqc","clearDataset","deleteBM"))
     }
 )
