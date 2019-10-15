@@ -95,9 +95,9 @@ shinyServer(
                 allReactiveVars,allReactiveMsgs)        
             diffExprTabPanelObserve(state$input,state$output,session,allReactiveVars,
                 allReactiveMsgs)
-            clusteringTabPanelObserve(state$input,state$output,session,allReactiveVars,
+            clusteringTabPanelObserve(state$input,output,session,allReactiveVars,
                 allReactiveMsgs)
-            correlationTabPanelObserve(state$input,state$output,session,allReactiveVars,
+            correlationTabPanelObserve(state$input,output,session,allReactiveVars,
                 allReactiveMsgs)
             mdsPcaTabPanelObserve(state$input,state$output,session,allReactiveVars,
                 allReactiveMsgs)

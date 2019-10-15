@@ -884,62 +884,64 @@ $(document).ready(function () {
 
 <div id="overview" class="section level1">
 <h1>Overview</h1>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-<div id="program-overview" class="section level2">
-<h2>Program Overview</h2>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+<p>Analyzing and visualizing an RNA-Seq analysis entirely is quite a demanding task. There is a wide range of tools required in the process of depicting all the significant information produced by an experiment. In almost all cases they have to be combined in a well-orchestrated way in order for a complete picture to be drawn and a full image of the analysis to be delivered, as there is no such thing as a ‘swiss army knife’ for this process. SeqCVIBE does exactly that!</p>
+<div id="seqcvibe-overview" class="section level2">
+<h2>SeqCVIBE Overview</h2>
+<p>SeqCVIBE is an R-shiny tool that aggregates all the analyses involved in an RNA-Seq experiment in a well-organized and clear maner. The user can select an analysis from a variety of experimental designs derived from two of the most enriched dataset repositories, Gene Expression Omnibus (GEO) and European Nucleotide Archive (ENA). These experiments cover areas like profiling of genes involved in cancer or other neurological diseases, organ evolution, stem cell expression signature profiling etc.</p>
+<p>These analyses are fully configurable allowing the user to control every parameter in very simple steps, especially compared to the often confusing way a command line tool works. In addition to that, all analyses are reproducible and can be easily shared across a group of users who can pick-up from any given point and move on anyway they prefer.</p>
 </div>
 </div>
 <div id="data-selector" class="section level1">
 <h1>Data Selector</h1>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+<p>The ‘Data Selector’ tab is the root of the analysis. The user is prompted to select one of the available experiments to analyze. The datasets are sourced from two of the largest databases, GEO and ENA. After selection, the dataset is loaded and some basic information about the dataset are being displayed. At this point, SeqCVIBE is ready to use.</p>
 <div id="input-data-selection" class="section level2">
 <h2>Input data selection</h2>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-</div>
-<div id="dataset-creation" class="section level2">
-<h2>Dataset creation</h2>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+<p>The first step of any analysis is the dataset selection. This panel allows the user to select an input from one of the currently available sources. Each source has its own bunch of datasets and each dataset has a reference species genome which is always automatically selected based on the dataset. The option to select a dataset based on the reference genome is not provided at the moment.</p>
+<p>Once the selection is made, the relevant short summary of the experiment will appear right below. Clicking on the title will redirect the user to the relevant GEO or ENA page were the analysis design and details are more thoroughly described.</p>
+<p>Loading the dataset allows for exclusion of specific samples per condition or exclusion of all samples belonging to a single condition of the experiment. This way, the user has the ability to create a fully customizeable dataset.</p>
+<p>After a dataset is loaded, the option to inspect its quality is enabled with MultiQC. By clicking on ‘Dataset MultiQC’ a pop-up presenting an aggregated analysis of all quality metrics for all samples of the dataset will appear. This inspection can prove essential in the selection or exclusion of samples to be included in the final dataset based on specific properties the user might find significant.</p>
+<p>When the dataset selections are made the user can hit the ‘Create dataset’ button to finalize the dataset. This will “lock” the sample options and all specific inclusions applied and will set the base for all follow-up analyses. The included samples of the final dataset will be displayed in the tab on the right named ‘Current dataset’. After this point, anytime the user wants to run a fresh analysis with a new dataset they have to ‘Clear dataset’ and start over again.</p>
 </div>
 <div id="bookmark-application" class="section level2">
 <h2>Bookmark application</h2>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+<p>Bookmark’s purpose is quite straight-forward. It places a bookmark in every tab and every visualization of the current status of SeqCVIBE, and allows for easy restore to that checkpoint at anytime. In other words it generates a save screenshot which can be loaded by any user of the group. At the end of the analysis the user has to enter a name for the bookmark and click the ‘Add Bookmark’ button. Then the bookmark will be added to the list of available bookmarks and any user will have the ability to restore it to its current state by clicking on the relevant URL. After the bookmarked state is fully loaded, users can make additional changes and save the analysis on top of the previous bookmark.</p>
 </div>
 </div>
 <div id="signal-viewer" class="section level1">
 <h1>Signal viewer</h1>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+<p>The Signal viewer allows for visual representation of one or more genomic regions of interest with referece to normalized signal. There are two options available. Gene Signal and Area Signal</p>
 <div id="gene-signal" class="section level2">
 <h2>Gene signal</h2>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+<p>Gene signal plots the combined normalized signal of the selected gene(s) features/conditions. The user can select plotting input between specific genes by their name, or by a custom input genomic region. Further down they can optionally change the upstream and downstream regions to be plotted, select the different colours for each feature/condition of the experiment and finally, select one method for the gene profile averaging among Mean, Median and Trimmed mean. It the last case, the trim’s fraction can be manually defined.</p>
+<p>By hitting the ‘Engage’ button the signal of all the selected genes and custom areas will be calculated and averaged. Once calculations are complete the plot will appear in the center of the tab. If there’s more than one selection of gene or custom region (or both) to be displayed, an equivalent number of plots will be displayed in the same tab.</p>
 <div id="gene-plotting" class="section level3">
 <h3>Gene plotting</h3>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+<p>Giving a gene input is very simple. By clicking on the space below ‘Plot data’ a drop-down menu of all known gene names of the concerning experiment species will appear. The search box supports smart-input method which allows for fastest searching of a specific gene. Alternatively, the user can always input the gene name they are considering, however this is not adviced due to the fact that gene name is case sensitive. If the gene is selected successfully it will be displayed as a new entry in the below table. There, its genomic coordinates will be also displayed.</p>
 </div>
 <div id="custom-region-plotting" class="section level3">
 <h3>Custom region plotting</h3>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+<p>Other than plotting a specific gene region there is an option to plot a custom genomic area of interest, by selecting the ‘Custom’ tab in the ‘Plot data’ panel. The user will be prompted to fill in the requested area coordinates, like chromosome number, start-end position of the area and strand. The given area should be alo given a unique name to be separated from any other regions that may be entered. The ‘Add’ and ‘Remove’ buttons below allow for the addition of a new region to the table of regions to be plotted or the removal of the selected ones.</p>
 </div>
 </div>
 <div id="area-signal" class="section level2">
 <h2>Area signal</h2>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+<p>What’s the difference between gene signal?….</p>
 <div id="custom-genomic-area" class="section level3">
 <h3>Custom genomic area</h3>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+<p>What’s the difference between gene signal?….</p>
 </div>
 <div id="around-gene-area" class="section level3">
 <h3>Around gene area</h3>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+<p>What’s the difference between gene signal?….</p>
 </div>
 </div>
 <div id="plot-options" class="section level2">
 <h2>Plot options</h2>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+<p>Plot options are to a large extend identical between Gene signal and Area signal plotting. First option is the flanking region limits. Presets are 2000 base-pairs upstream and downstream the region of interest. Other plotting options include selecting a color for every condition of the experiment and finally, selecting a method to be used in the profile averaging of the area to-be-plotted. These methods include Mean signal, Signal median and the trimmed mean. In the latter case the user can select the fraction to be trimmed from the dataset manually. Here, it’s worth noting that these options are relevant to their own tab selection and are therefore separate between area and gene signal plotting.</p>
 </div>
 <div id="exporting-plot" class="section level2">
 <h2>Exporting plot</h2>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+<p>There are currently three ways a user can export a plot. The ‘Export ggplot2’ method exports a .Rda file. This file can be loaded in R (<em>load(file=‘file.rda’)</em>) and allow a user with relevant experience to further modify the exported visualization. Alternative exporting options are in the png and pdf file formats. All exports are stored by default in the system’s dedicated ‘Downloads’ directory. These exporting options are common across all other plot panels.</p>
 </div>
 </div>
 <div id="expression-viewer" class="section level1">
