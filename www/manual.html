@@ -909,7 +909,7 @@ $(document).ready(function () {
 </div>
 <div id="signal-viewer" class="section level1">
 <h1>Signal viewer</h1>
-<p>The Signal viewer allows for visual representation of one or more genomic regions of interest with referece to normalized signal. There are two options available. Gene Signal and Area Signal</p>
+<p>The Signal viewer allows for visual representation of one or more genomic regions of interest with referece to normalized signal. There are two options available. Gene Signal and Area Signal.</p>
 <div id="gene-signal" class="section level2">
 <h2>Gene signal</h2>
 <p>Gene signal plots the combined normalized signal of the selected gene(s) features/conditions. The user can select plotting input between specific genes by their name, or by a custom input genomic region. Further down they can optionally change the upstream and downstream regions to be plotted, select the different colours for each feature/condition of the experiment and finally, select one method for the gene profile averaging among Mean, Median and Trimmed mean. It the last case, the trim’s fraction can be manually defined.</p>
@@ -925,14 +925,14 @@ $(document).ready(function () {
 </div>
 <div id="area-signal" class="section level2">
 <h2>Area signal</h2>
-<p>What’s the difference between gene signal?….</p>
+<p>The Area signal works in a similar manner to the Gene signal utility. It’s difference lies in the display style of the results which is of a wider area than what’s just covered by the gene and resembles that of a genome browser. It can also plot multiple genes in a region without separating the plots for every region, like it happens with the Gene signal option.</p>
 <div id="custom-genomic-area" class="section level3">
 <h3>Custom genomic area</h3>
-<p>What’s the difference between gene signal?….</p>
+<p>Custom genomic area will visualize a whole chromosomal region of interest input by the user. By default Known genes overlaping the given area will be automatically detected. However, if the user wants any specific regions of interest to be also included to the automatic detection, along with the known genes, they just have to click on the option “Include custom transcribed areas” and provide the desired regions either by chosing to include the gene explorer entries, or by manually inserting the custom regions.</p>
 </div>
 <div id="around-gene-area" class="section level3">
 <h3>Around gene area</h3>
-<p>What’s the difference between gene signal?….</p>
+<p>This options resembles the ‘Gene signal’ to a great extend as it plots the requested genomic area that is centered around a specific gene of interest. The gene can be selected from the drop-down menu right below, while the upstream and downstream limits of the plot can be given from the ‘Flanking’ options bars</p>
 </div>
 </div>
 <div id="plot-options" class="section level2">
@@ -946,72 +946,84 @@ $(document).ready(function () {
 </div>
 <div id="expression-viewer" class="section level1">
 <h1>Expression viewer</h1>
+<p>The expression viewer tab is a presentation of the features count table, which is the backbone of a differential expression analysis in an RNA-Seq experiment. The table demonstrates the expression measurements for the input selection of genes or genomic regions. Two tables will be displayed after the selections are made. The top one shows expression measurements for the first ordered condition of the experiment (usually the wild-type) and the bottom one shows the equivalent measurements for the 2nd condition.</p>
+<p>The first column of the table is the name of the gene or the selected region, the second is the mean (by default) averaged expression and the third is the expression deviation between samples. Default deviation measure is the standard deviation. If the experiment contains more than two conditions, an equivalent number of additional tables will be displayed.</p>
 <div id="known-genes-expression" class="section level2">
 <h2>Known genes expression</h2>
+<p>First option of the Expression viewer is the ‘Known genes’. This will allow the user to obtain a table measuring expression of a single gene, a custom set of genes, or even all genes of the studied organism. The input genes can be selected either from the given list of known gene names of the organism, or as a custom gene name input, where every entry is separated by a new line. Finally, there is also the choice of viewing expression for all genes, if the third option is clicked.</p>
 </div>
 <div id="expression-calculator" class="section level2">
 <h2>Expression calculator</h2>
+<p>The expression calculator works the exact same way as the ‘Known genes’, the only difference being that the user needs to give a pre-defined genomic region as input. There are two ways this can be done. Either with the gene explorer or the custom regions. Genomic regions given to the gene explorer will be used to produce the expression tables in the first scenario. Alternatively, if the user selects ‘Custom regions’ an input area will appear right below where they can input the genomic coordinates they wish to inspect and click the ‘Add’ button. All added entries will appear in the mini-table below. Hitting the ‘Engage’ button will generate the requested tables.</p>
 </div>
 <div id="expression-settings" class="section level2">
 <h2>Expression settings</h2>
+<p>There are a number of configurable parameters the user can play with to create a desired output expression table. First one has to do with how the RNA-Seq expression will be measured. There are three available options here: Raw counts is the raw number of gene/genomic area observations in each conditions. RPKM and RPGM refer to the Reads Per Kilobase/Gigabase of transcript, per Million mapped reads. It is a normalized unit of transcript expression which scales by transcript length to compensate for the fact that most RNA-seq protocols will generate more sequencing reads from longer RNA molecules. Second option is a scaling setting for the expression measure. The user gets to select between Natural and log2 scale. Log2 scale is usually preferable as it models proportional changes rather than additive changes. This is typically biologically more relevant. Next is the selection of the expression measure averaging method. Available options are ‘Mean’ and ‘Median’ Lastly, there is the expression deviation measure selection. Here the user can select among three methods by which the deviation of expression between the samples will be measured: Standard deviation, Mean absolute deviation and Interquartile range.</p>
 </div>
 <div id="exporting-table" class="section level2">
 <h2>Exporting table</h2>
+<p>The resulting table can be exported in different ways. Cells of the resulting tables can be selected by clicking on them. Buttons below each table control what you can do with the selection. ‘Clear selection’ removes all selected rows from the final selection. ‘Invert selection’ will include all non-selected rows to the final selection. When selection set has been finalized the user can click on ‘Export selection’ to obtain a csv file with all the configured information. At any case, the option ‘Export all’ allows the user to export the whole dataset of gene expression. Exported tables and their settings are unique per condition.</p>
 </div>
 </div>
 <div id="analysis" class="section level1">
 <h1>Analysis</h1>
+<p>Analysis tab is the most essential as it is a toolkit for complete visualization of an RNA-Seq data experiment. The four visualizations provided include Differential expression, Clustering analysis, Correlation analysis and MDS/PCA analysis.</p>
 <div id="differential-expression-analysis" class="section level2">
 <h2>Differential Expression analysis</h2>
+<p>Differential expression analysis means taking the normalised read count data and performing statistical analysis to discover quantitative changes in expression levels between experimental groups. For example, in a typical experiment statistical testing would bee used to decide whether, for a given gene, an observed difference in read counts is significant, that is, whether it is greater than what would be expected just due to natural random variation.</p>
 <div id="pipeline-settings" class="section level3">
 <h3>Pipeline settings</h3>
+<p>General settings of the analysis include the following: First, the analysis pipeline that will be used. This only changes the tool that runs the analysis, which means there is a slight differentiation in the algorithm. However the results will not vary significantly. The three widely used tools that are included in the available options are DESeq, edgeR and voom. Further down, the user has to select which condition of the experiment will be used as control for the analysis, the multiple testing correction method and when will the selected filters (next tab) be applied to the results (before or after the normalization process). Last setting is the inclusion of the custom regions from the expression calculator to the analysis results. If the tick box is clicked the results will include expression measurements for the custom regions. Filtering settings, on the tab on the right will be applied to the analysis after it is complete, or beforehand, depending on the user’s choice in the General settings tab. Basic gene filter options include Mean/Median expression, qualtile and known genes. If quantile gene filter is selected user will be prompted to fill in the desired percentile which will be used to filter genes. In the case of ‘known genes’ a drop-down list will appear with all the species specific genes. Users selections will restrict the results to only those genes selected. Additional filtering options include filtering a gene by its size in base-pairs and by specific biotype.</p>
 </div>
-<div id="results-table-settings" class="section level3">
-<h3>Results table settings</h3>
+<div id="results-table" class="section level3">
+<h3>Results table</h3>
+<p>When the analysis is complete an MA plot will appear in the central panel of SeqCVIBE along with the results table right below. The table contains four tabs, first of which is the ‘Summary’. This contains all the basic information about the outcome of the analysis. It consists of the following columns: gene_name, the p-value of the findings for that gene, the false discovery rate, the expression ratio between different conditions of the experiment and lastly the mean and standard deviation counts for each condition. Second tab is the annotation tab. It provides a table with the genomic coordinates of each differentially expressed gene and its biotype description. Flags tab #################################################### . The last tab provides the option of combining all the aforementioned tables in one. Results table can be further configured with the ‘Results table settings’ panel. The user can control which significant gene hits will show up by choosing a threshold for one of the following measures: p-value, FDR or fold change. Post analysis filtering is vailable on the ‘Filters’ tab which is next. A mix of gene_name, chromosome and biotype filters can be applied to further narrow down the results to something more meaningful to the user. Scale tab will allow for configuration of the measures used in the results table. By default, summary value components will be the gene counts, however RPKM and RPGM are also available. Similarly, the user might switch between natural and log2 count for the differential expression ratio, mean or median for averaging and sd, median absolute deviation or interquartile range for intra-sample deviation. The table can be fully or selectively exported, just like with the Expression viewer table.</p>
 </div>
 <div id="plot-options-1" class="section level3">
 <h3>Plot options</h3>
+<p>The resulting MA plot will appear after the analysis is complete. If real time table update is ticked, selecting an area of the plot will immediately reduce the results table only to the genes of interest contained in that area. By default gray spots indicate a gene that is not differentially expressed, red ones indicate an overregulated gene while greens indicate a downregulated one. Colouring options are available for all three categories in the ‘Plot colors’ panel.</p>
 </div>
 </div>
 <div id="clustering-analysis" class="section level2">
 <h2>Clustering analysis</h2>
+<p>Clustering analysis is a classification algorithm that aims to group the set of samples included in the final dataset in order to create a set of sample obects where each are similar within the same cluster and dissimilar to samples in other clusters. It helps visualizing the intra-sample diversity of the datasets and helps determine if each of the experiment conditions are separated in well-differentiated categories. Clusteringsettings allow for the customization of the resulting heatmap.</p>
 <div id="gene-settings" class="section level3">
 <h3>Gene settings</h3>
+<p>Gene settings tab allows the user to control which genes will be used to produce the heatmap. They can either be custom genes/regions or a specified gene list or just the genes that were found to be differentially expressed (if a DE analysis has already ran. Next filter is the Clustering variable selection. The user has to choose one of the available variables that will be used to define the clusters of the analysis. An expression measurment filter is also available here, allowing for normalized counts vs RPKM vs RPGM measure or log2 expression scaling vs Natural coount.</p>
 </div>
 <div id="heatmap-settings" class="section level3">
 <h3>Heatmap settings</h3>
+<p>Heatmap settings determine the mathematical parameters of the visualization. The first choice defines the metric that will be used to define the clusters distance. Default option is the Euclidean distance. Right below the user gets to select the linkage function that will be used to provide the relevant dendrogram of the resulting clusters. The default here is Average linkage. The clustering dimensions can also be modified right below along with the plot colors.</p>
 </div>
 </div>
 <div id="correlation-analysis" class="section level2">
 <h2>Correlation analysis</h2>
-<div id="gene-settings-1" class="section level3">
-<h3>Gene settings</h3>
-</div>
-<div id="correlation-settings" class="section level3">
-<h3>Correlation settings</h3>
-</div>
-<div id="plot-options-2" class="section level3">
-<h3>Plot options</h3>
+<p>Correlation analysis will give an insight on how strong the relation is between samples included in the dataset in terms of their specific gene expression measurements or between gene expression levels among samples.</p>
+<div id="settings" class="section level3">
+<h3>Settings</h3>
+<p>Before starting the analysis the gene settings will have to be configured first. First option has to do with what set of expressed genes will be used to calculate the correlation metric. The user can select all genes with non-zero counts, which is usually not feasible due to the large number of genes that will delay the calculations significantly, all expressed genes, which requires a differential expression analysis to have already run, a custom gene list, or a custom selection of genes from the available drop-down box. Expression measurement settings will affect how the counts will be measured in the ‘Data matrix’ table below the correlation plot (see additional matrices). Correlation settings will determine the type of the expression correlation. ‘Sample-wise’ will correlate all samples based on their overall gene expression levels, ‘Gene-wise’ will correlate all genes given in the input list provided and ‘Reference gene-wise’ will calculate the correlation based on a given reference gene of interest. Lastly, the correlation method can be selected next and can either be Pearson’s or Spearman’s. Finally the panel to the left is the color selection panel. There correlation intensity colors can be selected manually and the resulting plots can be exported in PNG or PDF format.</p>
 </div>
 <div id="additional-matrices" class="section level3">
 <h3>Additional matrices</h3>
+<p>Right under the main correlation plot three additional supporting visualization will be displayed after a successfully complete correlation analysis. From left to right there’s the MDS plot giving a quick look on how well differentiated the samples are based on the genes selected for correlation. The middle table is the correlation matrix which shows the relevant correlation measures for the selected samples. The last table is more of a supporting data matrix which demonstrates the gene expression measures for the selected genes. These threee visualizations combined can give a well-concentrated amount of information for the selected gene set.</p>
 </div>
 </div>
 <div id="mdspca-analysis" class="section level2">
 <h2>MDS/PCA Analysis</h2>
-<div id="gene-settings-2" class="section level3">
-<h3>Gene settings</h3>
-</div>
-<div id="mdspca-settings" class="section level3">
-<h3>MDS/PCA settings</h3>
+<p>The goal of MDS Analysis analysis is to detect meaningful underlying dimensions that allow the user to explain observed similarities or dissimilarities (distances) between the investigated samples. Principal component analysis (PCA) is one of the commonly used statistical technique for finding patterns in data of high dimensions and expressing the data in such a way as to highlight their similarities and differences.</p>
+<div id="settings-1" class="section level3">
+<h3>Settings</h3>
+<p>Gene settings here, as in previous analysis tabs, are related to gene set selection and what expression measure and scale will be used for determining the intra-sample distances and patterns. ‘MDS/PCA’ tab sets the variance projection method that will be used between the two. Based on this selection, the relevant settings will appear right below. MDS settings allow for the selection of the (dis)similarity metric and the number of dimensions to be included. PCA settings allow selecting whether to scale the values or center them. The resulting plots can be exported as R objects as well, appart from PNG or PDF.</p>
 </div>
 <div id="coordinate-plotting" class="section level3">
 <h3>Coordinate plotting</h3>
+<p>Coordinate plotting sets which two principal components or coordinates will be used in the plot and in which axis. Additional settings further down enable point names in the resulting plot or highlighting of any set of genes that might be of interest.</p>
 </div>
 </div>
 </div>
 <div id="genome-browser" class="section level1">
 <h1>Genome browser</h1>
+<p>pending…</p>
 </div>
 
     </div>
