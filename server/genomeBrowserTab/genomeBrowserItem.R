@@ -30,9 +30,9 @@ genomeBrowserTabPanelObserve <- function(input,output,session,allReactiveVars,
     allReactiveMsgs) {
     currentMetadata <- allReactiveVars$currentMetadata
     
-    genomeBrowserTabPanelReactiveEvents <- 
-        diffExprTabPanelEventReactive(input,output,session,
-            allReactiveVars,allReactiveMsgs)
+    #genomeBrowserTabPanelReactiveEvents <- 
+    #    diffExprTabPanelEventReactive(input,output,session,
+    #        allReactiveVars,allReactiveMsgs)
             
     genomeBrowserTabPanelReactive <- diffExprTabPanelEventReactive(input,output,
         session,allReactiveVars,allReactiveMsgs)
