@@ -27,6 +27,9 @@ dirSort <- function(dataset) {
     }
   }
   unlink(paste0(dataset,"/fastq/"), recursive = T)
+  unlink(paste0(dataset,"/fastqc/"), recursive = T)
+  unlink(paste0(dataset,"/fastq_trim/"), recursive = T)
+  unlink(paste0(dataset,"/fastqc_trim/"), recursive = T)
   unlink(paste0(dataset,"/multiqc/"), recursive = T)
   unlink(paste0(dataset,"/hisat2_out/"), recursive = T)
   unlink(paste0(dataset,"/metaseqR_out/"), recursive = T)
