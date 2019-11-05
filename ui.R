@@ -6,6 +6,7 @@ require(shinyBS)
 
 source("config/init_server_globals.R")
 source("ui/dataSelectorTab/dataSelectorItem.R")
+source("ui/dataSelectorTab/sessionLoaderItem.R")
 source("ui/signalViewerTab/signalViewerItemGeneSignal.R")
 source("ui/signalViewerTab/signalViewerItemAreaSignal.R")
 source("ui/expressionViewerTab/expressionViewerItemKnownGenes.R")
@@ -74,9 +75,14 @@ shinyUI(function(request) fluidPage(
     navbarPage(
         id="seqcnavbar",
         title="SeqCVIBE",
-        tabPanel("Data selector",icon=icon("database"),
-            dataSelectorTabPanel()
-        ),
+        navbarMenu("Data management",icon=icon("database"),
+			tabPanel("Data selector",icon=icon("pencil-square-o"),
+				dataSelectorTabPanel()
+			),
+			tabPanel("Sessions",icon=icon("television"),
+				sessionLoaderTabPanel()
+			)
+		),
         navbarMenu("Signal viewer",icon=icon("signal"),
             tabPanel("Gene signal",icon=icon("bar-chart"),
                 geneSignalTabPanel()

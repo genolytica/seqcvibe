@@ -10,6 +10,7 @@ shinyServer(
         # Load SeqCVIBE libs
         source("server/reactiveVars.R",local=TRUE)
         source("server/dataSelectorTab/dataSelectorItem.R",local=TRUE)
+        source("server/dataSelectorTab/sessionLoaderItem.R",local=TRUE)
         source("server/signalViewerTab/signalViewerItemGeneSignal.R",local=TRUE)
         source("server/signalViewerTab/signalViewerItemAreaSignal.R",local=TRUE)
         source("server/expressionViewerTab/expressionViewerItemKnownGene.R",
@@ -36,6 +37,10 @@ shinyServer(
         
         # Data selector
         dataSelectorTabPanelObserve(input,output,session,allReactiveVars,
+            allReactiveMsgs)
+            
+        # Session loader
+        sessionLoaderTabPanelObserve(input,output,session,allReactiveVars,
             allReactiveMsgs)
         
         # Signal viewer - Gene signal
