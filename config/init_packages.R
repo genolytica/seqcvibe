@@ -33,5 +33,7 @@ initPackages <- function(session) {
     # require(d3heatmap)
     updateFtProgress(value=8,detail="Loading heatmaply")
     require(heatmaply)
+    updateFtProgress(value=9,detail="Loading data.table")
+    require(data.table)
     #require(plotly)
 }
