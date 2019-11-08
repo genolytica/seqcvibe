@@ -23,12 +23,13 @@ datasets <- as.character(dbGetQuery(metadata, paste0("SELECT DISTINCT(dataset) F
 classes <- as.character(dbGetQuery(metadata, paste0("SELECT DISTINCT(class) FROM metadata WHERE source == '",sources[1],"' AND dataset == '",datasets[1],"'"))$class)
 genomes <- as.character(dbGetQuery(metadata, "SELECT DISTINCT(genome) FROM metadata")$genome)
 genome <- genomes[1]
-title <- as.character(dbGetQuery(metadata, paste0("SELECT DISTINCT(title) FROM metadata WHERE dataset == '",datasets[1],"'"))$title)
-link <- as.character(dbGetQuery(metadata, paste0("SELECT DISTINCT(link) FROM metadata WHERE dataset == '",datasets[1],"'"))$link)
-short_summary <- as.character(dbGetQuery(metadata, paste0("SELECT DISTINCT(short_summary) FROM metadata WHERE dataset == '",datasets[1],"'"))$short_summary)
+title <- as.character(dbGetQuery(metadata, paste0("SELECT DISTINCT(title) FROM summaries WHERE dataset == '",datasets[1],"'"))$title)
+link <- as.character(dbGetQuery(metadata, paste0("SELECT DISTINCT(link) FROM summaries WHERE dataset == '",datasets[1],"'"))$link)
+short_summary <- as.character(dbGetQuery(metadata, paste0("SELECT DISTINCT(short_summary) FROM summaries WHERE dataset == '",datasets[1],"'"))$short_summary)
 
 # Load data file hash
-source("config/data_files.R")
+load("data/dataFiles.RData")
+# source("config/data_files.R")
 allClasses <- as.character(dbGetQuery(metadata, "SELECT DISTINCT(class) FROM metadata")$class)
 baseColours <- c("#B40000","#00B400","#0000B4","#B45200","#9B59B6","#21BCBF",
     "#BC4800","#135C34","#838F00","#4900B5")
