@@ -353,8 +353,7 @@ dataSelectorTabPanelRenderUI <- function(output,session,allReactiveVars,
                             )
                         ),
                         conditionalPanel(
-                            condition=paste("input.sampleSelectType_",x,
-                                "=='custom'",sep=""),
+                            condition=paste("input['sampleSelectType_",x,"']=='custom'",sep=""),
                             div(
                                 class="small table-container",
                                 DT::dataTableOutput(paste("classTable",x,
