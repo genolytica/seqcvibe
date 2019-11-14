@@ -52,13 +52,29 @@ diffExprTabPanelEventReactive <- function(input,output,session,
         rownames(ann) <- ann$gene_id
         
         # Counts
-        M <- loadedData[[s]][[d]]$counts[rownames(ann),samples]
-        len <- loadedData[[s]][[d]]$length[rownames(ann)]
+        # M <- loadedData[[s]][[d]]$counts[rownames(ann),samples]
+        # len <- loadedData[[s]][[d]]$length[rownames(ann)]
+
+        # HACK - indexing D (counts table) to exclude gene names not present in dbGene (rda)
+        # This issue appears only in some mm10 datasets
+        finalNames <- intersect(rownames(ann),rownames(loadedData[[s]][[d]]$counts))
+        M <- loadedData[[s]][[d]]$counts[finalNames,samples]
+        len <- loadedData[[s]][[d]]$length[finalNames]
+        ann <- ann[which(finalNames %in% rownames(ann)),]
+
+
         ann <- cbind(ann,len)
+        assign("len",len,envir=.GlobalEnv)
+        assign("ann",ann,envir=.GlobalEnv)
         names(ann)[ncol(ann)] <- "active_length"
         
+        
+
+
         # Final annotation
         ann <- rbind(ann,addAnn)
+
+        #assign("ann",ann,envir=.GlobalEnv)
         
         # Custom counts
         A <- NULL
@@ -69,6 +85,8 @@ diffExprTabPanelEventReactive <- function(input,output,session,
             }
         }
         M <- rbind(M,A)
+
+        assign("M",M,envir=.GlobalEnv)
         
         # Final feed to metaseqr
         D <- cbind(ann,M)
@@ -167,6 +185,8 @@ diffExprTabPanelEventReactive <- function(input,output,session,
             progress$set(value=value,detail=detail)
         }
         
+        assign("D",D,envir=.GlobalEnv)
+
         pipOutput <- tryCatch(
             metaseqr(
                 counts=D,
