@@ -18,12 +18,13 @@ dataSelectorTabPanelEventReactive <- function(input,output,session,
         d <- input$dataDataset
         currentMetadata$dataset <- d
         currInd <- paste0("FROM metadata WHERE source == '",s,"' AND dataset == '",d,"'")
+        summInd <- paste0("FROM summaries WHERE dataset == '",d,"'")
         currentMetadata$class <- as.character(dbGetQuery(metadata, paste0("SELECT DISTINCT(class) ",currInd))$class)
         currentMetadata$metadata <- dbGetQuery(metadata, paste0("SELECT * ",currInd))
         currentMetadata$genome <- as.character(dbGetQuery(metadata, paste0("SELECT DISTINCT(genome) ",currInd))$genome)[1]
-        currentMetadata$short_summary <- as.character(dbGetQuery(metadata, paste0("SELECT DISTINCT(short_summary) ",currInd))$short_summary)[1]
-        currentMetadata$title <- as.character(dbGetQuery(metadata, paste0("SELECT DISTINCT(title) ",currInd))$title)[1]
-        currentMetadata$link <- as.character(dbGetQuery(metadata, paste0("SELECT DISTINCT(link) ",currInd))$link)[1]
+        currentMetadata$short_summary <- as.character(dbGetQuery(metadata, paste0("SELECT DISTINCT(short_summary) ",summInd))$short_summary)[1]
+        currentMetadata$title <- as.character(dbGetQuery(metadata, paste0("SELECT DISTINCT(title) ",summInd))$title)[1]
+        currentMetadata$link <- as.character(dbGetQuery(metadata, paste0("SELECT DISTINCT(link) ",summInd))$link)[1]
         if (!is.na(currentMetadata$genome)
             && is.null(loadedGenomes[[currentMetadata$genome]]$dbGene)) {
             load(file.path("genome",currentMetadata$genome,"gene.rda"))
@@ -352,8 +353,7 @@ dataSelectorTabPanelRenderUI <- function(output,session,allReactiveVars,
                             )
                         ),
                         conditionalPanel(
-                            condition=paste("input.sampleSelectType_",x,
-                                "=='custom'",sep=""),
+                            condition=paste("input['sampleSelectType_",x,"']=='custom'",sep=""),
                             div(
                                 class="small table-container",
                                 DT::dataTableOutput(paste("classTable",x,

@@ -34,25 +34,46 @@ sessionLoaderTabPanelObserve <- function(input,output,session,
 
     observeEvent(input$bookmarkBtn, {
         session$doBookmark()
-        sessionLoaderMessages <- updateMessages(
-            sessionLoaderMessages,
-            type="SUCCESS",
-            msg=paste(getTime("SUCCESS"),
-                "Bookmark ",input$description," created",sep="")
-        )
+        showNotification(
+            paste(
+                getTime("SUCCESS:"),
+                "Bookmark: '",
+                input$description,
+                "' created",sep=""
+            ),  
+            duration = 5, 
+            type = 'message')
+        # sessionLoaderMessages <- updateMessages(
+        #     sessionLoaderMessages,
+        #     type="SUCCESS",
+        #     msg=paste(getTime("SUCCESS"),
+        #         "Bookmark ",input$description," created",sep="")
+        # )
     })
 
     observeEvent(input$deleteBM,{
         if (!is.null(input$urlTable_rows_selected)) {
-            sessionLoaderMessages <- updateMessages(
-                sessionLoaderMessages,
-                type="SUCCESS",
-                msg=paste(getTime("SUCCESS"),
-                    "Bookmark(s) ",
-                    paste(currentMetadata$urlDF$Description[as.numeric(
-						input$urlTable_rows_selected)],collapse=", "),
-						" removed",sep="")
-                )
+            showNotification(
+                paste(
+                    getTime("SUCCESS:"),
+                    "Bookmark(s): '",
+                    paste(
+                        currentMetadata$urlDF$Description[as.numeric(input$urlTable_rows_selected)],
+                        collapse=", "
+                    ),
+                    "' removed",sep=""
+                ),  
+                duration = 5, 
+                type = 'message')
+      #       sessionLoaderMessages <- updateMessages(
+      #           sessionLoaderMessages,
+      #           type="SUCCESS",
+      #           msg=paste(getTime("SUCCESS"),
+      #               "Bookmark(s) ",
+      #               paste(currentMetadata$urlDF$Description[as.numeric(
+						# input$urlTable_rows_selected)],collapse=", "),
+						# " removed",sep="")
+      #           )
             currentMetadata$urlDF <- currentMetadata$urlDF[-as.numeric(input$urlTable_rows_selected),]
         }
     })

@@ -96,19 +96,23 @@ expressionExplorerTabPanelRenderUI <- function(output,session,
             lapply(c,function(x,M,D) {
                 samples <- as.character(M[which(as.character(M$class)==x),
                     "sample_id"])
-
+                # HACK - indexing D (counts table) to exclude gene names not present in dbGene (rda)
+                # This issue appears only in some mm10 datasets
+                ind <- rownames(D$norm) %in% dbGene$gene_id
+                ind_no <- grep('TRUE', ind)
+                
                 switch(input$rnaExpressionGeneList,
                     all = {
                         switch(input$rnaExpressionMeasureRadio,
                             raw = {
-                                tab <- D$counts[,samples,drop=FALSE]
+                                tab <- D$counts[ind_no,samples,drop=FALSE]
                                 average <- round(apply(tab,1,
                                     input$rnaExpressionAverageRadio))
                                 deviation <- round(apply(tab,1,
                                     input$rnaExpressionDeviationRadio))
                             },
                             norm = {
-                                tab <- D$norm[,samples,drop=FALSE]
+                                tab <- D$norm[ind_no,samples,drop=FALSE]
                                 average <- round(apply(tab,1,
                                     input$rnaExpressionAverageRadio))
                                 deviation <- round(apply(tab,1,
@@ -116,7 +120,7 @@ expressionExplorerTabPanelRenderUI <- function(output,session,
                             },
                             rpkm = {
                                 tab <- round(edgeR::rpkm(
-                                    D$counts[,samples,drop=FALSE],
+                                    D$counts[ind_no,samples,drop=FALSE],
                                     gene.length=D$length,
                                     lib.size=unlist(D$libsize[samples]),
                                     ),digits=6)
@@ -126,7 +130,7 @@ expressionExplorerTabPanelRenderUI <- function(output,session,
                                     input$rnaExpressionDeviationRadio),digits=6)
                             },
                             rpgm = {
-                                tab <- round(D$norm[,samples,
+                                tab <- round(D$norm[ind_no,samples,
                                     drop=FALSE]/D$length,digits=6)
                                 average <- round(apply(tab,1,
                                     input$rnaExpressionAverageRadio),digits=6)

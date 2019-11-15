@@ -80,6 +80,7 @@ shinyServer(
             allReactiveMsgs)
 
         onRestore(function(state){
+            updateNavbarPage(session, "seqcnavbar", selected = "Data selector")
             showModal(modalDialog("Please wait while the session is being restored to its bookmarked state. Remember To 'Clear Dataset' if you want to start over!",
                 title = "Session Bookmark",
                 easyClose = TRUE,
