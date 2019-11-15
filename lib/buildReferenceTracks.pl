@@ -25,7 +25,7 @@ $|=1;
 $SIG{INT} = \&catch_cleanup;
 
 # Set defaults
-our $scriptname = "buildFeatureTracks.pl";
+our $scriptname = "buildReferenceTracks.pl";
 our $config_file;
 our $genomes;
 our $features;
@@ -320,9 +320,9 @@ sub update_feature_track_lists {
         push(@arg_list,"--verbose");
         my $generate_command = "perl ".$generate_script." ".join(" ",@arg_list);
         disp("    Will now run");
-        disp("-----------------------------------------------------------------");
+        disp("-------------------------------------------------------------");
         disp($generate_command);
-        disp("-----------------------------------------------------------------\n");
+        disp("-------------------------------------------------------------\n");
         my $success = system($generate_command);
     }
 }
@@ -498,7 +498,7 @@ sub check_inputs {
 }
 
 sub open_log_file {
-    my $logname = "hs_buildReferenceTracks_".&now("machine").".log";
+    my $logname = "buildReferenceTracks_".&now("machine").".log";
     my $lfh = IO::File->new();
     $lfh->open(">$logname");
     return($lfh);
@@ -584,15 +584,15 @@ JBrowse version of SeqCVIBE
 
 =head1 SYNOPSIS
 
-hs_buildReferenceTracks.pl --config config_json_file [OPTIONS]
+buildReferenceTracks.pl --config config_json_file [OPTIONS]
 
 Examples:
 
 =over 4
 
-=item perl hs_buildReferenceTracks.pl --config conf.json --genomes
+=item perl buildReferenceTracks.pl --config conf.json --genomes
 
-=item perl hs_buildReferenceTracks.pl --config conf.json --features --ncores 4
+=item perl buildReferenceTracks.pl --config conf.json --features --ncores 4
 
 =back
 

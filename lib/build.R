@@ -392,7 +392,7 @@ buildTrackList  <- function(config,annoPath,urlBase,appBase="") {
     # annoPath contains:
     #   names
     #   seq
-    #   annoation feature tracks
+    #   annotation feature tracks
     #   annotation feature tracks tracklist
     # For the above we must:
     #   create a "tracks/hg19" folder in app base
@@ -480,8 +480,8 @@ buildTrackList  <- function(config,annoPath,urlBase,appBase="") {
                 type="JBrowse/View/Track/Wiggle/Density",
                 storeClass="JBrowse/Store/SeqFeature/BigWig",
                 yScalePosition="right",
-                label=ifelse(is.null(x$alt_id),paste(x$sample_id,"density",sep="_"),
-                    paste(x$sample_id,x$alt_id,"density",sep="_")),
+                label=ifelse(is.null(x$alt_id),paste(x$sample_id,"density",
+					sep="_"),paste(x$sample_id,x$alt_id,"density",sep="_")),
                 urlTemplate=paste(urlBase,"/",x$source,"/",x$dataset,"/",
                     x$class,"/",x$sample_id,".bigWig",sep="")
             )
@@ -492,6 +492,13 @@ buildTrackList  <- function(config,annoPath,urlBase,appBase="") {
         output <- toJSON(annoTracks,auto_unbox=TRUE,pretty=TRUE)
         write(output,file=file.path(appBase,"tracks",org,"trackList.json"))
     }
+}
+
+modifyTrackList  <- function(trackList,what=list(annoBase=NULL,urlBase=NULL),
+	appBase="") {
+	# Read in existing trackList
+	# If annoBase is not NULL, change the annotation base
+	# If urlBase is not NULL, change the "urlTemplate" for user tracks
 }
 
 ## Build track list example
