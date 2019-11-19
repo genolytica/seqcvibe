@@ -293,10 +293,10 @@ correlationTabPanelRenderUI <- function(output,session,allReactiveVars,
                         ColSideColors=classes
                     )
                 })
-                #div(
-                #    class="heatmap-container",
-                    plotOutput("correlation",height="640px")
-                #)
+                div(
+                   class="heatmap-container",
+                    plotlyOutput("correlation",height="640px")
+                )
             }
             else {
                 if (currentCorrelation$what=="genes") {
@@ -306,8 +306,7 @@ correlationTabPanelRenderUI <- function(output,session,allReactiveVars,
                 }
                 else
                     labrow <- labcol <- rownames(currentCorrelation$corMatrix)
-                output$correlation <- renderPlotly({
-                    heatmaply(
+                    h <-list(heatmaply(
                         currentCorrelation$corMatrix,
                         dendrogram="both",
                         Rowv=TRUE,
@@ -317,12 +316,8 @@ correlationTabPanelRenderUI <- function(output,session,allReactiveVars,
                         symm=currentCorrelation$opts$symm,
                         labRow=labrow,
                         labCol=labcol
-                    )
-                })
-                #div(
-                #    class="heatmap-container",
-                    plotlyOutput("correlation",height="640px")
-                #)
+                        )%>% layout(height=700,width=1000))
+                    htmltools::tagList(tags$div(id="correlation",class="coheatmap-container",style="height:705px",h[[1]]))
             }
         }
     })
