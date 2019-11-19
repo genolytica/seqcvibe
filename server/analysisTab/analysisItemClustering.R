@@ -256,24 +256,18 @@ clusteringTabPanelRenderUI <- function(output,session,allReactiveVars,
             hclustFun <- hclustFuns()
             tryCatch({
                 withTimeout({
-                    output$heatmap <- renderPlotly({
-                        heatmaply(
-                            currentHeatmap$data,
-                            dendrogram=currentHeatmap$opts$dendrogram,
-                            Rowv=currentHeatmap$opts$Rowv,
-                            Colv=currentHeatmap$opts$Colv,
-                            distfun=distFun[[currentHeatmap$opts$distfun]],
-                            hclustfun=
-                                hclustFun[[currentHeatmap$opts$hclustfun]],
-                            k_row=currentHeatmap$opts$k_row,
-                            k_col=currentHeatmap$opts$k_col,
-                            colors=currentHeatmap$opts$colors
-                        )
-                    })
-                    div(
-                        class="heatmap-container",
-                        plotlyOutput("heatmap",height="800px")
-                    )
+                    h <-list(heatmaply(
+                        currentHeatmap$data,
+                        dendrogram=currentHeatmap$opts$dendrogram,
+                        Rowv=currentHeatmap$opts$Rowv,
+                        Colv=currentHeatmap$opts$Colv,
+                        distfun=distFun[[currentHeatmap$opts$distfun]],
+                        hclustfun=hclustFun[[currentHeatmap$opts$hclustfun]],
+                        k_row=currentHeatmap$opts$k_row,
+                        k_col=currentHeatmap$opts$k_col,
+                        colors=currentHeatmap$opts$colors
+                    )%>% layout(height=800,width=1200))
+                    htmltools::tagList(tags$div(id="heatmap",class="coheatmap-container",style="height:740px",h[[1]]))
                 },
                 timeout=300)
             },
