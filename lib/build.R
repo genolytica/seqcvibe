@@ -42,13 +42,13 @@ bam2count <- function(targets,annotation,rc=NULL) {
         stop("You must provide the targets argument!")
     if (missing(annotation))
         stop("You must provide an annotation data frame!")
-    if (!require(GenomicRanges))
+    if (!requireNamespace("GenomicRanges"))
         stop("The Bioconductor package GenomicRanges is required to ",
             "proceed!")
-    if (!require(GenomicAlignments))
+    if (!requireNamespace("GenomicAlignments"))
         stop("The Bioconductor package GenomicAlignments is required to ",
             "proceed!")
-    if (!require(Rsamtools))
+    if (!requireNamespace("Rsamtools"))
         stop("The Bioconductor package Rsamtools is required to ",
             "process BAM files!")
     if (!is.list(targets)) {
@@ -381,13 +381,30 @@ readTargetsFromConfig <- function(source,dataset,class,config) {
         stranded=stranded.list,type=type))
 }
 
-buildTrackList  <- function(config,annoPath,urlBase,appBase="") {
-    #annoPath <- "/media/raid/tracks/hybridsuite/reference"
-    #appBase <- "/media/raid/software/bigseqcvis"
+# annoPath : The path where JBrowse formatted reference tracks (genomic 
+#            sequences and features) live
+# urlBase  : The URL base (or template) to be prepended to the actual user data,
+#            (not the reference, these are constructed by JBrowse control 
+#            wrapper scripts) tracks. It should point to a directory served by 
+#            a web-browser. This directory should be the one with the data, or 
+#            with proper symlinks pointing to the data
+# appBase  : The application base, default "../"
+# metadata : The path to the application metadata SQLite database
+buildTrackList  <- function(annoPath,urlBase,appBase="../",
+    metadata="../config/metadata.sqlite") {
+    #annoPath <- "/media/raid/tracks/seqcvibe/reference"
+    #appBase <- "/media/raid/software/seqcvibe"
     #urlBase <- "http://epigenomics.fleming.gr/tracks"
     
-    require(jsonlite)
-    require(plyr)
+    if (!requireNamespace("jsonlite"))
+        stop("R package jsonlite is required to proceed!")
+    if (!requireNamespace("RSQLite"))
+        stop("R package RSQLite is required to proceed!")
+    if (!requireNamespace("plyr"))
+        stop("R package plyr is required to proceed!")
+        
+    if (!file.exists(metadata))
+        stop("The metadata database does not exist!")
     
     # annoPath contains:
     #   names
@@ -403,36 +420,50 @@ buildTrackList  <- function(config,annoPath,urlBase,appBase="") {
     # All these for each source and dataset
     #   e.g.: TCGA/COAD/seq, TCGA/COAD/trackList etc.
     
-    orgs <- unique(as.character(config$genome))
-    classes <- unique(as.character(config$class))
+    # Track colors - to be recycled in case of many classes for each dataset
     posBaseColours <- c("#B40000","#00B400","#0000B4","#B45200","#9B59B6",
         "#21BCBF","#BC4800","#135C34","#838F00","#4900B5")
     negBaseColours <- c("#FF7575","#79FF79","#8484FF","#FFB77C","#EBB7FF",
         "#63E5E7","#FFB88B","#5BFFA5","#F4FF75","#C69FFF")
+    
+    # Open the metadata database
+    con <- dbConnect(dbDriver("SQLite"),dbname=metadata)
+    
+    allData <- dbGetQuery(con,"SELECT * FROM metadata")
+    orgs <- as.character(
+        dbGetQuery(con,"SELECT DISTINCT genome FROM metadata")[,1])
+    classes <- as.character(
+        dbGetQuery(con,"SELECT DISTINCT class FROM metadata")[,1])
+    
+    #orgs <- unique(as.character(config$genome))
+    #classes <- unique(as.character(config$class))
+    
+    # Track colors
     posBaseColours <- rep(posBaseColours,length.out=length(classes))
     negBaseColours <- rep(negBaseColours,length.out=length(classes))
     names(posBaseColours) <- names(negBaseColours) <- classes
 
     # Create tracks base and symlinks to annotation sources
     for (org in orgs) {
-        if (!dir.exists(file.path(appBase,"tracks",org)))
-            dir.create(file.path(appBase,"tracks",org),recursive=TRUE)
-        if (!file.exists(file.path(appBase,"tracks",org,"names")))
+        if (!dir.exists(file.path(appBase,"tracks","reference",org)))
+            dir.create(file.path(appBase,"tracks","reference",org),
+                recursive=TRUE)
+        if (!file.exists(file.path(appBase,"tracks","reference",org,"names")))
             file.symlink(file.path(annoPath,org,"names"),
-                file.path(appBase,"tracks",org,"names"))
-        if (!file.exists(file.path(appBase,"tracks",org,"seq")))
+                file.path(appBase,"tracks","reference",org,"names"))
+        if (!file.exists(file.path(appBase,"reference","tracks",org,"seq")))
             file.symlink(file.path(annoPath,org,"seq"),
-                file.path(appBase,"tracks",org,"seq"))
-        if (!file.exists(file.path(appBase,"tracks",org,"tracks")))
+                file.path(appBase,"tracks","reference",org,"seq"))
+        if (!file.exists(file.path(appBase,"tracks","reference",org,"tracks")))
             file.symlink(file.path(annoPath,org,"tracks"),
-                file.path(appBase,"tracks",org,"tracks"))
+                file.path(appBase,"tracks","reference",org,"tracks"))
         
         # Read in JSON from annotation trackList
         annoTracks <- fromJSON(file.path(annoPath,org,"trackList.json"),
             simplifyVector=FALSE)
             
         # Construct the rest of the tracks to merge with annoTracks...
-        tracksXY <- dlply(config[config$genome==org,,drop=FALSE],"sample_id",
+        tracksXY <- dlply(allData[allData$genome==org,,drop=FALSE],"sample_id",
             function(x,poscol,negcol) {
             list(
                 metadata=list(
@@ -440,7 +471,8 @@ buildTrackList  <- function(config,annoPath,urlBase,appBase="") {
                     Dataset=as.character(x$dataset),
                     Class=as.character(x$class),
                     Organism=getFriendlyName(org),
-                    Type="Signal"
+                    Type="Signal",
+                    User=NULL
                 ),
                 style=list(
                     height=64,
@@ -455,11 +487,13 @@ buildTrackList  <- function(config,annoPath,urlBase,appBase="") {
                 yScalePosition="right",
                 label=ifelse(is.null(x$alt_id),paste(x$sample_id,"xy",sep="_"),
                     paste(x$sample_id,x$alt_id,"xy",sep="_")),
-                urlTemplate=paste(urlBase,"/",x$source,"/",x$dataset,"/",
-                    x$class,"/",x$sample_id,".bigWig",sep="")
+                #urlTemplate=paste(urlBase,"/",x$source,"/",x$dataset,"/",
+                #    x$class,"/",x$sample_id,".bigWig",sep="")
+                urlTemplate=paste(urlBase,"/",x$dataset,"/",x$class,"/",
+                    x$sample_id,".bigWig",sep="")
             )
         },posBaseColours,negBaseColours)
-        tracksDen <- dlply(config[config$genome==org,,drop=FALSE],"sample_id",
+        tracksDen <- dlply(allData[allData$genome==org,,drop=FALSE],"sample_id",
             function(x,poscol,negcol) {
             list(
                 metadata=list(
@@ -467,7 +501,8 @@ buildTrackList  <- function(config,annoPath,urlBase,appBase="") {
                     Dataset=as.character(x$dataset),
                     Class=as.character(x$class),
                     Organism=getFriendlyName(org),
-                    Type="Density"
+                    Type="Density",
+                    User=NULL
                 ),
                 style=list(
                     height=16,
@@ -481,24 +516,58 @@ buildTrackList  <- function(config,annoPath,urlBase,appBase="") {
                 storeClass="JBrowse/Store/SeqFeature/BigWig",
                 yScalePosition="right",
                 label=ifelse(is.null(x$alt_id),paste(x$sample_id,"density",
-					sep="_"),paste(x$sample_id,x$alt_id,"density",sep="_")),
-                urlTemplate=paste(urlBase,"/",x$source,"/",x$dataset,"/",
-                    x$class,"/",x$sample_id,".bigWig",sep="")
+                    sep="_"),paste(x$sample_id,x$alt_id,"density",sep="_")),
+                #urlTemplate=paste(urlBase,"/",x$source,"/",x$dataset,"/",
+                #    x$class,"/",x$sample_id,".bigWig",sep="")
+                urlTemplate=paste(urlBase,"/",x$dataset,"/",x$class,"/",
+                    x$sample_id,".bigWig",sep="")
             )
         },posBaseColours,negBaseColours)
         tracks <- unname(c(tracksXY,tracksDen))
         
         annoTracks$tracks <- c(annoTracks$tracks,tracks)
         output <- toJSON(annoTracks,auto_unbox=TRUE,pretty=TRUE)
-        write(output,file=file.path(appBase,"tracks",org,"trackList.json"))
+        write(output,file=file.path(appBase,"tracks","reference",org,
+            "trackList.json"))
     }
 }
 
 modifyTrackList  <- function(trackList,what=list(annoBase=NULL,urlBase=NULL),
-	appBase="") {
-	# Read in existing trackList
-	# If annoBase is not NULL, change the annotation base
-	# If urlBase is not NULL, change the "urlTemplate" for user tracks
+    appBase="") {
+    # Read in existing trackList
+    # If annoBase is not NULL, change the annotation base
+    # If urlBase is not NULL, change the "urlTemplate" for user tracks
+}
+
+addTracks  <- function(trackList,metadata,trackMetadata=list(),appBase="") {
+    # Read in existing trackList
+    # Open metadata and choose tracks to add from trackMetadata
+}
+
+clearUserTracks <- function(trackList,user=NULL) {
+    trackStru <- fromJSON(trackList,simplifyVector=FALSE)
+    
+    # Initially we clear based only on storeClass... More complex ways will be
+    # required. For now, "JBrowse/Store/SeqFeature/BigWig"
+    # We include the "user" argument for future use
+    tracks <- trackStru$tracks
+    inds <- sapply(1:length(tracks),function(i,tr) {
+        if (tr[[i]]$storeClass == "JBrowse/Store/SeqFeature/BigWig")
+            return(i)
+        else
+            return(0)
+    },tracks)
+    if (length(inds) > 0) {
+        nouser <- which(inds==0)
+        if (length(nouser) > 0)
+            inds <- inds[-nouser]
+    }
+    if (length(inds) > 0)
+        tracks <- tracks[-inds]
+    
+    trackStru$tracks <- tracks
+    cleared <- toJSON(trackStru,auto_unbox=TRUE,pretty=TRUE)
+    write(cleared,file=trackList)
 }
 
 ## Build track list example
@@ -552,3 +621,10 @@ modifyTrackList  <- function(trackList,what=list(annoBase=NULL,urlBase=NULL),
 #    appBase=appBase
 #)
 #perl buildReferenceTracks.pl --config ../config/config_jbrowse_build.json --genomes --features --update --ncores 5
+
+
+#annoPath <- "/media/raid/tracks/seqcvibe/reference"
+#appBase <- "/media/data/hybridstat/elixir-RNAseq"
+#metadata <- file.path(appBase,"config","metadata.sqlite")
+#urlBase <- "http://epigenomics.fleming.gr/seqc_elixir"
+

@@ -955,17 +955,30 @@ calcCoverageFromBW <- function(input,mask,assign.names=TRUE,verbose=TRUE) {
     return(coverage) # Rle
 }
 
-loadJBrowse <- function(source,dataset,config,org="hg19") {
+loadJBrowse <- function(source,dataset,metadata,org="hg19") {
     #urlBase <- paste("https://www.google.com/search?q=%",
     #    "http://epigenomics.fleming.gr/seqcbrowse/index.html?",
     #    "&btnI=Im+Feeling+Lucky",sep="")
-    urlBase <- "https://epigenomics.fleming.gr/seqcbrowse/index.html?"
-    tracksBase <- paste("https://epigenomics.fleming.gr/seqcvibe_tracks",
-        org,sep="/")
+    #urlBase <- "https://epigenomics.fleming.gr/seqcbrowse/index.html?"
+    urlBase <- "http://192.168.0.156/seqc_browse/index.html?"
+    #tracksBase <- paste("https://epigenomics.fleming.gr/seqcvibe_tracks",
+    #    org,sep="/")
+    tracksBase <- paste("http://192.168.0.156/seqc_elixir/reference",org,sep="/")
     
-    ind <- which(as.character(config$source)==source 
-        & as.character(config$dataset)==dataset)
-    subconf <- config[ind,]
+    #if (!file.exists(metadata))
+    #    stop("The metadata database does not exist!")
+    
+    ## Open the metadata database
+    #con <- dbConnect(dbDriver("SQLite"),dbname=metadata)
+    con <- metadata
+    
+    query <- paste0("SELECT sample_id,alt_id FROM metadata WHERE source='",
+        source,"' AND dataset='",dataset,"'")
+    subconf <- dbGetQuery(con,query)
+    
+    #ind <- which(as.character(metadata$source)==source 
+    #    & as.character(metadata$dataset)==dataset)
+    #subconf <- metadata[ind,]
     
     if (!is.null(subconf$alt_id))
         initTracks <- paste(as.character(subconf$sample_id),
