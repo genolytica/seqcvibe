@@ -317,7 +317,8 @@ correlationTabPanelRenderUI <- function(output,session,allReactiveVars,
                         labRow=labrow,
                         labCol=labcol
                         )%>% layout(height=700,width=1000))
-                    htmltools::tagList(tags$div(id="correlation",class="coheatmap-container",style="height:705px",h[[1]]))
+                    htmltools::tagList(tags$div(id="correlation",
+                    class="coheatmap-container",style="height:705px",h[[1]]))
             }
         }
     })

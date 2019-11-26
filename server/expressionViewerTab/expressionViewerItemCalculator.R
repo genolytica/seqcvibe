@@ -36,8 +36,10 @@ expressionCalculatorTabPanelEventReactive <- function(input,output,session,
             errMsg["strand"] <- "A region strand is required!"
         }
         # HACK: Temporarily removing this validator
-        #       This selectize input is a rendered UI so it delays takes some more time to be rendered on Restore
-        #       As a result input$customChrExpr won't be set by the time this validator runs and the app breaks
+        # This selectize input is a rendered UI so it delays takes some more
+        # time to be rendered on Restore
+        # As a result input$customChrExpr won't be set by the time this 
+        # validator runs and the app breaks
         #
         # if (input$customChrExpr=="") {
         #     regionValidate["chrom"] <- TRUE

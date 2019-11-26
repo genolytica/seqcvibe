@@ -54,10 +54,11 @@ diffExprTabPanelEventReactive <- function(input,output,session,
         # Counts
         # M <- loadedData[[s]][[d]]$counts[rownames(ann),samples]
         # len <- loadedData[[s]][[d]]$length[rownames(ann)]
-
-        # HACK - indexing D (counts table) to exclude gene names not present in dbGene (rda)
+        # HACK - indexing D (counts table) to exclude gene names not present 
+        # in dbGene (rda)
         # This issue appears only in some mm10 datasets
-        finalNames <- intersect(rownames(ann),rownames(loadedData[[s]][[d]]$counts))
+        finalNames <- 
+            intersect(rownames(ann),rownames(loadedData[[s]][[d]]$counts))
         M <- loadedData[[s]][[d]]$counts[finalNames,samples]
         len <- loadedData[[s]][[d]]$length[finalNames]
         ann <- ann[which(finalNames %in% rownames(ann)),]

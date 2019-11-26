@@ -314,7 +314,8 @@ areaSignalTabPanelEventReactive <- function(input,output,session,
                         ),
                         keep.extra.columns=TRUE
                     )
-                    customTrans <- as.list(split(customTrans, as.factor(customTrans)))
+                    customTrans <- as.list(split(customTrans,
+                        as.factor(customTrans)))
                     names(customTrans) <- as.character(customRegions$name)
                 }
                 else

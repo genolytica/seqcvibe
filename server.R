@@ -81,38 +81,47 @@ shinyServer(
 
         onRestore(function(state){
             updateNavbarPage(session, "seqcnavbar", selected = "Data selector")
-            showModal(modalDialog("Please wait while the session is being restored to its bookmarked state. Remember To 'Clear Dataset' if you want to start over!",
-                title = "Session Bookmark",
-                easyClose = TRUE,
-                footer = NULL,
-                fade = TRUE
+            showModal(modalDialog("Please wait while the session is being ",
+                "restored to its bookmarked state. Remember To 'Clear Dataset'",
+                " if you want to start over!",
+                title="Session Bookmark",
+                easyClose=TRUE,
+                footer=NULL,
+                fade=TRUE
             ))
             # Reruning the whole server script to restore Bookmarked session
             shinyjs::delay(3000, {
-            dataSelectorTabPanelObserve(state$input,state$output,session,allReactiveVars,
-                allReactiveMsgs)
-            geneSignalTabPanelObserve(state$input,state$output,session,allReactiveVars,
-                allReactiveMsgs)
-            areaSignalTabPanelObserve(state$input,state$output,session,allReactiveVars,
-                allReactiveMsgs)  
-            expressionExplorerTabPanelObserve(state$input,output,session,allReactiveVars,
-                allReactiveMsgs)
+            dataSelectorTabPanelObserve(state$input,state$output,session,
+                allReactiveVars,allReactiveMsgs)
+            geneSignalTabPanelObserve(state$input,state$output,session,
+                allReactiveVars,allReactiveMsgs)
+            areaSignalTabPanelObserve(state$input,state$output,session,
+                allReactiveVars,allReactiveMsgs)  
+            expressionExplorerTabPanelObserve(state$input,output,session,
+                allReactiveVars,allReactiveMsgs)
             expressionCalculatorTabPanelObserve(state$input,output,session,
-                allReactiveVars,allReactiveMsgs)        
-            diffExprTabPanelObserve(state$input,state$output,session,allReactiveVars,
-                allReactiveMsgs)
-            clusteringTabPanelObserve(state$input,output,session,allReactiveVars,
-                allReactiveMsgs)
-            correlationTabPanelObserve(state$input,output,session,allReactiveVars,
-                allReactiveMsgs)
-            mdsPcaTabPanelObserve(state$input,state$output,session,allReactiveVars,
-                allReactiveMsgs)
-            genomeBrowserTabPanelObserve(state$input,output,session,allReactiveVars,
-                allReactiveMsgs)
-            showNotification('Restoring bookmarked state...',  duration = 10, type = 'message')
+                allReactiveVars,allReactiveMsgs)   
+            diffExprTabPanelObserve(state$input,state$output,session,
+                allReactiveVars,allReactiveMsgs)
+            clusteringTabPanelObserve(state$input,output,session,
+                allReactiveVars,allReactiveMsgs)
+            correlationTabPanelObserve(state$input,output,session,
+                allReactiveVars,allReactiveMsgs)
+            mdsPcaTabPanelObserve(state$input,state$output,session,
+                allReactiveVars,allReactiveMsgs)
+            genomeBrowserTabPanelObserve(state$input,output,session,
+                allReactiveVars,allReactiveMsgs)
+            showNotification('Restoring bookmarked state...',duration=10,
+                type='message')
             })
         })
         # Excluding unnecessary actions from bookmarking
-        setBookmarkExclude(c("bookmarkBtn","showFastqc","clearDataset","deleteBM"))
+        setBookmarkExclude(c("bookmarkBtn","showFastqc","clearDataset",
+            "deleteBM"))
+            
+        onStop(function() {
+            if (!is(metadata,"SQLiteConnection"))
+                dbDisconnect(metadata)
+        })
     }
 )

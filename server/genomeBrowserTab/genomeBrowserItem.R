@@ -18,7 +18,9 @@ genomeBrowserTabPanelRenderUI <- function(output,session,allReactiveVars,
                 dataset=as.character(currentMetadata$dataset),
                 #metadata=currentMetadata$final,
                 metadata=metadata,
-                org=currentMetadata$genome
+                org=currentMetadata$genome,
+                urlBase=appConfig$urls$browser,
+                tracksBase=appConfig$urls$tracks
             ),
             name="JBrowse",seamless=NA,
             height="800px",width="100%"

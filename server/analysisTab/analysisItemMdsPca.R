@@ -53,7 +53,7 @@ mdsPcaTabPanelEventReactive <- function(input,output,session,
                 else {
                     output$rnaMdsPcaSettingsError <- renderUI({div()})
                     g <- names(which(apply(currentPipelineOutput$flags,1,
-						function(x) all(x==0))))
+                        function(x) all(x==0))))
                 }
             },
             all = {
@@ -325,7 +325,8 @@ mdsPcaTabPanelReactive <- function(input,output,session,
                 fill="deepskyblue",color="deepskyblue3",width=0.5) +
             geom_point(data=for.ggplot,mapping=aes(x=x,y=y),colour="darkblue",
                 size=5) +
-            geom_line(data=for.ggplot,mapping=aes(x=x,y=y),colour="red2",size=1) +
+            geom_line(data=for.ggplot,mapping=aes(x=x,y=y),colour="red2",
+                size=1) +
             xlab(paste("\nPC number")) +
             ylab(paste("Eigenvalue")) +
             theme_bw() +
@@ -562,48 +563,48 @@ mdsPcaTabPanelReactive <- function(input,output,session,
         i <- as.numeric(input$rnaDimRedXAxis)
         j <- as.numeric(input$rnaDimRedYAxis)
         if (!is.na(i) && !is.na(j)) {
-			obs.scale <- 0
-			var.scale <- 1
-			circle.prob <- 0.69
-			ellipse.prob=0.68
-			varname.size <- 3
-			varname.adjust <- 1.5
+            obs.scale <- 0
+            var.scale <- 1
+            circle.prob <- 0.69
+            ellipse.prob=0.68
+            varname.size <- 3
+            varname.adjust <- 1.5
             nobs.factor <- sqrt(nrow(pca.obj$x) - 1)
-			d <- pca.obj$sdev
-			u <- sweep(pca.obj$x,2,1/(d*nobs.factor),FUN = '*')
-			v <- pca.obj$rotation
+            d <- pca.obj$sdev
+            u <- sweep(pca.obj$x,2,1/(d*nobs.factor),FUN = '*')
+            v <- pca.obj$rotation
             choices <- c(i,j)
             pvarx <- round(100*pca.obj$sdev[i]^2/sum(pca.obj$sdev^2),1)
             pvary <- round(100*pca.obj$sdev[j]^2/sum(pca.obj$sdev^2),1)
             
             # Scores
             df.s <- as.data.frame(sweep(u[,choices],2,d[choices]^obs.scale,
-				FUN='*'))
-			df.s <- df.s*nobs.factor
-			rownames(df.s) <- rownames(pca.obj$x)
-			# Directions
-			v <- sweep(v,2,d^var.scale,FUN='*')
-			df.d <- as.data.frame(v[,choices])
-			# Names as with other PCA plots
-			names(df.s) <- c('x','y')
-			names(df.d) <- names(df.s)
+                FUN='*'))
+            df.s <- df.s*nobs.factor
+            rownames(df.s) <- rownames(pca.obj$x)
+            # Directions
+            v <- sweep(v,2,d^var.scale,FUN='*')
+            df.d <- as.data.frame(v[,choices])
+            # Names as with other PCA plots
+            names(df.s) <- c('x','y')
+            names(df.d) <- names(df.s)
             
             # Scale the radius of the correlation circle so that it corresponds 
             # to a data ellipse for the standardized PC scores
-			r <- sqrt(qchisq(circle.prob,df=2))*prod(colMeans(df.s^2))^(1/4)
+            r <- sqrt(qchisq(circle.prob,df=2))*prod(colMeans(df.s^2))^(1/4)
 
-			# Scale directions
-			v.scale <- rowSums(v^2)
-			df.d <- r*df.d/sqrt(max(v.scale))
-			
-			# Score/class labels
-			df.s$Condition <- classes
-			
-			# Variable/loadings names
-			df.d$Genes <- labs
-			# Variables for text label placement
-			df.d$angle <- with(df.d,(180/pi)*atan(y/x))
-			df.d$hjust <- with(df.d,(1-varname.adjust*sign(x))/2)
+            # Scale directions
+            v.scale <- rowSums(v^2)
+            df.d <- r*df.d/sqrt(max(v.scale))
+            
+            # Score/class labels
+            df.s$Condition <- classes
+            
+            # Variable/loadings names
+            df.d$Genes <- labs
+            # Variables for text label placement
+            df.d$angle <- with(df.d,(180/pi)*atan(y/x))
+            df.d$hjust <- with(df.d,(1-varname.adjust*sign(x))/2)
     
             classColors <- currentDimRed$opts$colors
             names(classColors) <- cc
@@ -617,32 +618,32 @@ mdsPcaTabPanelReactive <- function(input,output,session,
             }
             # Base plot
             theta.c <- c(seq(-pi,pi,length=50),seq(pi,-pi,length=50))
-			circle.c <- data.frame(x=r*cos(theta.c),y=r*sin(theta.c))
-			pcaBiplot <- ggplot() +
-				geom_point(data=df.s,mapping=aes(x=x,y=y,color=Condition),
-					size=psize) + 
-				geom_path(data=circle.c,aes(x=x,y=y),color="black",
-					size=1/2,alpha=1/3) +
-				geom_segment(data=df.d,aes(x=0,y=0,xend=x,yend=y),
-					arrow=arrow(length=unit(1/2,'picas')),color=muted('red'))
+            circle.c <- data.frame(x=r*cos(theta.c),y=r*sin(theta.c))
+            pcaBiplot <- ggplot() +
+                geom_point(data=df.s,mapping=aes(x=x,y=y,color=Condition),
+                    size=psize) + 
+                geom_path(data=circle.c,aes(x=x,y=y),color="black",
+                    size=1/2,alpha=1/3) +
+                geom_segment(data=df.d,aes(x=0,y=0,xend=x,yend=y),
+                    arrow=arrow(length=unit(1/2,'picas')),color=muted('red'))
             
             # Ellipse
             theta.e <- c(seq(-pi,pi,length=50),seq(pi,-pi,length=50))
-			circle.e <- cbind(cos(theta.e),sin(theta.e))
+            circle.e <- cbind(cos(theta.e),sin(theta.e))
             ell <- ddply(df.s,'Condition',function(x) {
-				if(nrow(x)<=2) return(NULL)
-				sigma <- var(cbind(x$x,x$y))
-				mu <- c(mean(x$x),mean(x$y))
-				ed <- sqrt(qchisq(ellipse.prob,df=2))
-				data.frame(sweep(circle.e %*% chol(sigma)*ed,2,mu,FUN='+'),
-					Condition=x$Condition[1])
-			})
-			if (!is.null(ell) && nrow(ell)>0) {
-				names(ell)[1:2] <- c("x","y")
-				pcaBiplot <- pcaBiplot +
-					geom_path(data=ell,aes(x=x,y=y,color=Condition,
-						group=Condition))
-			}
+                if(nrow(x)<=2) return(NULL)
+                sigma <- var(cbind(x$x,x$y))
+                mu <- c(mean(x$x),mean(x$y))
+                ed <- sqrt(qchisq(ellipse.prob,df=2))
+                data.frame(sweep(circle.e %*% chol(sigma)*ed,2,mu,FUN='+'),
+                    Condition=x$Condition[1])
+            })
+            if (!is.null(ell) && nrow(ell)>0) {
+                names(ell)[1:2] <- c("x","y")
+                pcaBiplot <- pcaBiplot +
+                    geom_path(data=ell,aes(x=x,y=y,color=Condition,
+                        group=Condition))
+            }
             
             pcaBiplot <- pcaBiplot + 
                 xlab(paste("\nPrincipal Component ",i," (",pvarx,
@@ -662,7 +663,7 @@ mdsPcaTabPanelReactive <- function(input,output,session,
                 scale_color_manual(values=classColors) +
                 scale_fill_manual(values=classColors) +
                 geom_text(data=df.d,aes(x=x,y=y,label=Genes,angle=angle,
-					hjust=hjust),color='darkred',size=tsize)
+                    hjust=hjust),color='darkred',size=tsize)
             
             if (input$rnaMdsPcaTogglePointNames) {
                 require(ggrepel)
@@ -1036,7 +1037,7 @@ mdsPcaTabPanelRenderUI <- function(output,session,allReactiveVars,
         },
         content=function(con) {
             ggsave(filename=con,plot=currentDimRed$pcaScreePlot,
-				width=7,height=7)
+                width=7,height=7)
         }
     )
     
@@ -1047,7 +1048,7 @@ mdsPcaTabPanelRenderUI <- function(output,session,allReactiveVars,
         },
         content=function(con) {
             ggsave(filename=con,plot=currentDimRed$pcaScreePlot,
-				width=7,height=7)
+                width=7,height=7)
         }
     )
     
@@ -1069,7 +1070,7 @@ mdsPcaTabPanelRenderUI <- function(output,session,allReactiveVars,
         },
         content=function(con) {
             ggsave(filename=con,plot=currentDimRed$pcaScoresPlot,
-				width=7,height=7)
+                width=7,height=7)
         }
     )
     
@@ -1080,7 +1081,7 @@ mdsPcaTabPanelRenderUI <- function(output,session,allReactiveVars,
         },
         content=function(con) {
             ggsave(filename=con,plot=currentDimRed$pcaScoresPlot,
-				width=7,height=7)
+                width=7,height=7)
         }
     )
     
@@ -1102,7 +1103,7 @@ mdsPcaTabPanelRenderUI <- function(output,session,allReactiveVars,
         },
         content=function(con) {
             ggsave(filename=con,plot=currentDimRed$pcaLoadingsPlot,
-				width=7,height=7)
+                width=7,height=7)
         }
     )
     
@@ -1113,7 +1114,7 @@ mdsPcaTabPanelRenderUI <- function(output,session,allReactiveVars,
         },
         content=function(con) {
             ggsave(filename=con,plot=currentDimRed$pcaLoadingsPlot,
-				width=7,height=7)
+                width=7,height=7)
         }
     )
     
@@ -1135,7 +1136,7 @@ mdsPcaTabPanelRenderUI <- function(output,session,allReactiveVars,
         },
         content=function(con) {
             ggsave(filename=con,plot=currentDimRed$pcaRankedLoadingsPlot,
-				width=7,height=7)
+                width=7,height=7)
         }
     )
     
@@ -1146,7 +1147,7 @@ mdsPcaTabPanelRenderUI <- function(output,session,allReactiveVars,
         },
         content=function(con) {
             ggsave(filename=con,plot=currentDimRed$pcaRankedLoadingsPlot,
-				width=7,height=7)
+                width=7,height=7)
         }
     )
     
@@ -1168,7 +1169,7 @@ mdsPcaTabPanelRenderUI <- function(output,session,allReactiveVars,
         },
         content=function(con) {
             ggsave(filename=con,plot=currentDimRed$pcaBiplotPlot,
-				width=7,height=7)
+                width=7,height=7)
         }
     )
     
@@ -1179,7 +1180,7 @@ mdsPcaTabPanelRenderUI <- function(output,session,allReactiveVars,
         },
         content=function(con) {
             ggsave(filename=con,plot=currentDimRed$pcaBiplotPlot,
-				width=7,height=7)
+                width=7,height=7)
         }
     )
     

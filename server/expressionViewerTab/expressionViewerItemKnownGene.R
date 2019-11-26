@@ -96,7 +96,8 @@ expressionExplorerTabPanelRenderUI <- function(output,session,
             lapply(c,function(x,M,D) {
                 samples <- as.character(M[which(as.character(M$class)==x),
                     "sample_id"])
-                # HACK - indexing D (counts table) to exclude gene names not present in dbGene (rda)
+                # HACK - indexing D (counts table) to exclude gene names 
+                # not present in dbGene (rda)
                 # This issue appears only in some mm10 datasets
                 ind <- rownames(D$norm) %in% dbGene$gene_id
                 ind_no <- grep('TRUE', ind)

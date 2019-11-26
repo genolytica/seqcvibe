@@ -526,7 +526,7 @@ buildTrackList  <- function(annoPath,urlBase,appBase="../",
         tracks <- unname(c(tracksXY,tracksDen))
         
         annoTracks$tracks <- c(annoTracks$tracks,tracks)
-        output <- toJSON(annoTracks,auto_unbox=TRUE,pretty=TRUE)
+        output <- toJSON(annoTracks,auto_unbox=TRUE,pretty=TRUE,null="null")
         write(output,file=file.path(appBase,"tracks","reference",org,
             "trackList.json"))
     }
