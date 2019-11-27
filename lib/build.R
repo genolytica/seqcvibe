@@ -489,7 +489,7 @@ buildTrackList  <- function(annoPath,urlBase,appBase="../",
                     paste(x$sample_id,x$alt_id,"xy",sep="_")),
                 #urlTemplate=paste(urlBase,"/",x$source,"/",x$dataset,"/",
                 #    x$class,"/",x$sample_id,".bigWig",sep="")
-                urlTemplate=paste(urlBase,"/",x$dataset,"/",x$class,"/",
+                urlTemplate=paste(urlBase,"/data/",x$dataset,"/",x$class,"/",
                     x$sample_id,".bigWig",sep="")
             )
         },posBaseColours,negBaseColours)
@@ -519,7 +519,7 @@ buildTrackList  <- function(annoPath,urlBase,appBase="../",
                     sep="_"),paste(x$sample_id,x$alt_id,"density",sep="_")),
                 #urlTemplate=paste(urlBase,"/",x$source,"/",x$dataset,"/",
                 #    x$class,"/",x$sample_id,".bigWig",sep="")
-                urlTemplate=paste(urlBase,"/",x$dataset,"/",x$class,"/",
+                urlTemplate=paste(urlBase,"/data/",x$dataset,"/",x$class,"/",
                     x$sample_id,".bigWig",sep="")
             )
         },posBaseColours,negBaseColours)

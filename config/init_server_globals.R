@@ -22,6 +22,10 @@ source("lib/util.R")
 
 appConfig <- fromJSON("config/app_config.json")
 
+# If the symlink to the data directory is not in place, create it!
+if (!isTRUE(nzchar(Sys.readlink("tracks/data"),keepNA=TRUE)))
+    file.symlink(appConfig$paths$data,"tracks/data")
+
 # Load metadata SQLite
 metadata <- initDatabase(file.path(appConfig$paths$metadata))
 
