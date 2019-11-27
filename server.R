@@ -1,9 +1,13 @@
 # server.R
+library(auth0)
 
 # Load required libraries
 source("config/init_server_globals.R")
 
+enableBookmarking(store="server")
+
 shinyServer(
+#auth0_server(
     function(input,output,session) {
         # Load init packages script
         source("config/init_packages.R")

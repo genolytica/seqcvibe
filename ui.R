@@ -1,8 +1,9 @@
 # ui.R
 
-require(DT)
-require(shinyjs)
-require(shinyBS)
+library(auth0)
+library(DT)
+library(shinyjs)
+library(shinyBS)
 
 source("config/init_server_globals.R")
 source("ui/dataSelectorTab/dataSelectorItem.R")
@@ -21,6 +22,7 @@ source("ui/helpTab/helpItemDoc.R")
 source("ui/helpTab/helpItemFaq.R")
 
 shinyUI(function(request) fluidPage(
+#auth0_ui(function(request) fluidPage(
     shinyjs::useShinyjs(),
     tags$head(
         tags$link(
@@ -76,13 +78,13 @@ shinyUI(function(request) fluidPage(
         id="seqcnavbar",
         title="SeqCVIBE",
         navbarMenu("Data management",icon=icon("database"),
-			tabPanel("Data selector",icon=icon("pencil-square-o"),
-				dataSelectorTabPanel()
-			),
-			tabPanel("Sessions",icon=icon("television"),
-				sessionLoaderTabPanel()
-			)
-		),
+            tabPanel("Data selector",icon=icon("pencil-square-o"),
+                dataSelectorTabPanel()
+            ),
+            tabPanel("Sessions",icon=icon("television"),
+                sessionLoaderTabPanel()
+            )
+        ),
         navbarMenu("Signal viewer",icon=icon("signal"),
             tabPanel("Gene signal",icon=icon("bar-chart"),
                 geneSignalTabPanel()
