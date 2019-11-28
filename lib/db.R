@@ -71,3 +71,19 @@ initDatabase <- function(db) {
         )
     ))
 }
+
+#~ library(RSQLite)
+#~ con <- dbConnect(dbDriver("SQLite"),dbname="metadata.sqlite")
+#~ tab <- dbGetQuery(con,"SELECT * FROM metadata")
+
+#~ sample_dir <- gsub("/home/makis/elixir-RNAseq/data/","/media/storage/pilot/",
+#~  tab$sample_dir)
+#~ track_dir <- gsub("/home/makis/elixir-RNAseq/data/","/media/storage/pilot/",
+#~  tab$track_dir)
+
+#~ tab$sample_dir <- sample_dir
+#~ tab$track_dir <- track_dir
+
+#~ dbWriteTable(con,"metadata",tab,overwrite=TRUE)
+
+#~ dbDisconnect(con)

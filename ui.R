@@ -21,8 +21,8 @@ source("ui/genomeBrowserTab/genomeBrowserItem.R")
 source("ui/helpTab/helpItemDoc.R")
 source("ui/helpTab/helpItemFaq.R")
 
-shinyUI(function(request) fluidPage(
-#auth0_ui(function(request) fluidPage(
+#auth0_ui(
+fluidPage(
     shinyjs::useShinyjs(),
     tags$head(
         tags$link(
@@ -134,4 +134,5 @@ shinyUI(function(request) fluidPage(
         ),
         tabPanel("Logout",icon=icon("sign-out"))
     )
-))
+)
+#)

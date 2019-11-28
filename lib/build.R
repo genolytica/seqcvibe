@@ -448,13 +448,19 @@ buildTrackList  <- function(annoPath,urlBase,appBase="../",
         if (!dir.exists(file.path(appBase,"tracks","reference",org)))
             dir.create(file.path(appBase,"tracks","reference",org),
                 recursive=TRUE)
-        if (!file.exists(file.path(appBase,"tracks","reference",org,"names")))
+        if (!isTRUE(nzchar(Sys.readlink(file.path(appBase,"tracks","reference",
+            org,"names")),keepNA=TRUE)))
+        #if (!file.exists(file.path(appBase,"tracks","reference",org,"names")))
             file.symlink(file.path(annoPath,org,"names"),
                 file.path(appBase,"tracks","reference",org,"names"))
-        if (!file.exists(file.path(appBase,"reference","tracks",org,"seq")))
+        if (!isTRUE(nzchar(Sys.readlink(file.path(appBase,"tracks","reference",
+            org,"seq")),keepNA=TRUE)))
+        #if (!file.exists(file.path(appBase,"reference","tracks",org,"seq")))
             file.symlink(file.path(annoPath,org,"seq"),
                 file.path(appBase,"tracks","reference",org,"seq"))
-        if (!file.exists(file.path(appBase,"tracks","reference",org,"tracks")))
+        if (!isTRUE(nzchar(Sys.readlink(file.path(appBase,"tracks","reference",
+            org,"tracks")),keepNA=TRUE)))
+        #if (!file.exists(file.path(appBase,"tracks","reference",org,"tracks")))
             file.symlink(file.path(annoPath,org,"tracks"),
                 file.path(appBase,"tracks","reference",org,"tracks"))
         
