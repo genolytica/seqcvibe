@@ -29,11 +29,10 @@ initPackages <- function(session) {
     require(ggbio)
     updateFtProgress(value=7,detail="Loading metaseqR")
     require(GenomicRanges)
-    # updateFtProgress(value=8,detail="Loading d3heatmap")
-    # require(d3heatmap)
     updateFtProgress(value=8,detail="Loading heatmaply")
     require(heatmaply)
     updateFtProgress(value=9,detail="Loading data.table")
     require(data.table)
-    #require(plotly)
+    updateFtProgress(value=10,detail="Loading rmarkdown")
+    require(rmarkdown)
 }
