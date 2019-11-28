@@ -55,6 +55,7 @@ Thus, the following are assumed for the deployment of SeqCVIBE application:
  * RSQLite
  * rtracklayer
  * shiny
+ * shinyBS
  * shinyjs
  * SummarizedExperiment
  * XML
@@ -128,7 +129,8 @@ other ones. After this and still within R:
 pkgs <- c("biomaRt","GenomicRanges","jsonlite","colourpicker","data.table",
     "DESeq","DT","EDASeq","edgeR","GenomicAlignments","GenomeInfoDb","ggplot2",
     "ggbio","heatmaply","magrittr","metaseqR","openssl","plyr","rmarkdown",
-    "rmdformats","Rsamtools","RSQLite","rtracklayer","shiny","shinyjs","XML")
+    "rmdformats","Rsamtools","RSQLite","rtracklayer","shiny","shinyBS",
+    "shinyjs","XML")
 
 BiocManager::install(pkgs)
 ```
@@ -711,7 +713,10 @@ sudo service apache2 restart
 ## User authentication setup
 
 
+# TODO
 
+* Step of internal genome annotation building (i.e. ```genome/mm10/gene.rda```)
+that will be based in metaseqR2 annotation system 
 
 
 
@@ -735,38 +740,10 @@ sudo service apache2 restart
 
 /home/makis/elixir-RNAseq/data/
 
-
-
-We need one main path in the filesystem.
-RDA files etc are there.
-This will be removed from the SQLite database and be placed in one single
-config file somewhere in the root folder (e.g. in config)
-
 Any other additional parameters there, e.g. fraction of cores to use
-
-
-
 
 runApp(port=12345,launch.browser=FALSE,host="192.168.100.156")
 runApp(port=8080,launch.browser=FALSE,host="http://epigenomics.fleming.gr")
-
-require(data.table)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 options(menu.graphics=FALSE)
 

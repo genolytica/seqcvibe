@@ -31,7 +31,7 @@ metadata <- initDatabase(file.path(appConfig$paths$metadata))
 
 ## Until we merge bookmarks with main db
 # Load Bookmarks SQLite
-bookmarks <- dbConnect(drv=RSQLite::SQLite(),dbname='data/bookmarks.sqlite')
+#bookmarks <- dbConnect(drv=RSQLite::SQLite(),dbname='data/bookmarks.sqlite')
 
 # Intialize metadata reactive content
 sources <- as.character(dbGetQuery(metadata,
