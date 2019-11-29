@@ -537,12 +537,14 @@ Shiny server and also serve JBrowse.
 
 ### Preliminaries
 
-1. Enable the ```mod_deflate```, ```mod_headers``` and ```mod_proxy``` modules.
+1. Enable the ```mod_deflate```, ```mod_headers```, ```mod_proxy``` and 
+```proxy_http``` modules.
 
 ```
 sudo a2enmod deflate
 sudo a2enmod headers
 sudo a2enmod proxy
+sudo a2enmod proxy_http
 ```
 
 2. A symbolic link must then be created in the directory served by the web 

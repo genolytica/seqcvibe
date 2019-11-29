@@ -1,0 +1,8 @@
+name: MyApp # The name of the app as found in Auth0 settings
+remote_url: http://www.myserver.com/myapp # This must also be registered in Auth0 settings
+#remote_url: '' # In case of running only locally
+auth0_config:
+  api_url: https://myuser.auth0.com
+  credentials:
+    key: MY_CLIENT_ID
+    secret: MY_CLIENT_SECRET

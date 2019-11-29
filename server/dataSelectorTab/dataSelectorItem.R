@@ -498,12 +498,15 @@ dataSelectorTabPanelObserve <- function(input,output,session,
 
     observeEvent(input$showFastqc, {
         d <- currentMetadata$dataset
-        addResourcePath(d,paste0(getwd(),"/data/",d))
+        #addResourcePath(d,paste0(getwd(),"/data/",d))
+        reportPath <- paste0(appConfig$urls$base,"/data/",d,"/",
+            paste0(d,"_multiqc_report.html"))
         showModal(modalDialog(
             title=paste("Fastq sample quality control for dataset",d),
             #includeHTML("www/GSE59017_multiqc_report.html")
             tags$iframe(
-                src=paste0(d,"/",d,"_multiqc_report.html"),
+                #src=paste0(d,"/",d,"_multiqc_report.html"),
+                src=reportPath,
                 width="100%",height=640,
                 #sandbox=paste("allow-forms allow-popups allow-pointer-lock",
                 #   "allow-same-origin allow-scripts allow-top-navigation"),

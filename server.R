@@ -4,8 +4,6 @@ library(auth0)
 # Load required libraries
 source("config/init_server_globals.R")
 
-enableBookmarking(store="server")
-
 #auth0_server(
 function(input,output,session) {
     # Load init packages script
@@ -127,4 +125,4 @@ function(input,output,session) {
             dbDisconnect(metadata)
     })
 }
-#)
+#,info=auth0_info("config/_auth0.yml"))

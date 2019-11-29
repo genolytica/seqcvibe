@@ -135,4 +135,4 @@ fluidPage(
         tabPanel("Logout",icon=icon("sign-out"))
     )
 )
-#)
+#,info=auth0_info("config/_auth0.yml"))
