@@ -617,32 +617,34 @@ areaSignalTabPanelObserve <- function(input,output,session,allReactiveVars,
     })
     
     observe({
-        if (input$areaSumStatType!="trimmed") {
-            shinyjs::disable("areaTrimPct")
-            if (isEmpty(input$areaGeneName) 
-                && length(customArea$name)==0)
-                shinyjs::disable("createAreaProfile")
-            else
-                shinyjs::enable("createAreaProfile")
-        }
-        else {
-            shinyjs::enable("areaTrimPct")
-            trimp <- as.numeric(input$areaTrimPct)
-            if (is.na(trimp) || trimp<0 || trimp>0.5) {
-                output$areaExplorerError <- renderUI({
-                    div(class="error-message",paste("The trimming ",
-                        "must be a number between 0 and 0.5!",sep=""))
-                })
-                shinyjs::disable("createAreaProfile")
-            }
-            else {
-                output$areaExplorerError <- renderUI({div()})
+        if (!isEmpty(input$geneSumStatType)) {
+            if (input$areaSumStatType!="trimmed") {
+                shinyjs::disable("areaTrimPct")
                 if (isEmpty(input$areaGeneName) 
                     && length(customArea$name)==0)
                     shinyjs::disable("createAreaProfile")
                 else
                     shinyjs::enable("createAreaProfile")
-                currentOpts$trim <- trimp
+            }
+            else {
+                shinyjs::enable("areaTrimPct")
+                trimp <- as.numeric(input$areaTrimPct)
+                if (is.na(trimp) || trimp<0 || trimp>0.5) {
+                    output$areaExplorerError <- renderUI({
+                        div(class="error-message",paste("The trimming ",
+                            "must be a number between 0 and 0.5!",sep=""))
+                    })
+                    shinyjs::disable("createAreaProfile")
+                }
+                else {
+                    output$areaExplorerError <- renderUI({div()})
+                    if (isEmpty(input$areaGeneName) 
+                        && length(customArea$name)==0)
+                        shinyjs::disable("createAreaProfile")
+                    else
+                        shinyjs::enable("createAreaProfile")
+                    currentOpts$trim <- trimp
+                }
             }
         }
     })

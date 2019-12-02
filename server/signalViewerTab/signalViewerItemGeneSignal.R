@@ -670,32 +670,35 @@ geneSignalTabPanelObserve <- function(input,output,session,allReactiveVars,
     })
     
     observe({
-        if (input$geneSumStatType!="trimmed") {
-            shinyjs::disable("geneTrimPct")
-            if (isEmpty(input$geneGeneName) 
-                && length(customRegions$name)==0)
-                shinyjs::disable("createGeneProfile")
-            else
-                shinyjs::enable("createGeneProfile")
-        }
-        else {
-            shinyjs::enable("geneTrimPct")
-            trimp <- as.numeric(input$geneTrimPct)
-            if (is.na(trimp) || trimp<0 || trimp>0.5) {
-                output$geneExplorerError <- renderUI({
-                    div(class="error-message",paste("The trimming ",
-                        "must be a number between 0 and 0.5!",sep=""))
-                })
-                shinyjs::disable("createGeneProfile")
-            }
-            else {
-                output$geneExplorerError <- renderUI({div()})
+        # To elminate danger in certain bookmark restores
+        if (!isEmpty(input$geneSumStatType)) { 
+            if (input$geneSumStatType!="trimmed") {
+                shinyjs::disable("geneTrimPct")
                 if (isEmpty(input$geneGeneName) 
                     && length(customRegions$name)==0)
                     shinyjs::disable("createGeneProfile")
                 else
                     shinyjs::enable("createGeneProfile")
-                currentOpts$trim <- trimp
+            }
+            else {
+                shinyjs::enable("geneTrimPct")
+                trimp <- as.numeric(input$geneTrimPct)
+                if (is.na(trimp) || trimp<0 || trimp>0.5) {
+                    output$geneExplorerError <- renderUI({
+                        div(class="error-message",paste("The trimming ",
+                            "must be a number between 0 and 0.5!",sep=""))
+                    })
+                    shinyjs::disable("createGeneProfile")
+                }
+                else {
+                    output$geneExplorerError <- renderUI({div()})
+                    if (isEmpty(input$geneGeneName) 
+                        && length(customRegions$name)==0)
+                        shinyjs::disable("createGeneProfile")
+                    else
+                        shinyjs::enable("createGeneProfile")
+                    currentOpts$trim <- trimp
+                }
             }
         }
     })

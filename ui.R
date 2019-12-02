@@ -22,7 +22,7 @@ source("ui/helpTab/helpItemDoc.R")
 source("ui/helpTab/helpItemFaq.R")
 
 #auth0_ui(
-fluidPage(
+function(request) {fluidPage(
     shinyjs::useShinyjs(),
     tags$head(
         tags$link(
@@ -134,5 +134,5 @@ fluidPage(
         ),
         tabPanel("Logout",icon=icon("sign-out"))
     )
-)
+)}
 #,info=auth0_info("config/_auth0.yml"))

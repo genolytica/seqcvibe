@@ -745,6 +745,8 @@ that will be based in metaseqR2 annotation system
 Any other additional parameters there, e.g. fraction of cores to use
 
 runApp(port=12345,launch.browser=FALSE,host="192.168.100.156")
+runApp(port=12345,launch.browser=FALSE,host="192.168.0.156")
+runApp(port=8080,launch.browser=FALSE,host="192.168.0.156")
 runApp(port=8080,launch.browser=FALSE,host="http://epigenomics.fleming.gr")
 
 options(menu.graphics=FALSE)

@@ -755,24 +755,30 @@ diffExprTabPanelReactive <- function(input,output,session,
     
     # Now the sliders
     statSliderUpdate <- reactive({
-        if (input$statThresholdType=="pvalue") {
-            index <- as.integer(input$pvalue)
-            # Dirty hack for the 1st loading...
-            if (index==0) index <- 10
-            currentRnaDeTable$tableFilters$p <- statScoreValues[index+1]
-        }
-        else if (input$statThresholdType=="fdr") {
-            index <- as.integer(input$fdr)
-            if (index==0) index <- 10
-            currentRnaDeTable$tableFilters$fdr <- statScoreValues[index+1]
+        if (!isEmpty(input$statThresholdType)) {
+            if (input$statThresholdType=="pvalue") {
+                if (input$statThresholdType=="pvalue") {
+                    index <- as.integer(input$pvalue)
+                    # Dirty hack for the 1st loading...
+                    if (index==0) index <- 10
+                    currentRnaDeTable$tableFilters$p <- statScoreValues[index+1]
+                }
+                else if (input$statThresholdType=="fdr") {
+                    index <- as.integer(input$fdr)
+                    if (index==0) index <- 10
+                    currentRnaDeTable$tableFilters$fdr <- statScoreValues[index+1]
+                }
+            }
         }
     })
     
     valueScaleUpdate <- reactive({
-        if (input$rnaDeValueScaleRadio=="natural")
-            currentRnaDeTable$tableFilters$scale <- "natural"
-        else if (input$rnaDeValueScaleRadio=="log2")
-            currentRnaDeTable$tableFilters$scale <- "log2"
+        if (!isEmpty(input$rnaDeValueScaleRadio)) {
+            if (input$rnaDeValueScaleRadio=="natural")
+                currentRnaDeTable$tableFilters$scale <- "natural"
+            else if (input$rnaDeValueScaleRadio=="log2")
+                currentRnaDeTable$tableFilters$scale <- "log2"
+        }
     })
     
     foldChangeSliderUpdate <- reactive({
@@ -801,19 +807,21 @@ diffExprTabPanelReactive <- function(input,output,session,
     })
     
     filterByBiotypeUpdate <- reactive({
-        if (input$rnaDeAnalyzedBiotypeFilter) {
-            bts <- getBiotypes(currentMetadata$genome)
-            names(bts) <- bts
-            wh <- names(which(sapply(bts,function(b) {
-                if (!isEmpty(input[[paste(b,"asFilter",sep="_")]]))
-                    return(input[[paste(b,"asFilter",sep="_")]])
-                else
-                    return(FALSE)
-            })))
-            currentRnaDeTable$tableFilters$bt <- wh
+        if (!isEmpty(input$rnaDeAnalyzedBiotypeFilter)) {
+            if (input$rnaDeAnalyzedBiotypeFilter) {
+                bts <- getBiotypes(currentMetadata$genome)
+                names(bts) <- bts
+                wh <- names(which(sapply(bts,function(b) {
+                    if (!isEmpty(input[[paste(b,"asFilter",sep="_")]]))
+                        return(input[[paste(b,"asFilter",sep="_")]])
+                    else
+                        return(FALSE)
+                })))
+                currentRnaDeTable$tableFilters$bt <- wh
+            }
+            else
+                currentRnaDeTable$tableFilters$bt <- NULL
         }
-        else
-            currentRnaDeTable$tableFilters$bt <- NULL
     })
     
     updateMaPlot <- reactive({
@@ -1499,36 +1507,40 @@ diffExprTabPanelObserve <- function(input,output,session,
     })
     
     observe({
-        if (input$rnaDeGeneFilter=="quantile") {
-            qq <- as.numeric(input$rnaDeQuantileFilter)
-            if (is.na(qq) || qq<0 || qq>1) {
-                output$rnaDeSettingsError <- renderUI({
-                    div(class="error-message",paste("The quantile ",
-                        "must be a number between 0 and 1!",sep=""))
-                })
-                shinyjs::disable("performDeAnalysis")
+        if (!isEmpty(input$rnaDeGeneFilter)) {
+            if (input$rnaDeGeneFilter=="quantile") {
+                qq <- as.numeric(input$rnaDeQuantileFilter)
+                if (is.na(qq) || qq<0 || qq>1) {
+                    output$rnaDeSettingsError <- renderUI({
+                        div(class="error-message",paste("The quantile ",
+                            "must be a number between 0 and 1!",sep=""))
+                    })
+                    shinyjs::disable("performDeAnalysis")
+                }
+                else {
+                    output$rnaDeSettingsError <- renderUI({div()})
+                    if (isEmpty(currentMetadata$final))
+                        shinyjs::disable("performDeAnalysis")
+                    else
+                        shinyjs::enable("performDeAnalysis")
+                }
             }
             else {
-                output$rnaDeSettingsError <- renderUI({div()})
                 if (isEmpty(currentMetadata$final))
                     shinyjs::disable("performDeAnalysis")
                 else
                     shinyjs::enable("performDeAnalysis")
             }
         }
-        else {
-            if (isEmpty(currentMetadata$final))
-                shinyjs::disable("performDeAnalysis")
-            else
-                shinyjs::enable("performDeAnalysis")
-        }           
     })
     
     observe({
-        if (input$toggleRnaDeZoom)
-            shinyjs::enable("resetRnaDeZoom")
-        else
-            shinyjs::disable("resetRnaDeZoom")
+        if (!isEmpty(input$toggleRnaDeZoom)) {
+            if (input$toggleRnaDeZoom)
+                shinyjs::enable("resetRnaDeZoom")
+            else
+                shinyjs::disable("resetRnaDeZoom")
+        }
     })
     
     observe({

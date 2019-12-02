@@ -2,19 +2,19 @@ sessionLoaderTabPanel <- function() {
     fluidRow(column(9,
         fluidRow(column(12,
             wellPanel(
-                h4("Application Bookmarks"),
+                h4("Session manager"),
                 fluidRow(column(12,
                     div(
                         class="center",
                         fluidRow(column(6, 
                             textInput(
                                 inputId = "description", 
-                                label = "Bookmark description", 
-                                placeholder = "Save bookmark as..."
+                                label = "Session description", 
+                                placeholder = "Save session as..."
                             )), column(6, 
                             bookmarkButton(
                                 id="bookmarkBtn", 
-                                label = "Add Bookmark", 
+                                label = "Add session", 
                                 title = "Snapshot current status of application."
                             ))),
                         DT::dataTableOutput("urlTable"),
@@ -26,8 +26,8 @@ sessionLoaderTabPanel <- function() {
                         class="pull-left",
                         disabled(actionButton(
                             inputId="deleteBM",
-                            label="Delete Bookmark",
-                            title="Delete selected bookmarks",
+                            label="Delete session",
+                            title="Delete selected sessions",
                             icon=icon("minus")
                         ))
                     )

@@ -677,11 +677,13 @@ correlationTabPanelObserve <- function(input,output,session,
     })
     
     observe({
-        if (input$rnaCorrelateWhat=="refgene" 
-            && isEmpty(input$rnaCorrelationRefGene))
-            shinyjs::disable("performRnaCorrelation")
-        else
-            shinyjs::enable("performRnaCorrelation")
+        if (!isEmpty(input$rnaCorrelateWhat)) {
+            if (input$rnaCorrelateWhat=="refgene" 
+                && isEmpty(input$rnaCorrelationRefGene))
+                shinyjs::disable("performRnaCorrelation")
+            else
+                shinyjs::enable("performRnaCorrelation")
+        }
     })
     
     observe({
