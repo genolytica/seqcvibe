@@ -2,6 +2,7 @@
 .RData
 .Rhistory
 config/metadata.txt
+config/app_config.json
 /data/
 /genome/
 /shiny_bookmarks/

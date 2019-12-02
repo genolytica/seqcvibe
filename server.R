@@ -18,6 +18,7 @@ shinyServer(
         source("server/expressionViewerTab/expressionViewerItemCalculator.R",
             local=TRUE)
         source("server/analysisTab/analysisItemDiffExpr.R",local=TRUE)
+        source("server/analysisTab/analysisItemGeneExpr.R",local=TRUE)
         source("server/analysisTab/analysisItemClustering.R",local=TRUE)
         source("server/analysisTab/analysisItemCorrelation.R",local=TRUE)
         source("server/analysisTab/analysisItemMdsPca.R",local=TRUE)
@@ -61,6 +62,10 @@ shinyServer(
         
         # Analysis - Differential expression
         diffExprTabPanelObserve(input,output,session,allReactiveVars,
+            allReactiveMsgs)
+
+        # Analysis - Gene expression
+        geneExprTabPanelObserve(input,output,session,allReactiveVars,
             allReactiveMsgs)
         
         # Analysis - Clustering

@@ -141,6 +141,28 @@ initReactiveVars <- function() {
             colors="RdYlBu"
         )
     )
+
+    currentBoxplot <- reactiveValues(
+        entry=ggmessage("Resulting boxplot will\nbe displayed here"),
+        timeout=ggmessage(paste("Gene expression operation took too long\nto ",
+            "complete and was aborted.\nConsider lowering the number of genes",
+            "\nand/or conditions to prevent this.",sep=""),type="error"),
+        error=ggmessage(paste("Gene expression operation resulted in an error\n ",
+            "most probably because of memory reasons.\nConsider lowering the ",
+            "number of genes\nand/or conditions to prevent this.",sep=""),
+            type="error"),
+        data=NULL,
+        opts=list(
+            # dendrogram="both",
+            # distfun="dist",
+            # hclustfun="hclust",
+            # Rowv=TRUE,
+            # Colv=TRUE,
+            # k_row=1,
+            # k_col=1,
+            # colors="RdYlBu"
+        )
+    )
     
     currentCorrelation <- reactiveValues(
         entryCor=ggmessage("Resulting figures will\nbe displayed here"),

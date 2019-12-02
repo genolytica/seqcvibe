@@ -12,6 +12,7 @@ source("ui/signalViewerTab/signalViewerItemAreaSignal.R")
 source("ui/expressionViewerTab/expressionViewerItemKnownGenes.R")
 source("ui/expressionViewerTab/expressionViewerItemCalculator.R")
 source("ui/analysisTab/analysisItemDiffExpr.R")
+source("ui/analysisTab/analysisItemGeneExpr.R")
 source("ui/analysisTab/analysisItemMdsPca.R")
 source("ui/analysisTab/analysisItemCorrelation.R")
 source("ui/analysisTab/analysisItemClustering.R")
@@ -102,6 +103,9 @@ shinyUI(function(request) fluidPage(
         navbarMenu("Analysis",icon=icon("flask"),
             tabPanel("Differential expression",icon=icon("star-half-o"),
                 differentialExpressionTabPanel()
+            ),
+            tabPanel("Gene expression analysis",icon=icon("chart-bar"),
+                geneExpressionTabPanel()
             ),
             tabPanel("Clustering analysis",icon=icon("sitemap"),
                 clusteringTabPanel()
