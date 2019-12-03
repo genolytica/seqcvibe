@@ -9,3 +9,4 @@ config/app_config.json
 www/GSE59017_multiqc_report.html
 www/ngsReports_Fastqc.html
 /test/
+

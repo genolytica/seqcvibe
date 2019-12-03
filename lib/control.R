@@ -632,8 +632,9 @@ getTrack <- function(refArea,customGene=NULL,source,dataset,class,sumStat,
 getCustomCounts <- function(coords,samples,config,messageContainer=NULL,
     progressFun=NULL,rc=NULL) {
     coords <- validGRangesFromGRanges(coords)
-    subconf <- as.character(config[samples,"sample_dir"])
-    names(subconf) <- as.character(config[samples,"sample_id"])
+    ind <- which(config$sample_id==samples)
+    subconf <- as.character(config$sample_dir[ind])
+    names(subconf) <- as.character(config$sample_id[ind])
     customCounts <- vector("list",length(coords))
     names(customCounts) <- names(coords)
     for (n in names(coords)) {
@@ -644,9 +645,15 @@ getCustomCounts <- function(coords,samples,config,messageContainer=NULL,
             text <- paste("Calculating expression for ",n)
             progressFun(detail=text)
         }
-        customCounts[[n]] <- unlist(cmclapply(subconf,function(x,coord) {
-            bam.file <- dir(x,pattern=".bam$",full.names=TRUE)
-            bam.index <- dir(x,pattern=".bai$",full.names=TRUE)
+        # assign("coords",coords,envir = .GlobalEnv)
+        # assign("subconf",subconf,envir = .GlobalEnv)
+        # assign("config",config,envir = .GlobalEnv)
+        # assign("samples",samples,envir = .GlobalEnv)
+        customCounts[[n]] <- unlist(cmclapply(seq_along(subconf),function(i,coord) {            
+            bam.file <- dir(subconf[i],pattern=paste0(samples[i],".bam$"),full.names=TRUE)
+            bam.index <- dir(subconf[i],pattern=paste0(samples[i],".bam.bai$"),full.names=TRUE)
+            # assign("x",x,envir = .GlobalEnv)
+            # assign("bam.file",bam.file,envir = .GlobalEnv)
             bp <- ScanBamParam(which=coord)                
             reads <- unlist(grglist(readGAlignments(file=bam.file,
                 index=bam.index,param=bp,with.which_label=TRUE)))
@@ -654,9 +661,11 @@ getCustomCounts <- function(coords,samples,config,messageContainer=NULL,
             return(length(reads))
         },coords[n],rc=rc))
         names(customCounts[[n]]) <- names(subconf)
+        # assign("customCounts",customCounts,envir = .GlobalEnv)
     }
     return(do.call("rbind",customCounts))
 }
+
 
 getGeneCoordinatesForSpline <- function(gene,anndb,flank=NULL) {
     # anndb must be GRanges in this case
