@@ -22,8 +22,10 @@ source("ui/helpTab/helpItemDoc.R")
 source("ui/helpTab/helpItemFaq.R")
 
 #auth0_ui(
-function(request) {fluidPage(
+function(request) { 
+    fluidPage(
     shinyjs::useShinyjs(),
+    includeCSS("www/seqcvibe.css"),
     tags$head(
         tags$link(
             rel="stylesheet",
@@ -133,6 +135,15 @@ function(request) {fluidPage(
             fluidRow(column(12,includeHTML("www/about.html")))
         ),
         tabPanel("Logout",icon=icon("sign-out"))
+    ),
+    tags$div(id="spinnerContainer",
+        tags$div(class="spinner",
+            tags$div(class="rect1"),
+            tags$div(class="rect2"),
+            tags$div(class="rect3"),
+            tags$div(class="rect4"),
+            tags$div(class="rect5"),
+        )
     )
 )}
 #,info=auth0_info("config/_auth0.yml"))

@@ -43,22 +43,34 @@ sessionLoaderTabPanelObserve <- function(input,output,session,
         currentMetadata$urlDF <- NULL
 
     observeEvent(input$bookmarkBtn, {
-        session$doBookmark()
-        showNotification(
-            paste(
-                getTime("SUCCESS:"),
-                "Bookmark: '",
-                input$description,
-                "' created",sep=""
-            ),  
-            duration = 5, 
-            type = 'message')
-        #sessionLoaderMessages <- updateMessages(
-        #    sessionLoaderMessages,
-        #    type="SUCCESS",
-        #    msg=paste(getTime("SUCCESS"),
-        #        "Bookmark ",input$description," created",sep="")
-        #)
+        # If no dataset has been created, do not allow session creation
+        if (is.null(currentMetadata$final)) {
+            showModal(modalDialog("Please create a dataset first! SeqCVIBE ",
+                "sessions can be created only if there is an active dataset!",
+                title="No dataset!",
+                easyClose=TRUE,
+                size="s"
+            ))
+        }
+        else {
+            session$doBookmark()
+            showNotification(
+                paste(
+                    getTime("SUCCESS:"),
+                    "Bookmark: '",
+                    input$description,
+                    "' created",sep=""
+                ),  
+                duration = 5, 
+                type = 'message')
+            #sessionLoaderMessages <- updateMessages(
+            #    sessionLoaderMessages,
+            #    type="SUCCESS",
+            #    msg=paste(getTime("SUCCESS"),
+            #        "Bookmark ",input$description," created",sep="")
+            #)
+        }
+        
     })
 
     observeEvent(input$deleteBM,{

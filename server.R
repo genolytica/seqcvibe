@@ -27,6 +27,10 @@ function(input,output,session) {
     # Init packages
     initPackages(session)
     
+    #assign("session",session,envir=.GlobalEnv)
+    #assign("input",input,envir=.GlobalEnv)
+    #assign("output",output,envir=.GlobalEnv)
+    
     # Make %#^%$^%$@( globals visible AND changeable
     makeReactiveBinding("loadedGenomes")
     makeReactiveBinding("loadedData")
@@ -79,47 +83,115 @@ function(input,output,session) {
     # Genome browser
     genomeBrowserTabPanelObserve(input,output,session,allReactiveVars,
         allReactiveMsgs)
-
-    onRestore(function(state){
-        updateNavbarPage(session, "seqcnavbar", selected = "Data selector")
-        showModal(modalDialog("Please wait while the session is being ",
-            "restored to its bookmarked state. Remember To 'Clear Dataset'",
-            " if you want to start over!",
-            title="Session Bookmark",
-            easyClose=TRUE,
-            footer=NULL,
-            fade=TRUE
-        ))
-        # Reruning the whole server script to restore Bookmarked session
-#~         shinyjs::delay(3000, {
-#~         dataSelectorTabPanelObserve(state$input,state$output,session,
-#~             allReactiveVars,allReactiveMsgs)
-#~         geneSignalTabPanelObserve(state$input,state$output,session,
-#~             allReactiveVars,allReactiveMsgs)
-#~         areaSignalTabPanelObserve(state$input,state$output,session,
-#~             allReactiveVars,allReactiveMsgs)  
-#~         expressionExplorerTabPanelObserve(state$input,output,session,
-#~             allReactiveVars,allReactiveMsgs)
-#~         expressionCalculatorTabPanelObserve(state$input,output,session,
-#~             allReactiveVars,allReactiveMsgs)   
-#~         diffExprTabPanelObserve(state$input,state$output,session,
-#~             allReactiveVars,allReactiveMsgs)
-#~         clusteringTabPanelObserve(state$input,output,session,
-#~             allReactiveVars,allReactiveMsgs)
-#~         correlationTabPanelObserve(state$input,output,session,
-#~             allReactiveVars,allReactiveMsgs)
-#~         mdsPcaTabPanelObserve(state$input,state$output,session,
-#~             allReactiveVars,allReactiveMsgs)
-#~         genomeBrowserTabPanelObserve(state$input,output,session,
-#~             allReactiveVars,allReactiveMsgs)
-#~         showNotification('Restoring bookmarked state...',duration=10,
-#~             type='message')
-#~         })
+        
+    onRestore(function(state) {
+        #assign("state",state,envir=.GlobalEnv)
+        
+        shinyjs::show("spinnerContainer")
+        
+        query <- getQueryString()
+        # If onRestore has fired, it means that query is not empty
+        if (!is.null(query$code)) { # Fired with auth0, further check
+            if (!is.null(query$`_state_id_`)) { # Then fire server script
+                updateNavbarPage(session,"seqcnavbar",selected="Data selector")
+                #showModal(modalDialog("Please wait while the session is being ",
+                #    "restored to its bookmarked state. Remember To 'Clear ",
+                #    "Dataset'if you want to start over!",
+                #    title="Session Bookmark",
+                #    easyClose=TRUE,
+                #    footer=NULL,
+                #    fade=TRUE
+                #))
+                
+                # Reruning the whole server script to restore Bookmarked session
+                shinyjs::delay(3000,{
+                dataSelectorTabPanelObserve(state$input,state$output,session,
+                    allReactiveVars,allReactiveMsgs)
+                geneSignalTabPanelObserve(state$input,state$output,session,
+                    allReactiveVars,allReactiveMsgs)
+                areaSignalTabPanelObserve(state$input,state$output,session,
+                    allReactiveVars,allReactiveMsgs)  
+                expressionExplorerTabPanelObserve(state$input,output,session,
+                    allReactiveVars,allReactiveMsgs)
+                expressionCalculatorTabPanelObserve(state$input,output,session,
+                    allReactiveVars,allReactiveMsgs)   
+                diffExprTabPanelObserve(state$input,state$output,session,
+                    allReactiveVars,allReactiveMsgs)
+                clusteringTabPanelObserve(state$input,output,session,
+                    allReactiveVars,allReactiveMsgs)
+                correlationTabPanelObserve(state$input,output,session,
+                    allReactiveVars,allReactiveMsgs)
+                mdsPcaTabPanelObserve(state$input,state$output,session,
+                    allReactiveVars,allReactiveMsgs)
+                genomeBrowserTabPanelObserve(state$input,output,session,
+                    allReactiveVars,allReactiveMsgs)
+                #shinyjs::hide("spinnerContainer")
+                #showNotification('Restoring session...',duration=10,
+                #    type='message')
+                })
+            }
+        }
+        else { # Just check _state_id_
+            if (!is.null(query$`_state_id_`)) { # Then fire server script
+                updateNavbarPage(session,"seqcnavbar",selected="Data selector")
+                #showModal(modalDialog("Please wait while the session is being ",
+                #    "restored to its bookmarked state. Remember To 'Clear ",
+                #    "Dataset'if you want to start over!",
+                #    title="Session Bookmark",
+                #    easyClose=TRUE,
+                #    footer=NULL,
+                #    fade=TRUE
+                #))
+                
+                # Reruning the whole server script to restore Bookmarked session
+                shinyjs::delay(3000,{
+                dataSelectorTabPanelObserve(state$input,state$output,session,
+                    allReactiveVars,allReactiveMsgs)
+                geneSignalTabPanelObserve(state$input,state$output,session,
+                    allReactiveVars,allReactiveMsgs)
+                areaSignalTabPanelObserve(state$input,state$output,session,
+                    allReactiveVars,allReactiveMsgs)  
+                expressionExplorerTabPanelObserve(state$input,output,session,
+                    allReactiveVars,allReactiveMsgs)
+                expressionCalculatorTabPanelObserve(state$input,output,session,
+                    allReactiveVars,allReactiveMsgs)   
+                diffExprTabPanelObserve(state$input,state$output,session,
+                    allReactiveVars,allReactiveMsgs)
+                clusteringTabPanelObserve(state$input,output,session,
+                    allReactiveVars,allReactiveMsgs)
+                correlationTabPanelObserve(state$input,output,session,
+                    allReactiveVars,allReactiveMsgs)
+                mdsPcaTabPanelObserve(state$input,state$output,session,
+                    allReactiveVars,allReactiveMsgs)
+                genomeBrowserTabPanelObserve(state$input,output,session,
+                    allReactiveVars,allReactiveMsgs)
+                #shinyjs::hide("spinnerContainer")
+                #showNotification('Restoring session...',duration=10,
+                #    type='message')
+                })
+            }
+        }
+    })
+    
+    onRestored(function(state) {
+        observe({
+            # Will always be filled after a session restore, as session creation
+            # is not allowed if a dataset has not been created
+            if (!is.null(allReactiveVars$currentMetadata$final)) {
+                shinyjs::hide("spinnerContainer")
+                showModal(modalDialog(HTML("The selected session has been ",
+                    "restored! Remember To hit <strong>Clear Dataset</strong> ",
+                    "if you want to start over!"),
+                    title="Session restored",
+                    easyClose=TRUE,
+                    size="s"
+                ))
+            }
+        })
     })
     
     # Excluding unnecessary actions from bookmarking
-    setBookmarkExclude(c("bookmarkBtn","showFastqc","clearDataset",
-        "deleteBM"))
+    setBookmarkExclude(c("bookmarkBtn","showFastqc","clearDataset","deleteBM"))
         
     onStop(function() {
         if (!is(metadata,"SQLiteConnection"))
