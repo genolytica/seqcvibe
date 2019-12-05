@@ -44,18 +44,24 @@ initDatabase <- function(db) {
             "quality INTEGER,",
             "norm_factor REAL,",
             "genome TEXT,",
-            "user TEXT",
+            "is_public INTEGER DEFAULT 0,",
+            "user_id INTEGER DEFAULT NULL,",
+            "dataset_id INTEGER DEFAULT NULL,",
+            "FOREIGN KEY(user_id) REFERENCES users(_id) ",
+            "ON DELETE CASCADE,",
+            "FOREIGN KEY(dataset_id) REFERENCES datasets(_id) ",
+            "ON DELETE CASCADE",
             ");"
         ),
-        summaries=paste0(
-            "CREATE TABLE IF NOT EXISTS summaries (",
+        datasets=paste0(
+            "CREATE TABLE IF NOT EXISTS datasets (",
             "_id INTEGER PRIMARY KEY AUTOINCREMENT,",
-            "dataset TEXT NOT NULL,",
+            "dataset TEXT,",
             "title TEXT,",
             "link TEXT,",
             "short_summary TEXT,",
-            "content_id INTEGER NOT NULL,",
-            "FOREIGN KEY(dataset) REFERENCES metadata(dataset) ",
+            "user_id INTEGER DEFAULT NULL,",
+            "FOREIGN KEY(user_id) REFERENCES users(_id) ",
             "ON DELETE CASCADE",
             ");"
         ),
@@ -63,12 +69,23 @@ initDatabase <- function(db) {
             "CREATE TABLE IF NOT EXISTS bookmarks (",
             "_id INTEGER PRIMARY KEY AUTOINCREMENT,",
             "description TEXT,",
-            "url TEXT,",
+            "state_id TEXT NOT NULL,",
             "timestamp REAL,",
             "session TEXT,",
-            "user TEXT",
+            "user_id INTEGER DEFAULT NULL,",
+            "FOREIGN KEY(user_id) REFERENCES users(_id) ",
+            "ON DELETE CASCADE",
+            ");"
+        ),
+        users=paste(
+            "CREATE TABLE IF NOT EXISTS users (",
+            "_id INTEGER PRIMARY KEY AUTOINCREMENT,",
+            "email TEXT NOT NULL UNIQUE,",
+            "name TEXT,",
+            "role INTEGER NOT NULL DEFAULT 0",
             ");"
         )
+        # On login, the user will be registered in the local db, if not exist
     ))
 }
 

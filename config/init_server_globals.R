@@ -18,8 +18,6 @@ source("lib/util.R")
 # source("lib/queries.R")
 # QUERIES <- initQueries()
 
-#USER <- "panos"
-
 appConfig <- fromJSON("config/app_config.json")
 
 # If the symlink to the data directory is not in place, create it!
@@ -45,11 +43,11 @@ genomes <- as.character(dbGetQuery(metadata,
     "SELECT DISTINCT genome FROM metadata")$genome)
 genome <- genomes[1]
 title <- as.character(dbGetQuery(metadata,paste0("SELECT DISTINCT title FROM ",
-    "summaries WHERE dataset='",datasets[1],"'"))$title)
+    "datasets WHERE dataset='",datasets[1],"'"))$title)
 link <- as.character(dbGetQuery(metadata,paste0("SELECT DISTINCT link  FROM ",
-    "summaries WHERE dataset='",datasets[1],"'"))$link)
+    "datasets WHERE dataset='",datasets[1],"'"))$link)
 short_summary <- as.character(dbGetQuery(metadata,paste0("SELECT  DISTINCT ",
-    "short_summary FROM summaries WHERE dataset='",datasets[1],
+    "short_summary FROM datasets WHERE dataset='",datasets[1],
     "'"))$short_summary)
 
 ## Load data file hash

@@ -19,7 +19,7 @@ dataSelectorTabPanelEventReactive <- function(input,output,session,
         currentMetadata$dataset <- d
         currInd <- paste0("FROM metadata WHERE source='",s,
             "' AND dataset='",d,"'")
-        summInd <- paste0("FROM summaries WHERE dataset='",d,"'")
+        summInd <- paste0("FROM datasets WHERE dataset='",d,"'")
         
         currentMetadata$class <- as.character(dbGetQuery(metadata,
             paste0("SELECT DISTINCT class ",currInd))$class)

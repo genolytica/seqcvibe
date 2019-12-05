@@ -62,7 +62,8 @@ function(request) {
                     'to': 20
                 });
                 // Logout button functionality
-                $('a[href^=#tab-][href$=-8]').on('click',function() {
+                //$('a[href^=#tab-][href$=-8]').on('click',function() {
+                $('[data-value=Logout]').on('click',function() {
                     window.location.href =  'https://fleming.eu.auth0.com/v2/logout?returnTo=http://www.fleming.gr&client_id=0iezxzzsfxVDWiE0XaXnYdkDsS91f1zF';
                 });
             },5)})"
@@ -147,3 +148,4 @@ function(request) {
     )
 )}
 #,info=auth0_info("config/_auth0.yml"))
+#,info=a0_info)

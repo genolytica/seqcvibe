@@ -27,13 +27,11 @@ function(input,output,session) {
     # Init packages
     initPackages(session)
     
-    #assign("session",session,envir=.GlobalEnv)
-    #assign("input",input,envir=.GlobalEnv)
-    #assign("output",output,envir=.GlobalEnv)
-    
     # Make %#^%$^%$@( globals visible AND changeable
     makeReactiveBinding("loadedGenomes")
     makeReactiveBinding("loadedData")
+    
+    USER_ID <- reactiveVal(NULL)
     
     # Initialize all the reactive variables used...
     allReactiveVars <- initReactiveVars()
@@ -83,25 +81,38 @@ function(input,output,session) {
     # Genome browser
     genomeBrowserTabPanelObserve(input,output,session,allReactiveVars,
         allReactiveMsgs)
-        
+    
+    # Handle user login
+    observe({
+        if (!is.null(session$userData$auth0_info)) {
+            email <- session$userData$auth0_info$email
+            name <- session$userData$auth0_info$name
+            qCheck <- paste0("SELECT COUNT(1) FROM users WHERE email='",
+                email,"'")
+            n <- dbGetQuery(metadata,qCheck)[1,1]
+            if (n == 0) { # Create also the user in our local db
+                iQuery <- paste0("INSERT INTO users (email, name) ",
+                    "VALUES ('",email,"',","'",name,"')")
+                print(iQuery)
+                nr <- dbExecute(metadata,iQuery)
+            }
+            
+            # Then get the (new) user_id
+            ii <- dbGetQuery(metadata,paste0("SELECT _id FROM users WHERE ",
+                "email='",email,"'"))[1,1]
+            USER_ID(as.numeric(ii))
+            print(USER_ID())
+        }
+    })
+    
     onRestore(function(state) {
-        #assign("state",state,envir=.GlobalEnv)
-        
-        shinyjs::show("spinnerContainer")
-        
         query <- getQueryString()
+        
         # If onRestore has fired, it means that query is not empty
         if (!is.null(query$code)) { # Fired with auth0, further check
             if (!is.null(query$`_state_id_`)) { # Then fire server script
+                shinyjs::show("spinnerContainer")
                 updateNavbarPage(session,"seqcnavbar",selected="Data selector")
-                #showModal(modalDialog("Please wait while the session is being ",
-                #    "restored to its bookmarked state. Remember To 'Clear ",
-                #    "Dataset'if you want to start over!",
-                #    title="Session Bookmark",
-                #    easyClose=TRUE,
-                #    footer=NULL,
-                #    fade=TRUE
-                #))
                 
                 # Reruning the whole server script to restore Bookmarked session
                 shinyjs::delay(3000,{
@@ -125,23 +136,13 @@ function(input,output,session) {
                     allReactiveVars,allReactiveMsgs)
                 genomeBrowserTabPanelObserve(state$input,output,session,
                     allReactiveVars,allReactiveMsgs)
-                #shinyjs::hide("spinnerContainer")
-                #showNotification('Restoring session...',duration=10,
-                #    type='message')
                 })
             }
         }
         else { # Just check _state_id_
             if (!is.null(query$`_state_id_`)) { # Then fire server script
+                shinyjs::show("spinnerContainer")
                 updateNavbarPage(session,"seqcnavbar",selected="Data selector")
-                #showModal(modalDialog("Please wait while the session is being ",
-                #    "restored to its bookmarked state. Remember To 'Clear ",
-                #    "Dataset'if you want to start over!",
-                #    title="Session Bookmark",
-                #    easyClose=TRUE,
-                #    footer=NULL,
-                #    fade=TRUE
-                #))
                 
                 # Reruning the whole server script to restore Bookmarked session
                 shinyjs::delay(3000,{
@@ -165,9 +166,6 @@ function(input,output,session) {
                     allReactiveVars,allReactiveMsgs)
                 genomeBrowserTabPanelObserve(state$input,output,session,
                     allReactiveVars,allReactiveMsgs)
-                #shinyjs::hide("spinnerContainer")
-                #showNotification('Restoring session...',duration=10,
-                #    type='message')
                 })
             }
         }
@@ -199,3 +197,4 @@ function(input,output,session) {
     })
 }
 #,info=auth0_info("config/_auth0.yml"))
+#,info=a0_info)

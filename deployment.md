@@ -491,7 +491,16 @@ buildTrackList(
 )
 ```
 
-### Main configuration file
+Finally, because of the nature of SeqCVIBE data (users etc.), faceted tracks
+must be enabled. To do this, go to ```$SEQC_HOME/jbrowse/jbrowse.conf``` and
+uncomment (as per the instructions in the file itself) lines 10 and 11:
+
+```
+[trackSelector]
+type = Faceted
+```
+
+## Main configuration file
 
 Now that JBrowse and the data tracks are in place, we should create the main
 SeqCVIBE JSON configuration file in ```$SEQC_HOME/config```:
@@ -519,7 +528,7 @@ and then paste the following (for our case):
 A generic application configuration can be found in 
 ```$SEQC_HOME/config/app_config_template.json```
 
-### Move the testing app into production
+## Move the testing app into production
 
 Now we are ready to move the application in the directory server by Shiny Server
 
@@ -545,6 +554,7 @@ sudo a2enmod deflate
 sudo a2enmod headers
 sudo a2enmod proxy
 sudo a2enmod proxy_http
+sudo a2enmod proxy_wstunnel
 ```
 
 2. A symbolic link must then be created in the directory served by the web 
@@ -553,6 +563,8 @@ server, for example, in our case, to support JBrowse and the tracks:
 ```
 sudo ln -s /media/storage/pilot/ /var/www/seqc_elixir
 ```
+
+### Apache Virtual Host
 
 Below, the configuration required for the instance that will run our SeqCVIBE
 instance together with JBrowse. Some general variables below have to be replaced
@@ -623,10 +635,25 @@ Replace $HOME with the SeqCVIBE root directory below.
         Require all granted
     </Directory>
     
+    <Proxy *>
+        Allow from localhost
+    </Proxy>
     
     ProxyPreserveHost On
     ProxyPass /seqcvibe http://seqcvibe.server.name:3838/seqcvibe
     ProxyPassReverse /seqcvibe http://seqcvibe.server.name:3838/seqcvibe
+    ## If you want to do this through localhost - more guaranteed result
+    #ProxyPass /seqcvibe http://localhost:3838/seqcvibe
+    #ProxyPassReverse /seqcvibe http://localhost:3838/seqcvibe
+
+    RewriteEngine on
+    RewriteCond %{HTTP:Upgrade} =websocket
+    RewriteRule /(.*) ws://localhost:3838/$1 [P,L]
+    RewriteCond %{HTTP:Upgrade} !=websocket
+    RewriteRule /(.*) http://localhost:3838/$1 [P,L]
+    ProxyPass / http://localhost:3838/
+    ProxyPassReverse / http://localhost:3838/
+    ProxyRequests Off
     
     ServerSignature Off
 </VirtualHost>
@@ -697,9 +724,25 @@ and then paste
         Require all granted
     </Directory>
     
+    <Proxy *>
+        Allow from localhost
+    </Proxy>
+    
     ProxyPreserveHost On
     ProxyPass /seqcvibe http://62.217.82.158:3838/seqcvibe
     ProxyPassReverse /seqcvibe http://62.217.82.158:3838/seqcvibe
+    ## If you want to do this through localhost - more guaranteed result
+    #ProxyPass /seqcvibe http://localhost:3838/seqcvibe
+    #ProxyPassReverse /seqcvibe http://localhost:3838/seqcvibe
+
+    RewriteEngine on
+    RewriteCond %{HTTP:Upgrade} =websocket
+    RewriteRule /(.*) ws://localhost:3838/$1 [P,L]
+    RewriteCond %{HTTP:Upgrade} !=websocket
+    RewriteRule /(.*) http://localhost:3838/$1 [P,L]
+    ProxyPass / http://localhost:3838/
+    ProxyPassReverse / http://localhost:3838/
+    ProxyRequests Off
     
     ServerSignature Off
 </VirtualHost>
@@ -710,6 +753,85 @@ Then, enable the new site (new virtual host for SeqCVIBE) and restart Apache:
 ```
 sudo a2ensite elixir-seqcvibe.conf
 sudo service apache2 restart
+```
+
+### Shiny server configuration
+
+The initial Shiny server configuration file should look like this:
+
+```
+cat /etc/shiny-server/shiny-server.conf
+
+# Instruct Shiny Server to run applications as the user "shiny"
+run_as shiny;
+
+# Define a server that listens on port 3838
+server {
+  listen 3838;
+
+  # Define a location at the base URL
+  location / {
+
+    # Host the directory of Shiny Apps stored in this directory
+    site_dir /srv/shiny-server;
+
+    # Log all Shiny output to files in this directory
+    log_dir /var/log/shiny-server;
+
+    # When a user visits the base URL rather than a particular application,
+    # an index of the applications available in this directory will be shown.
+    directory_index on; 
+  }
+}
+```
+
+Make sure to add the following lines inside the ```server``` definition, as 
+there have been [problems](https://stackoverflow.com/questions/44397818/shiny-apps-greyed-out-nginx-proxy-over-ssl) 
+reported with SockJS
+
+```
+sanitize_errors off;
+disable_protocols xdr-streaming xhr-streaming iframe-eventsource iframe-htmlfile;
+```
+
+and also increase some Shiny server timeout [limits](https://docs.rstudio.com/shiny-server/#application-timeouts) 
+regarding app initialization and idle time.
+
+```
+app_init_timeout 30;
+app_idle_timeout 1800;
+```
+
+So the final Shiny server configuration file should look like the following:
+
+```
+# Instruct Shiny Server to run applications as the user "shiny"
+run_as shiny;
+
+# Define a server that listens on port 3838
+server {
+  listen 3838;
+
+  # Define a location at the base URL
+  location / {
+
+    # Host the directory of Shiny Apps stored in this directory
+    site_dir /srv/shiny-server;
+
+    # Log all Shiny output to files in this directory
+    log_dir /var/log/shiny-server;
+
+    # When a user visits the base URL rather than a particular application,
+    # an index of the applications available in this directory will be shown.
+    directory_index on;
+  }
+    
+  app_init_timeout 60;
+  app_idle_timeout 1800;
+  
+  sanitize_errors off;
+  disable_protocols xdr-streaming xhr-streaming iframe-eventsource iframe-htmlfile;
+}
 ```
 
 ## User authentication setup
