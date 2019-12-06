@@ -93,7 +93,7 @@ function(input,output,session) {
             if (n == 0) { # Create also the user in our local db
                 iQuery <- paste0("INSERT INTO users (email, name) ",
                     "VALUES ('",email,"',","'",name,"')")
-                print(iQuery)
+                #print(iQuery)
                 nr <- dbExecute(metadata,iQuery)
             }
             
@@ -101,7 +101,7 @@ function(input,output,session) {
             ii <- dbGetQuery(metadata,paste0("SELECT _id FROM users WHERE ",
                 "email='",email,"'"))[1,1]
             USER_ID(as.numeric(ii))
-            print(USER_ID())
+            #print(USER_ID())
         }
     })
     
@@ -138,6 +138,9 @@ function(input,output,session) {
                     allReactiveVars,allReactiveMsgs)
                 })
             }
+            else # Clear the URL (https://github.com/curso-r/auth0/issues/54)
+                session$sendCustomMessage("clearUrl",list())
+                # Does not completely fix...
         }
         else { # Just check _state_id_
             if (!is.null(query$`_state_id_`)) { # Then fire server script
@@ -175,8 +178,11 @@ function(input,output,session) {
         observe({
             # Will always be filled after a session restore, as session creation
             # is not allowed if a dataset has not been created
-            if (!is.null(allReactiveVars$currentMetadata$final)) {
+            query <- getQueryString()
+            if (!is.null(allReactiveVars$currentMetadata$final) 
+                && length(query) > 0) {
                 shinyjs::hide("spinnerContainer")
+                session$sendCustomMessage("clearUrl",list())
                 showModal(modalDialog(HTML("The selected session has been ",
                     "restored! Remember To hit <strong>Clear Dataset</strong> ",
                     "if you want to start over!"),

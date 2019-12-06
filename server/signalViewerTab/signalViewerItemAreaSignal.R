@@ -322,8 +322,7 @@ areaSignalTabPanelEventReactive <- function(input,output,session,
                     customTrans <- NULL
             }
             
-            progress <- shiny::Progress$new()
-            progress$initialize(
+            progress <- shiny::Progress$new(
                 session,
                 min=0,
                 max=length(unique(as.character(

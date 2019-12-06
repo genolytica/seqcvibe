@@ -1,8 +1,7 @@
 # Function initializing SeqCVIBE universe (packages, persistent variables, etc.)
 initPackages <- function(session) {
     # Initial page loading indicator, until all content is loaded
-    ftProgress <- shiny::Progress$new()
-    ftProgress$initialize(session,min=0,max=10)
+    ftProgress <- shiny::Progress$new(session,min=0,max=10)
     ftProgress$set(message="Starting:",value=0)
     on.exit(ftProgress$close())
     # Progress update function

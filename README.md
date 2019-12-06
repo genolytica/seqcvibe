@@ -13,12 +13,14 @@ straightforward procedure, it is covered elsewhere.
 
 Thus, the following are assumed for the deployment of SeqCVIBE application:
 
-1. Basic understanding of
+#### Basic understanding of
+
  * Writing Linux shell commands to run scripts
  * R language
  * Apache web server
 
-2. A recent version of R with the following R/Bioconductor packages installed:
+#### A recent version of R with the following R/Bioconductor packages installed
+
  * AnnotationDbi
  * AnnotationFilter
  * BiocFileCache
@@ -60,19 +62,23 @@ Thus, the following are assumed for the deployment of SeqCVIBE application:
  * SummarizedExperiment
  * XML
 
-3. A recent version of Perl with the following packages installed:
+#### A recent version of Perl with the following packages installed
+
  * boolean
  * JSON
  * JSON::Parse
  * Parallel::Loops
   
-4. [Illumina iGenomes](https://emea.support.illumina.com/sequencing/sequencing_software/igenome.html). 
+#### [Illumina iGenomes](https://emea.support.illumina.com/sequencing/sequencing_software/igenome.html)
+
 For the time being, the Genome Browser support building process requires a
 local version of the genomes you want to set up. This is provided to a config
 file used with a Perl build script. After the build process, they are no longer
 required.
 
-5. Shiny server. You will need a recent version of the free tier of RStudio
+#### Shiny server 
+
+You will need a recent version of the free tier of RStudio
 [Shiny server](https://rstudio.com/products/shiny/download-server/)
 
 The following sections cover each part above as well as the main deployment

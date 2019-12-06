@@ -169,12 +169,7 @@ diffExprTabPanelEventReactive <- function(input,output,session,
             biotype=btFilt
         )
         
-        progress <- shiny::Progress$new()
-        progress$initialize(
-            session,
-            min=0,
-            max=6
-        )
+        progress <- shiny::Progress$new(session,min=0,max=6)
         progress$set(message="",value=0)
         on.exit(progress$close())
         

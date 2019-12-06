@@ -20,6 +20,7 @@ source("ui/analysisTab/analysisItemGoPathway.R")
 source("ui/genomeBrowserTab/genomeBrowserItem.R")
 source("ui/helpTab/helpItemDoc.R")
 source("ui/helpTab/helpItemFaq.R")
+source("ui/helpTab/helpItemAbout.R")
 
 #auth0_ui(
 function(request) { 
@@ -67,7 +68,13 @@ function(request) {
                     window.location.href =  'https://fleming.eu.auth0.com/v2/logout?returnTo=http://www.fleming.gr&client_id=0iezxzzsfxVDWiE0XaXnYdkDsS91f1zF';
                 });
             },5)})"
-        ))
+        )),
+        tags$script(
+            'Shiny.addCustomMessageHandler("clearUrl",',
+            'function(msg) {',
+            '    history.pushState({}, "Page Title", "/");',
+            '});'
+        )
     ),
     #conditionalPanel(
     #   condition="input.universeLoading",
@@ -130,10 +137,11 @@ function(request) {
             ),
             tabPanel("FAQ",icon=icon("question-circle"),
                 faqTabPanel()
+            ),
+            tabPanel("About",icon=icon("user"),
+                #fluidRow(column(12,includeHTML("www/about.html")))
+                aboutTabPanel()
             )
-        ),
-        tabPanel("About",icon=icon("user"),
-            fluidRow(column(12,includeHTML("www/about.html")))
         ),
         tabPanel("Logout",icon=icon("sign-out"))
     ),

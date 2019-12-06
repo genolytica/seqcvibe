@@ -13,16 +13,22 @@ sessionLoaderTabPanelEventReactive <- function(input,output,session,
             ))
         }
         else {
-            session$doBookmark()
-            showNotification(
-                paste(
-                    getTime("SUCCESS:"),
-                    "Bookmark: '",
-                    input$description,
-                    "' created",sep=""
-                ),
-                duration=5, 
-                type='message')
+            tryCatch({
+                session$doBookmark()
+                showNotification(paste0(getTime("SUCCESS:"),"Session: '",
+                    input$description,"' created"),duration=5,
+                    type='message')
+            },error=function(e) {
+                showModal(modalDialog(
+                    title="Error!",
+                    "Could not save session! Please report the following error:",
+                    tags$br(),e,
+                    easyClose=FALSE,
+                    footer=tagList(
+                        modalButton("Dismiss",icon=icon("check"))
+                    )
+                ))
+            },finally="")
         }
     })
     
@@ -46,22 +52,51 @@ sessionLoaderTabPanelEventReactive <- function(input,output,session,
     })
     
     deleteBookmark <- eventReactive(input$confirmSessionDelete,{
-        st <- as.character(delSt())
-        se <- as.character(delSe())
-        nr <- dbExecute(metadata,paste0("DELETE FROM bookmarks ",
-            "WHERE state_id='",st,"' AND session='",se,"'"))
-        #print(paste0("DELETE FROM bookmarks ",
-        #   "WHERE state_id='",st,"' AND session='",se,"'"))
-        if (nr > 0)
+        tryCatch({
+            st <- as.character(delSt())
+            se <- as.character(delSe())
+            nr <- dbExecute(metadata,paste0("DELETE FROM bookmarks ",
+                "WHERE state_id='",st,"' AND session='",se,"'"))
+            #print(paste0("DELETE FROM bookmarks ",
+            #   "WHERE state_id='",st,"' AND session='",se,"'"))
+            ex <- unlink(file.path("shiny_bookmarks",st),recursive=TRUE,
+                force=TRUE)
+            if (ex==0 && nr > 0)
+                showNotification(paste0(getTime("SUCCESS:"),"Session deleted"),
+                    duration=5,type='message')
+                #showModal(modalDialog(
+                #    title="Session deleted!",
+                #    "The selected session and all related analyses have been ",
+                #        "succesfully deleted!",
+                #    easyClose=TRUE,
+                #    footer=tagList(
+                #        modalButton("Dismiss",icon=icon("check"))
+                #    )
+                #))
+            else
+                showModal(modalDialog(
+                    title="Session not properly deleted!",
+                    "The selected session and all related analyses have not been ",
+                    "properly deleted!",
+                    tags$br(),"Unlink exit status: ",ex,
+                    tags$br(),"Database rows affected: ",nr,
+                    easyClose=TRUE,
+                    footer=tagList(
+                        modalButton("Dismiss",icon=icon("check"))
+                    )
+                ))
+        },error=function(e) {
             showModal(modalDialog(
-                title="Session deleted!",
-                "The selected session and all related analyses have been ",
-                    "succesfully deleted!",
-                easyClose=TRUE,
+                title="Error!",
+                "The selected session and all related analyses have not been ",
+                "properly deleted! Please report the following error:",
+                tags$br(),e,
+                easyClose=FALSE,
                 footer=tagList(
                     modalButton("Dismiss",icon=icon("check"))
                 )
             ))
+        },finally="")
     })
     
     return(list(
@@ -75,8 +110,14 @@ sessionLoaderTabPanelReactive <- function(input,output,session,
     allReactiveVars,allReactiveMsgs) {
     currentMetadata <- allReactiveVars$currentMetadata
     
-    sessionInfoTablePoll <- reactivePoll(5000,session,checkFunc=function() {        
-        rowcount <- dbGetQuery(metadata,"SELECT Count(*) FROM bookmarks")[1,1]
+    sessionInfoTablePoll <- reactivePoll(5000,session,checkFunc=function() {
+        uid <- as.numeric(USER_ID())
+        if (length(uid) == 0) # USER_ID is NULL
+            pq <- "SELECT Count(*) FROM bookmarks WHERE user_id IS NULL"
+        else
+            pq <- paste0("SELECT Count(*) FROM bookmarks WHERE user_id=",uid)
+        rowcount <- dbGetQuery(metadata,pq)[1,1]
+        #print(paste0("Rowcount: ",rowcount))
         return(rowcount)
     },valueFunc=function() {
         uid <- as.numeric(USER_ID())
@@ -86,6 +127,7 @@ sessionLoaderTabPanelReactive <- function(input,output,session,
         else
             qq <- paste0("SELECT description, state_id, timestamp, ",
                 "session FROM bookmarks WHERE user_id=",uid)
+        #print(paste0("Query: ",qq))
         urlDF <- dbGetQuery(metadata,qq)
         currentMetadata$urlDF <- urlDF
         return(urlDF)
@@ -110,52 +152,94 @@ sessionLoaderTabPanelRenderUI <- function(output,session,allReactiveVars,
     currentMetadata <- allReactiveVars$currentMetadata
     
     output$urlTable = renderDT({
-        if (dbExistsTable(metadata,"bookmarks")) {
-            uid <- as.numeric(USER_ID())
-            
-            if (length(uid) == 0)
-                qq <- paste0("SELECT description, state_id, timestamp, ",
-                    "session FROM bookmarks WHERE user_id IS NULL")
-            else
-                qq <- paste0("SELECT description, state_id, timestamp, ",
-                    "session FROM bookmarks WHERE user_id=",uid)
-            tmpDf <- dbGetQuery(metadata,qq)
-            
-            if (nrow(tmpDf) > 0) {
-                currentMetadata$urlDF <- tmpDf
-                tmpDf$timestamp <- as.POSIXct(tmpDf$timestamp,
-                    origin="1970-01-01 00:00")
-                 
-                base <- paste0(
-                    session$clientData$url_protocol,"//",
-                    session$clientData$url_hostname,
-                    if (!isEmpty(session$clientData$url_port))
-                        paste0(":",session$clientData$url_port)
-                    else "",
-                    session$clientData$url_pathname,"?_state_id_="
-                )
-                    
-                tmpDf$delete <- shinyInput(actionButton,nrow(tmpDf),
-                    'deleteSession_',paste0(tmpDf$state_id,"_",tmpDf$session),
-                    label="Delete",icon=icon("minus-circle"),
-                    class="btn-danger btn-xs",
-                    onclick='Shiny.onInputChange(\"deleteBM\",this.id)')
-                tmpDf$state_id <- paste0("<a href='",base,tmpDf$state_id,
-                    "'>Restore</a>")
-                tmpDf <- tmpDf[,c(1:3,5)]
-                names(tmpDf)[2:3] <- c("link","date created")
-                datatable(tmpDf,
-                    rownames=FALSE,
-                    class="display",
-                    filter="top",
-                    escape=FALSE,
-                    selection=list(
-                        mode="single",
-                        target = 'cell'
+        tmpDf <- currentMetadata$urlDF
+        if (!is.null(tmpDf) && nrow(tmpDf) > 0) {
+            tmpDf$timestamp <- as.POSIXct(tmpDf$timestamp,
+                origin="1970-01-01 00:00")
+             
+            base <- paste0(
+                session$clientData$url_protocol,"//",
+                session$clientData$url_hostname,
+                if (!isEmpty(session$clientData$url_port))
+                    paste0(":",session$clientData$url_port)
+                else "",
+                session$clientData$url_pathname,"?_state_id_="
+            )
+                
+            tmpDf$delete <- shinyInput(actionButton,nrow(tmpDf),
+                'deleteSession_',paste0(tmpDf$state_id,"_",tmpDf$session),
+                label="Delete",icon=icon("minus-circle"),
+                class="btn-danger btn-xs",
+                onclick='Shiny.onInputChange(\"deleteBM\",this.id)')
+            tmpDf$state_id <- paste0("<a href='",base,tmpDf$state_id,
+                "'>Restore</a>")
+            tmpDf <- tmpDf[,c(1:3,5)]
+            names(tmpDf)[2:3] <- c("link","date created")
+            datatable(tmpDf,
+                rownames=FALSE,
+                class="display",
+                filter="top",
+                escape=FALSE,
+                selection=list(
+                    mode="single",
+                    target='cell'
+                ),
+                options=list(
+                    columnDefs=list(
+                        list(
+                            width="60%",
+                            targets=0
+                        ),
+                        list(
+                            width="10%",
+                            targets=1
+                        ),
+                        list(
+                            width="20%",
+                            targets=2
+                        ),
+                        list(
+                            width="10%",
+                            targets=3
+                        ),
+                        list(
+                            searchable=FALSE,
+                            targets=c(1,3)
+                        )
                     )
-                ) %>% formatStyle(1,cursor='alias') %>% 
-                formatDate(3,method='toLocaleString')
-            }            
+                )
+            ) %>% formatStyle(1,cursor='alias') %>% 
+            formatDate(3,method='toLocaleString')
+        }
+        else {
+            nullTable <- data.frame(description=1,link=1,`date created`=1,
+                delete=1)
+            datatable(nullTable[-1,],
+                rownames=FALSE,
+                class="display",
+                filter="none",
+                escape=FALSE,
+                options=list(
+                    columnDefs=list(
+                        list(
+                            width="60%",
+                            targets=0
+                        ),
+                        list(
+                            width="10%",
+                            targets=1
+                        ),
+                        list(
+                            width="20%",
+                            targets=2
+                        ),
+                        list(
+                            width="10%",
+                            targets=3
+                        )
+                    )
+                )
+            )
         }
     })
 }
@@ -220,7 +304,7 @@ sessionLoaderTabPanelObserve <- function(input,output,session,
                     "state_id, timestamp, session, user_id) VALUES ('",
                     input$description,"',","'",stateId,"',",
                     as.numeric(Sys.time()),",'",session$token,"',",uid,")")
-            print(iQuery)
+            #print(iQuery)
             nr <- dbExecute(metadata,iQuery)
         }
         else {

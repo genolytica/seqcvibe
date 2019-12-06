@@ -1,104 +1,104 @@
-getRnaGene <- function(
-    gene, # A list of mixed __named__ objects
-    refArea=NULL, # Flank or chr-start-end
-    tumor,
-    class=NULL, # If not provided, both tumor and normal
-    dbGene,
-    dbExon=NULL,
-    config,
-    exclude=list(normal=NULL,tumor=NULL),
-    sumStat=c("mean","median","trimmed"),
-    trim=0.1,
-    plot=c("spline","track"),
-    rc=NULL
-) {
-    # Requires kind of complex validation
-    validateGeneInput(gene) # More complex validation
+#~ getRnaGene <- function(
+#~     gene, # A list of mixed __named__ objects
+#~     refArea=NULL, # Flank or chr-start-end
+#~     tumor,
+#~     class=NULL, # If not provided, both tumor and normal
+#~     dbGene,
+#~     dbExon=NULL,
+#~     config,
+#~     exclude=list(normal=NULL,tumor=NULL),
+#~     sumStat=c("mean","median","trimmed"),
+#~     trim=0.1,
+#~     plot=c("spline","track"),
+#~     rc=NULL
+#~ ) {
+#~     # Requires kind of complex validation
+#~     validateGeneInput(gene) # More complex validation
     
-    if (!is(dbGene,"GRanges")) {
-        # Might be an rda file
-        tryCatch({
-            load(dbGene)
-            dbGene <- gene
-        },error=function(e) {
-            stop("Caught unexpected error while loading annotation: ",e)
-        },finally="")
-    }
-    if (is.null(dbExon) && plot=="track")
-        stop("The dbExon argument must be provided for track plots!")
-    if (plot=="track") {
-        if (!is(dbExon,"GRangesList")) {
-            # Might be an rda file
-            tryCatch({
-                load(dbExon)
-                dbExon <- exon
-            },error=function(e) {
-                stop("Caught unexpected error while loading annotation: ",e)
-            },finally="")
-        }
-    }
-    if (!is.list(config)) { # Might be an rda file
-        tryCatch({
-            load(config)
-            config <- config
-        },error=function(e) {
-            stop("Caught unexpected error while loading configuration: ",e)
-        },finally="")
-    }
-    if (!(tumor %in% names(config)))
-        stop("The requested tumor code does is not yet supported!")
-    class <- tolower(class)
-    if (is.null(class))
-        class <- c("tumor","normal")
-    if (!(class %in% c("tumor","normal")))
-        stop("class must be one or more of \"tumor\" and \"normal\"!")
-    if (!is.null(exclude) && !(names(exclude) %in% c("tumor","normal")))
-        stop("The exclude argument is not valid! Check its names.")
-    if (!is.null(refArea)) {
-        if (plot=="spline") {
-            if (!is.numeric(refArea) || length(refArea)!=2)
-                stop("The refArea argument must be a numeric vector of length ",
-                    "2 denoting the flanking areas of the request genes.")
-            if (any(refArea<500 || refArea>5000))
-                stop("The minimum flanking area allowed is 500bp and the ",
-                    "maximum is 5000bp")
-        }
-        if (plot=="track") {
-            if (!is.list(refArea))
-                stop("The refArea argument must be a list with three members, ",
-                    "chr, start, end.")
-            if (!all(names(refArea) %in% c("chr","start","end")))
-                stop("The refArea argument must be named with the names chr, ",
-                    "start, end")
-            if (!is.character(refArea$chr) || !is.numeric(refArea$start)
-                || !is.numeric(refArea$end))
-                stop("Invalid refArea member types: must be character, numeric",
-                    "numeric")
-        }
-    }
+#~     if (!is(dbGene,"GRanges")) {
+#~         # Might be an rda file
+#~         tryCatch({
+#~             load(dbGene)
+#~             dbGene <- gene
+#~         },error=function(e) {
+#~             stop("Caught unexpected error while loading annotation: ",e)
+#~         },finally="")
+#~     }
+#~     if (is.null(dbExon) && plot=="track")
+#~         stop("The dbExon argument must be provided for track plots!")
+#~     if (plot=="track") {
+#~         if (!is(dbExon,"GRangesList")) {
+#~             # Might be an rda file
+#~             tryCatch({
+#~                 load(dbExon)
+#~                 dbExon <- exon
+#~             },error=function(e) {
+#~                 stop("Caught unexpected error while loading annotation: ",e)
+#~             },finally="")
+#~         }
+#~     }
+#~     if (!is.list(config)) { # Might be an rda file
+#~         tryCatch({
+#~             load(config)
+#~             config <- config
+#~         },error=function(e) {
+#~             stop("Caught unexpected error while loading configuration: ",e)
+#~         },finally="")
+#~     }
+#~     if (!(tumor %in% names(config)))
+#~         stop("The requested tumor code does is not yet supported!")
+#~     class <- tolower(class)
+#~     if (is.null(class))
+#~         class <- c("tumor","normal")
+#~     if (!(class %in% c("tumor","normal")))
+#~         stop("class must be one or more of \"tumor\" and \"normal\"!")
+#~     if (!is.null(exclude) && !(names(exclude) %in% c("tumor","normal")))
+#~         stop("The exclude argument is not valid! Check its names.")
+#~     if (!is.null(refArea)) {
+#~         if (plot=="spline") {
+#~             if (!is.numeric(refArea) || length(refArea)!=2)
+#~                 stop("The refArea argument must be a numeric vector of length ",
+#~                     "2 denoting the flanking areas of the request genes.")
+#~             if (any(refArea<500 || refArea>5000))
+#~                 stop("The minimum flanking area allowed is 500bp and the ",
+#~                     "maximum is 5000bp")
+#~         }
+#~         if (plot=="track") {
+#~             if (!is.list(refArea))
+#~                 stop("The refArea argument must be a list with three members, ",
+#~                     "chr, start, end.")
+#~             if (!all(names(refArea) %in% c("chr","start","end")))
+#~                 stop("The refArea argument must be named with the names chr, ",
+#~                     "start, end")
+#~             if (!is.character(refArea$chr) || !is.numeric(refArea$start)
+#~                 || !is.numeric(refArea$end))
+#~                 stop("Invalid refArea member types: must be character, numeric",
+#~                     "numeric")
+#~         }
+#~     }
     
-    # Define BAM paths to get coverage and check if samples are excluded
-    for (status in class) {
-        i <- match(exclude[[status]],names(config[[tumor]]$samples[[status]]))
-        if (length(i)>0)
-            config[[tumor]]$samples[[status]] <- 
-                config[[tumor]]$samples[[status]][-i]
-    }
+#~     # Define BAM paths to get coverage and check if samples are excluded
+#~     for (status in class) {
+#~         i <- match(exclude[[status]],names(config[[tumor]]$samples[[status]]))
+#~         if (length(i)>0)
+#~             config[[tumor]]$samples[[status]] <- 
+#~                 config[[tumor]]$samples[[status]][-i]
+#~     }
     
-    # Create plot objects
-    if (plot=="spline") {
-        ggObj <- getProfile(gene,refArea,class,sumStat,config[[tumor]],dbGene,
-            trim,rc)
-    }
-    else if (plot=="track") {
-        ggObj <- getTrack(gen,refArea,class,sumStat,config[[tumor]],dbGene,
-            dbExon,trim=trim,rc=rc)
-    }
-}
+#~     # Create plot objects
+#~     if (plot=="spline") {
+#~         ggObj <- getProfile(gene,refArea,class,sumStat,config[[tumor]],dbGene,
+#~             trim,rc)
+#~     }
+#~     else if (plot=="track") {
+#~         ggObj <- getTrack(gen,refArea,class,sumStat,config[[tumor]],dbGene,
+#~             dbExon,trim=trim,rc=rc)
+#~     }
+#~ }
 
 getProfile <- function(gene,flank,source,dataset,class,sumStat,config,
-    dbGene,trim=0.1,fromBam=FALSE,messageContainer=NULL,progressFun=NULL,
-    rc=NULL) {
+    dbGene,trim=0.1,pathPrefix="",fromBam=FALSE,messageContainer=NULL,
+    progressFun=NULL,rc=NULL) {
     # Get coordinates
     coords <- getGeneCoordinatesForSpline(gene,dbGene,flank)
     
@@ -123,29 +123,47 @@ getProfile <- function(gene,flank,source,dataset,class,sumStat,config,
                 }
                 ind <- which(config$source==source & config$dataset==dataset 
                     & config$class==st)
+                    
+                #preSubconf <- config[ind,]
+                #subconf <- file.path(pathPrefix,preSubconf$dataset,
+                #   preSubconf$class)
+                #names(subconf) <- as.character(preSubconf$sample_id)
+                #bamFile <- dir(subconf,pattern=paste0(names(subconf),".bam$"),
+                #   full.names=TRUE)
+                #bamIndex <- dir(subconf,pattern=paste0(names(subconf),
+                #   ".bam.bai$"),full.names=TRUE)
+                #theCoverage[[n]][[st]] <- cmclapply(seq_along(bamFile),
+                #function(bf,bi,coords) {
+                #    bp <- ScanBamParam(which=coords)                
+                #    reads <- unlist(grglist(readGAlignments(file=bf,
+                #        index=bi,param=bp,with.which_label=TRUE)))
+                #    seqlevels(reads) <- as.character(seqnames(coords))
+                #    return(calcCoverage(reads,coords,assign.names=FALSE,
+                #        verbose=FALSE)[[1]])
+                #},coords[n],rc=rc)
+
                 subconf <- as.character(config$sample_dir[ind])
                 names(subconf) <- as.character(config$sample_id[ind])
                 theCoverage[[n]][[st]] <- cmclapply(subconf,function(x,coords) {
-                    bam.file <- dir(x,pattern=paste0(names(subconf),".bam$"),full.names=TRUE)
-                    bam.index <- dir(x,pattern=paste0(names(subconf),".bam.bai$"),full.names=TRUE)
-                    #bsvMessage("*******TESTING:", names(subconf))
-                    #bsvMessage("*******TESTING:", names(theCoverage[[n]]))
+                    bamFile <- dir(x,pattern=paste0(names(subconf),".bam$"),
+                        full.names=TRUE)
+                    bamIndex <- dir(x,pattern=paste0(names(subconf),
+                        ".bam.bai$"),full.names=TRUE)
                     bp <- ScanBamParam(which=coords)                
-                    reads <- unlist(grglist(readGAlignments(file=bam.file,
-                        index=bam.index,param=bp,with.which_label=TRUE)))
+                    reads <- unlist(grglist(readGAlignments(file=bamFile,
+                        index=bamIndex,param=bp,with.which_label=TRUE)))
                     seqlevels(reads) <- as.character(seqnames(coords))
                     return(calcCoverage(reads,coords,assign.names=FALSE,
                         verbose=FALSE)[[1]])
                 },coords[n],rc=rc)
-                #bsvMessage("*******TESTING:", theCoverage)
             }
         }
         
         # Normalize
-        fac.index <- which(config$source==source & config$dataset==dataset 
+        facIndex <- which(config$source==source & config$dataset==dataset 
             & config$class %in% class)
-        factors <- config$norm_factor[fac.index]
-        names(factors) <- as.character(config$sample_id[fac.index])
+        factors <- config$norm_factor[facIndex]
+        names(factors) <- as.character(config$sample_id[facIndex])
         if (is.function(progressFun)) {
             text <- paste("Normalizing...")
             progressFun(detail=text)
@@ -178,19 +196,37 @@ getProfile <- function(gene,flank,source,dataset,class,sumStat,config,
                 
                 ind <- which(config$source==source & config$dataset==dataset 
                     & config$class==st)
-                sc <- as.character(config$track_dir[ind])
-                names(sc) <- as.character(config$sample_id[ind])
-                theCoverage[[n]][[st]] <- cmclapply(names(sc),
+                    
+                #preSubconf <- config[ind,]
+                #subconf <- file.path(pathPrefix,preSubconf$dataset,
+                #   preSubconf$class)
+                #names(subconf) <- as.character(preSubconf$sample_id)
+                #bwFile <- dir(subconf,pattern=paste0(names(subconf),".bigWig$"),
+                #   full.names=TRUE)
+                #theCoverage[[n]][[st]] <- cmclapply(seq_along(bwFile),
+                #function(bw,crds,sc) {
+                #   chr <- as.character(seqnames(crds))[1]
+                #   bwrle <- import.bw(bw,selection=BigWigSelection(crds),
+                #       as="RleList")
+                #   if (chr %in% names(bwrle))
+                #       return(bwrle[[chr]][start(crds):end(crds)])
+                #   else
+                #       return(NULL)
+                #},coords[n],subconf,rc=rc)
+                    
+                subconf <- as.character(config$track_dir[ind])
+                names(subconf) <- as.character(config$sample_id[ind])
+                theCoverage[[n]][[st]] <- cmclapply(names(subconf),
                     function(x,crds,sc) {
                         chr <- as.character(seqnames(crds))[1]
-                        bw.file <- file.path(sc[x],paste(x,"bigWig",sep="."))
-                        bwrle <- import.bw(bw.file,
+                        bwFile <- file.path(sc[x],paste(x,"bigWig",sep="."))
+                        bwrle <- import.bw(bwFile,
                             selection=BigWigSelection(crds),as="RleList")
                         if (chr %in% names(bwrle))
                             return(bwrle[[chr]][start(crds):end(crds)])
                         else
                             return(NULL)
-                },coords[n],sc,rc=rc)
+                },coords[n],subconf,rc=rc)
             }
         }
     }

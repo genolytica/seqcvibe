@@ -299,8 +299,7 @@ geneSignalTabPanelEventReactive <- function(input,output,session,
             customGenes <- as.list(split(customGenes, as.factor(customGenes)))
             names(customGenes) <- as.character(customRegions$name)
             theGenes <- c(knownGenes,customGenes)
-            progress <- shiny::Progress$new()
-            progress$initialize(
+            progress <- shiny::Progress$new(
                 session,
                 min=0,
                 max=length(unique(as.character(

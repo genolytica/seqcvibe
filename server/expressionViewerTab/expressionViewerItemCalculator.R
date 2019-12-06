@@ -158,8 +158,7 @@ expressionCalculatorTabPanelEventReactive <- function(input,output,session,
                 names(customInputRegions)
             #customInputRegions <- as.list(customInputRegions)
             names(customInputRegions) <- as.character(customRnaRegions$name)
-            progress <- shiny::Progress$new()
-            progress$initialize(
+            progress <- shiny::Progress$new(
                 session,
                 min=0,
                 max=length(customInputRegions)
