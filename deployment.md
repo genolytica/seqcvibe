@@ -836,44 +836,23 @@ server {
 
 ## User authentication setup
 
+For user authentication and mangement, we use [Auth0](https://auth0.com/) and
+the excellent R package [auth0](https://github.com/curso-r/auth0). We follow
+all the instructions in the package's GitHub page regarding ```ui.R/server.R``` 
+setup with two main differences:
+
+* Our ```_auth0.yml``` file lives in ```config/_auth0.yml``` instead of the
+application root
+* We do not use environmental variables but we directly place the required
+information in ```_auth0.yml```.
+
+You can find a template of the aforementioned configuration file in
+```config/_auth0.yml.template```.
 
 # TODO
 
 * Step of internal genome annotation building (i.e. ```genome/mm10/gene.rda```)
 that will be based in metaseqR2 annotation system 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/home/makis/elixir-RNAseq/data/
-
-Any other additional parameters there, e.g. fraction of cores to use
-
-runApp(port=12345,launch.browser=FALSE,host="192.168.100.156")
-runApp(port=12345,launch.browser=FALSE,host="192.168.0.156")
-runApp(port=8080,launch.browser=FALSE,host="192.168.0.156")
-runApp(port=8080,launch.browser=FALSE,host="192.168.100.156")
-runApp(port=8080,launch.browser=FALSE,host="http://epigenomics.fleming.gr")
-
-options(menu.graphics=FALSE)
-
-
-ssh -i ~/.ssh/elixir_seqcvibe_rsa ubuntu@62.217.82.158
+* Add additional global parameters (e.g. fraction of cores to use) in the 
+```app_config.json```.
 

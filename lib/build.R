@@ -42,13 +42,13 @@ bam2count <- function(targets,annotation,rc=NULL) {
         stop("You must provide the targets argument!")
     if (missing(annotation))
         stop("You must provide an annotation data frame!")
-    if (!requireNamespace("GenomicRanges"))
+    if (!require("GenomicRanges"))
         stop("The Bioconductor package GenomicRanges is required to ",
             "proceed!")
-    if (!requireNamespace("GenomicAlignments"))
+    if (!require("GenomicAlignments"))
         stop("The Bioconductor package GenomicAlignments is required to ",
             "proceed!")
-    if (!requireNamespace("Rsamtools"))
+    if (!require("Rsamtools"))
         stop("The Bioconductor package Rsamtools is required to ",
             "process BAM files!")
     if (!is.list(targets)) {
@@ -396,11 +396,11 @@ buildTrackList  <- function(annoPath,urlBase,appBase="../",
     #appBase <- "/media/raid/software/seqcvibe"
     #urlBase <- "http://epigenomics.fleming.gr/tracks"
     
-    if (!requireNamespace("jsonlite"))
+    if (!require("jsonlite"))
         stop("R package jsonlite is required to proceed!")
-    if (!requireNamespace("RSQLite"))
+    if (!require("RSQLite"))
         stop("R package RSQLite is required to proceed!")
-    if (!requireNamespace("plyr"))
+    if (!require("plyr"))
         stop("R package plyr is required to proceed!")
         
     if (!file.exists(metadata))

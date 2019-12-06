@@ -1,159 +1,858 @@
-# SeqCVIBE
-A shiny application for visualization of Big Next Generation Sequencing datasets
+SeqCVIBE deployment
+================================================================================
+
+# Prerequisites
+
+In order to deploy the SeqCVIBE Shiny application and for all its 
+functionalities to be available (e.g. the Genome Browser) there are some
+prerequisites that must be covered in the installation environment, whether this
+is a bare metal server or a VM. The following prerequisites do not cover the
+data analysis procedure not the data organization in the filesystem, for the
+former to be automatically recognizable by SeqCVIBE. Although this is also a
+straightforward procedure, it is covered elsewhere.
+
+Thus, the following are assumed for the deployment of SeqCVIBE application:
+
+1. Basic understanding of
+ * Writing Linux shell commands to run scripts
+ * R language
+ * Apache web server
+
+2. A recent version of R with the following R/Bioconductor packages installed:
+ * AnnotationDbi
+ * AnnotationFilter
+ * BiocFileCache
+ * BiocManager
+ * biovizBase
+ * BSgenome
+ * GenomicRanges
+ * jsonlite
+ * colourpicker
+ * data.table
+ * DESeq
+ * DT
+ * EDASeq
+ * edgeR
+ * genefilter
+ * geneplotter
+ * GenomicAlignments
+ * GenomicFeatures
+ * GenomeInfoDb
+ * ggbio
+ * ggplot2
+ * heatmaply
+ * httr
+ * magrittr
+ * metaseqR
+ * openssl
+ * OrganismDbi
+ * plyr
+ * RCurl
+ * Rhtslib
+ * rmarkdown
+ * rmdformats
+ * Rsamtools
+ * RSQLite
+ * rtracklayer
+ * shiny
+ * shinyBS
+ * shinyjs
+ * SummarizedExperiment
+ * XML
+
+3. A recent version of Perl with the following packages installed:
+ * boolean
+ * JSON
+ * JSON::Parse
+ * Parallel::Loops
+  
+4. [Illumina iGenomes](https://emea.support.illumina.com/sequencing/sequencing_software/igenome.html). 
+For the time being, the Genome Browser support building process requires a
+local version of the genomes you want to set up. This is provided to a config
+file used with a Perl build script. After the build process, they are no longer
+required.
+
+5. Shiny server. You will need a recent version of the free tier of RStudio
+[Shiny server](https://rstudio.com/products/shiny/download-server/)
+
+The following sections cover each part above as well as the main deployment
+process.
+
+## Setting up R and the required R packages
+
+### System packages
+
+Whether the server/VM ships with R or not, some system packages must be present:
+
+```
+sudo apt install apt-transport-https software-properties-common \
+    build-essential zlib1g-dev libdb-dev libcurl4-openssl-dev libssl-dev \
+    libxml2-dev apache2 
+```
+
+### Install R
+
+We suppose that our server/VM does not ship with R included. If this is not the
+case just skip to the next step.
+
+```
+sudo apt-key adv --keyserver keyserver.ubuntu.com \
+    --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
+sudo add-apt-repository \
+    'deb https://cloud.r-project.org/bin/linux/ubuntu bionic-cran35/'
+sudo apt update
+sudo apt install r-base
 
-----
+# R --version -> 3.6.1 OK
+```
 
-# Overview
+### Install the required R packages
 
-Analyzing and visualizing an RNA-Seq analysis entirely is quite a demanding task. There is a wide range of tools required in the process of depicting all the significant information produced by an experiment. In almost all cases they have to be combined in a well-orchestrated way in order for a complete picture to be drawn and a full image of the analysis to be delivered, as there is no such thing as a 'swiss army knife' for this process. SeqCVIBE does exactly that!
+```
+sudo R
+```
 
-## SeqCVIBE Overview
+Then, within R:
 
-SeqCVIBE is an R-shiny tool that aggregates all the analyses involved in an RNA-Seq experiment in a well-organized and clear maner. The user can select an analysis from a variety of experimental designs derived from two of the most enriched dataset repositories, Gene Expression Omnibus (GEO) and European Nucleotide Archive (ENA). These experiments cover areas like profiling of genes involved in cancer or other neurological diseases, organ evolution, stem cell expression signature profiling etc. 
+```
+install.packages("BiocManager")
 
-These analyses are fully configurable allowing the user to control every parameter in very simple steps, especially compared to the often confusing way a command line tool works. In addition to that, all analyses are reproducible and can be easily shared across a group of users who can pick-up from any given point and move on anyway they prefer.
+library(BiocManager)
 
-# Data Selector
+BiocManage::install()
+```
 
-The 'Data Selector' tab is the root of the analysis. The user is prompted to select one of the available experiments to analyze. The datasets are sourced from two of the largest databases, GEO and ENA. After selection, the dataset is loaded and some basic information about the dataset are being displayed. At this point, SeqCVIBE is ready to use.
+The above will install basic Bioconductor packages that are required for most
+other ones. After this and still within R:
 
-## Input data selection
+```
+pkgs <- c("biomaRt","GenomicRanges","jsonlite","colourpicker","data.table",
+    "DESeq","DT","EDASeq","edgeR","GenomicAlignments","GenomeInfoDb","ggplot2",
+    "ggbio","heatmaply","magrittr","metaseqR","openssl","plyr","rmarkdown",
+    "rmdformats","Rsamtools","RSQLite","rtracklayer","shiny","shinyBS",
+    "shinyjs","XML")
 
-The first step of any analysis is the dataset selection. This panel allows the user to select an input from one of the currently available sources. Each source has its own bunch of datasets and each dataset has a reference species genome which is always automatically selected based on the dataset. The option to select a dataset based on the reference genome is not provided at the moment.
+BiocManager::install(pkgs)
+```
 
-Once the selection is made, the relevant short summary of the experiment will appear right below. Clicking on the title will redirect the user to the relevant GEO or ENA page were the analysis design and details are more thoroughly described. 
+## Setting up the required Perl packages
 
-Loading the dataset allows for exclusion of specific samples per condition or exclusion of all samples belonging to a single condition of the experiment. This way, the user has the ability to create a fully customizeable dataset.
+If you are using a new server/VM, the first time that ```CPAN``` is used to 
+install Perl packages, it will ask or try to perform some configurations. The
+following should do it:
 
-After a dataset is loaded, the option to inspect its quality is enabled with MultiQC. By clicking on 'Dataset MultiQC' a pop-up presenting an aggregated analysis of all quality metrics for all samples of the dataset will appear. This inspection can prove essential in the selection or exclusion of samples to be included in the final dataset based on specific properties the user might find significant.
+```
+sudo perl -MCPAN -e shell
+```
 
-When the dataset selections are made the user can hit the 'Create dataset' button to finalize the dataset. This will "lock" the sample options and all specific inclusions applied and will set the base for all follow-up analyses. The included samples of the final dataset will be displayed in the tab on the right named 'Current dataset'. After this point, anytime the user wants to run a fresh analysis with a new dataset they have to 'Clear dataset' and start over again.
+Then install the required packages:
 
-## Bookmark application
+```
+sudo perl -MCPAN -e 'install qw(
+    boolean
+    JSON
+    JSON::Parse
+    inc::latest
+    Parallel::Loops
+)'
+```
 
-Bookmark's purpose is quite straight-forward. It places a bookmark in every tab and every visualization of the current status of SeqCVIBE, and allows for easy restore to that checkpoint at anytime. In other words it generates a save screenshot which can be loaded by any user of the group. At the end of the analysis the user has to enter a name for the bookmark and click the 'Add Bookmark' button. Then the bookmark will be added to the list of available bookmarks and any user will have the ability to restore it to its current state by clicking on the relevant URL. After the bookmarked state is fully loaded, users can make additional changes and save the analysis on top of the previous bookmark.
+## Shiny server
 
-# Signal viewer
+We are using the official instructions [here](https://rstudio.com/products/shiny/download-server/ubuntu/)
 
-The Signal viewer allows for visual representation of one or more genomic regions of interest with referece to normalized signal. There are two options available. Gene Signal and Area Signal.
+```
+sudo apt-get install gdebi-core
+wget https://download3.rstudio.org/ubuntu-14.04/x86_64/shiny-server-1.5.12.933-amd64.deb
+sudo gdebi shiny-server-1.5.12.933-amd64.deb
+```
 
-## Gene signal
+## Illumina iGenomes
 
-Gene signal plots the combined normalized signal of the selected gene(s) features/conditions. The user can select plotting input between specific genes by their name, or by a custom input genomic region. Further down they can optionally change the upstream and downstream regions to be plotted, select the different colours for each feature/condition of the experiment and finally, select one method for the gene profile averaging among Mean, Median and Trimmed mean. It the last case, the trim's fraction can be manually defined.
+Next, we have to download the required Illumina iGenomes for the organisms we
+want to have Genome Browser support for. For this guide, we will download only
+the human genome version ```hg19``` and mouse genome version ```mm10```. 
+Illumina iGenomes carry also a lot of annotation data and other sequences so it
+may take a bit to download and extract. All these data can be removed after the
+genome browser reference sequences are built.
 
-By hitting the 'Engage' button the signal of all the selected genes and custom areas will be calculated and averaged. Once calculations are complete the plot will appear in the center of the tab. If there's more than one selection of gene or custom region (or both) to be displayed, an equivalent number of plots will be displayed in the same tab.
+So, supposing that our main storage location is in ```/media/storage```
 
-### Gene plotting
+```
+cd /media/storage
+mkdir igenomes
+cd igenomes
 
-Giving a gene input is very simple. By clicking on the space below 'Plot data' a drop-down menu of all known gene names of the concerning experiment species will appear. The search box supports smart-input method which allows for fastest searching of a specific gene. Alternatively, the user can always input the gene name they are considering, however this is not adviced due to the fact that gene name is case sensitive. If the gene is selected successfully it will be displayed as a new entry in the below table. There, its genomic coordinates will be also displayed.
+# Human
+wget http://igenomes.illumina.com.s3-website-us-east-1.amazonaws.com/Homo_sapiens/UCSC/hg19/Homo_sapiens_UCSC_hg19.tar.gz
+tar -vxf Homo_sapiens_UCSC_hg19.tar.gz
 
-### Custom region plotting
+# Mouse
+wget http://igenomes.illumina.com.s3-website-us-east-1.amazonaws.com/Mus_musculus/UCSC/mm10/Mus_musculus_UCSC_mm10.tar.gz
+tar -xvf Mus_musculus_UCSC_mm10.tar.gz
 
-Other than plotting a specific gene region there is an option to plot a custom genomic area of interest, by selecting the 'Custom' tab in the 'Plot data' panel. The user will be prompted to fill in the requested area coordinates, like chromosome number, start-end position of the area and strand. The given area should be alo given a unique name to be separated from any other regions that may be entered. The 'Add' and 'Remove' buttons below allow for the addition of a new region to the table of regions to be plotted or the removal of the selected ones.
+# After extraction delete the archives
+rm Homo_sapiens_UCSC_hg19.tar.gz Mus_musculus_UCSC_mm10.tar.gz
+```
 
-## Area signal
+## Data transfer
 
-The Area signal works in a similar manner to the Gene signal utility. It's difference lies in the display style of the results which is of a wider area than what's just covered by the gene and resembles that of a genome browser. It can also plot multiple genes in a region without separating the plots for every region, like it happens with the Gene signal option.
+If there are already analyzed data that can be explored through SeqCVIBE, they
+can be transfered to the VM using simple SSH transfer with ```scp```. The 
+directory will have to be declared in the global SeqCVIBE configuration file.
+For this guide, we suppose that the SeqCVIBE data will live in 
+```/media/storage/pilot```.
 
-### Custom genomic area
+# Setting up SeqCVIBE
 
-Custom genomic area will visualize a whole chromosomal region of interest input by the user. By default Known genes overlaping the given area will be automatically detected. However, if the user wants any specific regions of interest to be also included to the automatic detection, along with the known genes, they just have to click on the option "Include custom transcribed areas" and provide the desired regions either by chosing to include the gene explorer entries, or by manually inserting the custom regions.
+Firstly, clone the repository in a specific subdirectory
 
-### Around gene area
+```
+mkdir elixir
+cd elixir
+git clone https://github.com/hybridstat/elixir-RNAseq.git
+cd elixir-RNAseq
 
-This options resembles the 'Gene signal' to a great extend as it plots the requested genomic area that is centered around a specific gene of interest. The gene can be selected from the drop-down menu right below, while the upstream and downstream limits of the plot can be given from the 'Flanking' options bars
+SEQC_HOME=/media/storage/elixir/elixir-RNAseq
+```
 
-## Plot options
+We are now ready to proceed with the following sections which cover the 
+deployment of the main application.
 
-Plot options are to a large extend identical between Gene signal and Area signal plotting. First option is the flanking region limits. Presets are 2000 base-pairs upstream and downstream the region of interest. Other plotting options include selecting a color for every condition of the experiment and finally, selecting a method to be used in the profile  averaging of the area to-be-plotted. These methods include Mean signal, Signal median and the trimmed mean. In the latter case the user can select the fraction to be trimmed from the dataset manually. Here, it's worth noting that these options are relevant to their own tab selection and are therefore separate between area and gene signal plotting.
+## Directory structure and configuration file
 
-## Exporting plot
+We suppose that the data transfered in a previous step are in the proper format
+and have the proper directory structure required by SeqCVIBE. We will need this
+path for the configuration file which is constructed later.
 
-There are currently three ways a user can export a plot. The 'Export ggplot2' method exports a .Rda file. This file can be loaded in R (*load(file='file.rda')*) and allow a user with relevant experience to further modify the exported visualization. Alternative exporting options are in the png and pdf file formats. All exports are stored by default in the system's dedicated 'Downloads' directory. These exporting options are common across all other plot panels.
+## Metadata database
 
-# Expression viewer
+During (or after) the data directory and structure construction, an SQLite 
+database is constructed. This database must be trasnfered in ```config/``` and
+called ```metadata.sqlite```, that is ```config/metadata.sqlite```.
 
-The expression viewer tab is a presentation of the features count table, which is the backbone of a differential expression analysis in an RNA-Seq experiment. The table demonstrates the expression measurements for the input selection of genes or genomic regions. Two tables will be displayed after the selections are made. The top one shows expression measurements for the first ordered condition of the experiment (usually the wild-type) and the bottom one shows the equivalent measurements for the 2nd condition. 
+## Genome browser
 
-The first column of the table is the name of the gene or the selected region, the second is the mean (by default) averaged expression and the third is the expression deviation between samples. Default deviation measure is the standard deviation. If the experiment contains more than two conditions, an equivalent number of additional tables will be displayed.
+The Genome Browser adopted by SeqCVIBE is [JBrowse](http://jbrowse.org/). 
+JBrowse is a genome browser written entirely in JavaScript and is fully 
+embeddable, therefore fully suited for the SeqCVIBE application. However, it
+cannot be served by Shiny server, therefore we will have to use Apache and 
+```mod_proxy```. For details, see the next section **Web server setup**.
 
-## Known genes expression
+Generally, JBrowse is quite stable and has not changed much during the past few 
+years. Therefore, a version downloaded today is fairly safe. JBrowse works with
+configuration files and hard-coded instructions to display tracks that live in 
+JSON files. Therefore, a specific structure is needed to make it work. This 
+guide is designed to make this work reproducible and we have written extra 
+scripts that will render the deployment much easier.
 
-First option of the Expression viewer is the 'Known genes'. This will allow the user to obtain a table measuring expression of a single gene, a custom set of genes, or even all genes of the studied organism. The input genes can be selected either from the given list of known gene names of the organism, or as a custom gene name input, where every entry is separated by a new line. Finally, there is also the choice of viewing expression for all genes, if the third option is clicked.
+## JBrowse installation
 
-## Expression calculator
+1. Create the directory that JBrowse libraries will live in
 
-The expression calculator works the exact same way as the 'Known genes', the only difference being that the user needs to give a pre-defined genomic region as input. There are two ways this can be done. Either with the gene explorer or the custom regions. Genomic regions given to the gene explorer will be used to produce the expression tables in the first scenario. Alternatively, if the user selects 'Custom regions' an input area will appear right below where they can input the genomic coordinates they wish to inspect and click the 'Add' button. All added entries will appear in the mini-table below. Hitting the 'Engage' button will generate the requested tables.
+```
+mkdir $SEQC_HOME/jbrowse
+```
 
-## Expression settings
+2. Download the latest JBrowse release.
 
-There are a number of configurable parameters the user can play with to create a desired output expression table. First one has to do with how the RNA-Seq expression will be measured. There are three available options here: 
-Raw counts is the raw number of gene/genomic area observations in each conditions. RPKM and RPGM refer to the Reads Per Kilobase/Gigabase of transcript, per Million mapped reads. It is a normalized unit of transcript expression which scales by transcript length to compensate for the fact that most RNA-seq protocols will generate more sequencing reads from longer RNA molecules.
-Second option is a scaling setting for the expression measure. The user gets to select between Natural and log2 scale. Log2 scale is usually preferable as it models proportional changes rather than additive changes. This is typically biologically more relevant.
-Next is the selection of the expression measure averaging method. Available options are 'Mean' and 'Median'
-Lastly, there is the expression deviation measure selection. Here the user can select among three methods by which the deviation of expression between the samples will be measured: Standard deviation, Mean absolute deviation and Interquartile range.
+```
+cd $SEQC_HOME/jbrowse
+curl -L -O https://github.com/GMOD/jbrowse/releases/download/1.16.6-release/JBrowse-1.16.6.zip
+unzip JBrowse-1.16.6.zip
+rm JBrowse-1.16.6.zip
+cd JBrowse-1.16.6
+mv * ../
+cd ..
+rm -r JBrowse-1.16.6
+./setup.sh
+```
+
+The installation will take a while depending on your system. What is mainly
+installed is several Perl modules including BioPerl modules.
+
+## Genome browser tracks setup
+
+JBrowse supports several kinds of track types through related (static) 
+configuration files. In SeqCVIBE we are using four track types:
+
+* Sequence tracks (```SequenceTrack```) which represent the genomic sequences
+themselves
+* Feature tracks (```FeatureTrack```) which depicts genomic features like genes
+* Signal tracks (```JBrowse/View/Track/Wiggle/XYPlot```) which are the same as
+bigWig tracks
+* Signal density tracks (```JBrowse/View/Track/Wiggle/Density```) which are a
+single-dimension representation of bigWig files
+
+The first two types are setup once (may be updated but less frequently). The
+other two types are setup once but may be more frequently updated (adding,
+removing etc.)
+
+Generally, you will have to decide (also according to the hosting architecture)
+where the reference sequences and user data tracks will live and whether they
+will be placed in the same location or not. What we propose is to put the
+reference tracks in a different location than the user tracks because:
+
+* Reference tracks do not change often and they can be easily reconstructed
+* User tracks change more often and keeping them in a different location may
+make backup and security easier
+* The logic is better
+
+**Note** that all track directories must be served from a web-server and viewed
+from the web (whether globally or locally).
+
+### Reference tracks
+
+The reference tracks are downloaded and formatted using a JSON configuration
+file and the Perl script ```buildReferenceTracks.pl``` which is located in the
+```lib``` directory of the repository root. For an example configuration file,
+see the example at the ```config``` directory of the repository root. Most
+options are self-explanatory. After you decide where the reference tracks will
+live, put the path in the ```home``` option of the configuration file.
+
+Then, the ```buildReferenceTracks.pl``` script must be executed twice:
+
+* Once to format the sequence tracks
+
+```
+perl buildReferenceTracks.pl --config /path/to/config/config.json --genomes
+```
+
+* Once to format the feature tracks
+
+```
+perl buildReferenceTracks.pl --config /path/to/config/config.json --features
+```
+
+* Once to update the URL data of the feature tracks and build name indexes
+
+```
+perl buildReferenceTracks.pl --config /path/to/config/config.json --update
+```
+
+The ```buildReferenceTracks.pl``` script is essentially a wrapper around other
+scripts provided by JBrowse to format the data in such a way that the browser
+understands.
+
+Thus in our case:
+
+1. Create the directory that will host the genome browser reference tracks
+
+```
+mkdir -p /media/storage/pilot/tracks
+```
+
+2. Create the reference track building JSON file in 
+```$SEQC_HOME/config/config_jbrowse_build.json```. This looks like the 
+following:
+
+```
+{
+    "home": "/media/storage/pilot/tracks",
+    "jbrowse_home": "/media/storage/elixir/elixir-RNAseq/jbrowse",
+    "url_base": "http://62.217.82.158/seqc_elixir",
+    "igenomes_base": "/media/storage/igenomes",
+    "genomes": [{
+        "name": "Homo_sapiens",
+        "friendly_name": "Human",
+        "unique_name": "hg19",
+        "assembly_version": "GRCh37",
+        "source": "UCSC",
+        "description": "Human genome, version GRCh37 (hg19), Feb 2009"
+    },{
+        "name": "Mus_musculus",
+        "friendly_name": "Mouse",
+        "unique_name": "mm10",
+        "assembly_version": "GRCm38",
+        "source": "UCSC",
+        "description": "Mouse genome, version GRCm38 (mm10), Dec 2011"
+    }],
+    "features": [{
+        "genome": "hg19",
+        "path_to_db": "http://hgdownload.cse.ucsc.edu/goldenPath/hg19/database/",
+        "tables": [{
+            "name": "knownGene",
+            "label": "UCSC genes",
+            "description": "UCSC genes/transcripts/isoforms"
+        },{
+            "name": "refGene",
+            "label": "RefSeq genes",
+            "description": "RefSeq genes/transcripts/isoforms"
+        },{
+            "name": "ensGene",
+            "label": "Ensembl genes",
+            "description": "Ensembl genes/transcripts/isoforms"
+        },{
+            "name": "acembly",
+            "label": "AceView genes",
+            "description": "AceView assembly genes/transcripts/isoforms"
+        }]
+    },{
+        "genome": "mm10",
+        "path_to_db": "http://hgdownload.cse.ucsc.edu/goldenPath/mm10/database/",
+        "tables": [{
+            "name": "knownGene",
+            "label": "UCSC genes",
+            "description": "UCSC genes/transcripts/isoforms"
+        },{
+            "name": "refGene",
+            "label": "RefSeq genes",
+            "description": "RefSeq genes/transcripts/isoforms"
+        },{
+            "name": "ensGene",
+            "label": "Ensembl genes",
+            "description": "Ensembl genes/transcripts/isoforms"
+        }]
+    }]
+}
+```
+
+The configuration file parameters are mostly self-explanatory. 
+
+3. Run the reference sequences building script
+
+```
+cd $SEQC_HOME/lib
+perl buildReferenceTracks.pl --config ../config/config_jbrowse_build.json \
+    --genomes
+```
+
+4. Run the reference features building script
+
+```
+perl buildReferenceTracks.pl --config ../config/config_jbrowse_build.json \
+    --features
+```
+
+5. Update track locations and build name indexes
+
+```
+perl buildReferenceTracks.pl --config ../config/config_jbrowse_build.json \
+    --update
+```
+
+### Data tracks
+
+The location of the data tracks is defined by the main directory structure of
+the data (BAM files, BigWig files, ```.rda``` files etc.) tied to SeqCVIBE. More
+specifically, the location of the data tracks depends on:
+
+* The main data home, into which subdirectories follow a certain structure, see
+here (TODO)
+* The names in the metadata SQLite database which define sources, conditions and
+samples
+
+Given the above, the ```R``` function ```buildTrackList``` located in 
+```lib/build.R``` will do all the job given four arguments:
+
+* ```metadata``` which is the path to the SQLite metadata database.
+* ```annotationPath``` which is the path to the reference JBrowse tracks.
+* ```urlBase``` which is the URL base to appended to each user data track, this
+is an important one but can be changed later in case of re-deployment. The
+destination of the URL base must point to the actual data directory (through a
+symbolic link for example) and the latter must be servable by a web-browser (see
+**Web server setup** below).
+* ```appBase``` which is the SeqCVIBE application home (so that the function 
+can write the necessary symlinks to the browser tracks).
+
+Thus, an indicative run for building tracks for the first time would be:
+
+```
+Rscript trackControl.R \
+    --operation=build \
+    --metadata=... \
+    --annotation_path=... \
+    --url_base=... \
+    --app_base=...
+```
+
+In our case, the above command should look like the following:
+
+```
+cd $SEQC_HOME/lib
+Rscript trackControl.R \
+    --operation=build \
+    --metadata=../config/metadata.sqlite \
+    --annotation_path=/media/storage/pilot/tracks/reference \
+    --url_base=http://62.217.82.158/seqc_elixir \
+    --app_base=/media/storage/elixir/elixir-RNAseq
+```
+
+or from within R:
+
+```
+source("/media/storage/elixir/elixir-RNAseq/lib/build.R")
+source("/media/storage/elixir/elixir-RNAseq/lib/util.R")
+buildTrackList(
+    annoPath="/media/storage/pilot/tracks/reference",
+    urlBase="http://62.217.82.158/seqc_elixir",
+    appBase="/media/storage/elixir/elixir-RNAseq",
+    metadata="/media/storage/elixir/elixir-RNAseq/config/metadata.sqlite"
+)
+```
+
+Finally, because of the nature of SeqCVIBE data (users etc.), faceted tracks
+must be enabled. To do this, go to ```$SEQC_HOME/jbrowse/jbrowse.conf``` and
+uncomment (as per the instructions in the file itself) lines 10 and 11:
+
+```
+[trackSelector]
+type = Faceted
+```
+
+## Main configuration file
+
+Now that JBrowse and the data tracks are in place, we should create the main
+SeqCVIBE JSON configuration file in ```$SEQC_HOME/config```:
+
+```
+cd $SEQC_HOME/config
+nano app_config.json
+```
+
+and then paste the following (for our case):
+
+```
+{
+    "paths": {
+        "data": "/media/storage/pilot",
+        "metadata": "config/metadata.sqlite"
+    },
+    "urls": {
+        "browser": "http://62.217.82.158/seqc_browse/index.html?",
+        "tracks": "http://62.217.82.158/seqc_elixir/reference"
+    }
+}
+```
+
+A generic application configuration can be found in 
+```$SEQC_HOME/config/app_config_template.json```
+
+## Move the testing app into production
+
+Now we are ready to move the application in the directory server by Shiny Server
+
+```
+sudo mkdir /srv/shiny-server/seqcvibe
+cd $SEQC_HOME
+sudo cp -r * /srv/shiny-server/seqcvibe/
+sudo rm /srv/shiny-server/seqcvibe/README.md
+```
+
+## Web server setup
+
+In this section we cover the apache configuration to redirect SeqCVIBE calls to
+Shiny server and also serve JBrowse.
+
+### Preliminaries
+
+1. Enable the ```mod_deflate```, ```mod_headers```, ```mod_proxy``` and 
+```proxy_http``` modules.
+
+```
+sudo a2enmod deflate
+sudo a2enmod headers
+sudo a2enmod proxy
+sudo a2enmod proxy_http
+sudo a2enmod proxy_wstunnel
+```
+
+2. A symbolic link must then be created in the directory served by the web 
+server, for example, in our case, to support JBrowse and the tracks:
+
+```
+sudo ln -s /media/storage/pilot/ /var/www/seqc_elixir
+```
+
+### Apache Virtual Host
+
+Below, the configuration required for the instance that will run our SeqCVIBE
+instance together with JBrowse. Some general variables below have to be replaced
+like ```$HOME```. See the table below.
+
+|Variable/Attribute|Value                                      |  
+|------------------|-------------------------------------------|
+|$HOME             |The home of SeqCVIBE deployment            |
+|ServerAdmin       |e-mail address of the server administrator |
+|ServerName        |The deployment server address/name         |
+|ServerAlias       |The deployment server alias                |
+
+Replace $HOME with the SeqCVIBE root directory below.
+
+```
+# Virtual host for SeqcVIBE jbrowse instance
+<VirtualHost *:80>
+    ServerAdmin seqc_admin@seqc_domain.com
+    DocumentRoot /var/www
+    ServerName seqcvibe.server.name
+    ServerAlias AAA.BBB.CCC.ZZZ
+
+    # General mod_deflate (compression) settings (comment to remove compression)
+    <IfModule mod_deflate.c>
+        SetOutputFilter DEFLATE
+        AddOutputFilterByType DEFLATE text/html text/xml text/css text/plain
+        AddOutputFilterByType DEFLATE image/svg+xml application/xhtml+xml application/xml
+        AddOutputFilterByType DEFLATE application/rdf+xml application/rss+xml application/atom+xml
+        AddOutputFilterByType DEFLATE text/javascript application/javascript application/x-javascript application/json
+        AddOutputFilterByType DEFLATE application/x-font-ttf application/x-font-otf
+        AddOutputFilterByType DEFLATE font/truetype font/opentype
+        BrowserMatch ^Mozilla/4 gzip-only-text/html
+        BrowserMatch ^Mozilla/4\.0[678] no-gzip
+        BrowserMatch \bMSIE !no-gzip !gzip-only-text/html
+        BrowserMatch \bMSI[E] !no-gzip !gzip-only-text/html
+        SetEnvIf Request_URI (\.jsonz|\.txtz|\.txt\.gz|\.vcf\.gz)$ no-gzip dont-vary
+        SetEnvIfNoCase Request_URI \.(?:gif|jpe?g|png)$ no-gzip
+        SetEnvIfNoCase Request_URI (\.bw|\.bigwig|\.bb|\.bigbed|\.bam|\.bai|\.tbi)$ no-gzip dont-vary
+        Header append Vary User-Agent env=!dont-vary
+        DeflateBufferSize 130023424
+    </IfModule>
+
+    <Directory />
+        Require all denied
+        Options FollowSymLinks
+        AllowOverride None
+    </Directory>
+
+    <Directory /var/www>
+        Options Indexes FollowSymLinks MultiViews
+        AllowOverride None
+        Require all denied
+    </Directory>
+
+    <Directory $HOME/tracks>
+        Header set Access-Control-Allow-Origin *
+        Header onsuccess set Access-Control-Allow-Headers X-Requested-With,Range
+        Options Indexes FollowSymLinks MultiViews
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    <Directory $HOME/jbrowse>
+        Header onsuccess set Access-Control-Allow-Origin *
+        Header onsuccess set Access-Control-Allow-Headers X-Requested-With,Range
+        Options Indexes FollowSymLinks MultiViews
+        AllowOverride AuthConfig FileInfo
+        Require all granted
+    </Directory>
+    
+    <Proxy *>
+        Allow from localhost
+    </Proxy>
+    
+    ProxyPreserveHost On
+    ProxyPass /seqcvibe http://seqcvibe.server.name:3838/seqcvibe
+    ProxyPassReverse /seqcvibe http://seqcvibe.server.name:3838/seqcvibe
+    ## If you want to do this through localhost - more guaranteed result
+    #ProxyPass /seqcvibe http://localhost:3838/seqcvibe
+    #ProxyPassReverse /seqcvibe http://localhost:3838/seqcvibe
+
+    RewriteEngine on
+    RewriteCond %{HTTP:Upgrade} =websocket
+    RewriteRule /(.*) ws://localhost:3838/$1 [P,L]
+    RewriteCond %{HTTP:Upgrade} !=websocket
+    RewriteRule /(.*) http://localhost:3838/$1 [P,L]
+    ProxyPass / http://localhost:3838/
+    ProxyPassReverse / http://localhost:3838/
+    ProxyRequests Off
+    
+    ServerSignature Off
+</VirtualHost>
+```
+
+In our case, this should look like the following which should be written in
+```/etc/apache2/sites-available```:
+
+```
+sudo nano /etc/apache2/sites-available/elixir-seqcvibe.conf
+```
+
+and then paste
+
+```
+# Virtual host for SeqcVIBE jbrowse instance
+<VirtualHost *:80>
+    ServerAdmin moulos@fleming.gr
+    DocumentRoot /var/www
+    ServerName 62.217.82.158
+    ServerAlias 62.217.82.158
+
+    # General mod_deflate (compression) settings (comment to remove compression)
+    <IfModule mod_deflate.c>
+        SetOutputFilter DEFLATE
+        AddOutputFilterByType DEFLATE text/html text/xml text/css text/plain
+        AddOutputFilterByType DEFLATE image/svg+xml application/xhtml+xml application/xml
+        AddOutputFilterByType DEFLATE application/rdf+xml application/rss+xml application/atom+xml
+        AddOutputFilterByType DEFLATE text/javascript application/javascript application/x-javascript application/json
+        AddOutputFilterByType DEFLATE application/x-font-ttf application/x-font-otf
+        AddOutputFilterByType DEFLATE font/truetype font/opentype
+        BrowserMatch ^Mozilla/4 gzip-only-text/html
+        BrowserMatch ^Mozilla/4\.0[678] no-gzip
+        BrowserMatch \bMSIE !no-gzip !gzip-only-text/html
+        BrowserMatch \bMSI[E] !no-gzip !gzip-only-text/html
+        SetEnvIf Request_URI (\.jsonz|\.txtz|\.txt\.gz|\.vcf\.gz)$ no-gzip dont-vary
+        SetEnvIfNoCase Request_URI \.(?:gif|jpe?g|png)$ no-gzip
+        SetEnvIfNoCase Request_URI (\.bw|\.bigwig|\.bb|\.bigbed|\.bam|\.bai|\.tbi)$ no-gzip dont-vary
+        Header append Vary User-Agent env=!dont-vary
+        DeflateBufferSize 130023424
+    </IfModule>
+
+    <Directory />
+        Require all denied
+        Options FollowSymLinks
+        AllowOverride None
+    </Directory>
+
+    <Directory /var/www>
+        Options Indexes FollowSymLinks MultiViews
+        AllowOverride None
+        Require all denied
+    </Directory>
+
+    <Directory /srv/shiny-server/seqcvibe/tracks>
+        Header set Access-Control-Allow-Origin *
+        Header onsuccess set Access-Control-Allow-Headers X-Requested-With,Range
+        Options Indexes FollowSymLinks MultiViews
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    <Directory /srv/shiny-server/seqcvibe/jbrowse>
+        Header onsuccess set Access-Control-Allow-Origin *
+        Header onsuccess set Access-Control-Allow-Headers X-Requested-With,Range
+        Options Indexes FollowSymLinks MultiViews
+        AllowOverride AuthConfig FileInfo
+        Require all granted
+    </Directory>
+    
+    <Proxy *>
+        Allow from localhost
+    </Proxy>
+    
+    ProxyPreserveHost On
+    ProxyPass /seqcvibe http://62.217.82.158:3838/seqcvibe
+    ProxyPassReverse /seqcvibe http://62.217.82.158:3838/seqcvibe
+    ## If you want to do this through localhost - more guaranteed result
+    #ProxyPass /seqcvibe http://localhost:3838/seqcvibe
+    #ProxyPassReverse /seqcvibe http://localhost:3838/seqcvibe
+
+    RewriteEngine on
+    RewriteCond %{HTTP:Upgrade} =websocket
+    RewriteRule /(.*) ws://localhost:3838/$1 [P,L]
+    RewriteCond %{HTTP:Upgrade} !=websocket
+    RewriteRule /(.*) http://localhost:3838/$1 [P,L]
+    ProxyPass / http://localhost:3838/
+    ProxyPassReverse / http://localhost:3838/
+    ProxyRequests Off
+    
+    ServerSignature Off
+</VirtualHost>
+```
+
+Then, enable the new site (new virtual host for SeqCVIBE) and restart Apache:
+
+```
+sudo a2ensite elixir-seqcvibe.conf
+sudo service apache2 restart
+```
+
+### Shiny server configuration
+
+The initial Shiny server configuration file should look like this:
+
+```
+cat /etc/shiny-server/shiny-server.conf
+
+# Instruct Shiny Server to run applications as the user "shiny"
+run_as shiny;
+
+# Define a server that listens on port 3838
+server {
+  listen 3838;
+
+  # Define a location at the base URL
+  location / {
+
+    # Host the directory of Shiny Apps stored in this directory
+    site_dir /srv/shiny-server;
+
+    # Log all Shiny output to files in this directory
+    log_dir /var/log/shiny-server;
+
+    # When a user visits the base URL rather than a particular application,
+    # an index of the applications available in this directory will be shown.
+    directory_index on; 
+  }
+}
+```
+
+Make sure to add the following lines inside the ```server``` definition, as 
+there have been [problems](https://stackoverflow.com/questions/44397818/shiny-apps-greyed-out-nginx-proxy-over-ssl) 
+reported with SockJS
+
+```
+sanitize_errors off;
+disable_protocols xdr-streaming xhr-streaming iframe-eventsource iframe-htmlfile;
+```
+
+and also increase some Shiny server timeout [limits](https://docs.rstudio.com/shiny-server/#application-timeouts) 
+regarding app initialization and idle time.
+
+```
+app_init_timeout 30;
+app_idle_timeout 1800;
+```
+
+So the final Shiny server configuration file should look like the following:
+
+```
+# Instruct Shiny Server to run applications as the user "shiny"
+run_as shiny;
+
+# Define a server that listens on port 3838
+server {
+  listen 3838;
+
+  # Define a location at the base URL
+  location / {
+
+    # Host the directory of Shiny Apps stored in this directory
+    site_dir /srv/shiny-server;
+
+    # Log all Shiny output to files in this directory
+    log_dir /var/log/shiny-server;
+
+    # When a user visits the base URL rather than a particular application,
+    # an index of the applications available in this directory will be shown.
+    directory_index on;
+  }
+    
+  app_init_timeout 60;
+  app_idle_timeout 1800;
+  
+  sanitize_errors off;
+  disable_protocols xdr-streaming xhr-streaming iframe-eventsource iframe-htmlfile;
+}
+```
+
+## User authentication setup
+
+For user authentication and mangement, we use [Auth0](https://auth0.com/) and
+the excellent R package [auth0](https://github.com/curso-r/auth0). We follow
+all the instructions in the package's GitHub page regarding ```ui.R/server.R``` 
+setup with two main differences:
+
+* Our ```_auth0.yml``` file lives in ```config/_auth0.yml``` instead of the
+application root
+* We do not use environmental variables but we directly place the required
+information in ```_auth0.yml```.
+
+You can find a template of the aforementioned configuration file in
+```config/_auth0.yml.template```.
+
+# TODO
+
+* Step of internal genome annotation building (i.e. ```genome/mm10/gene.rda```)
+that will be based in metaseqR2 annotation system 
+* Add additional global parameters (e.g. fraction of cores to use) in the 
+```app_config.json```.
 
-## Exporting table
-
-The resulting table can be exported in different ways. Cells of the resulting tables can be selected by clicking on them. Buttons below each table control what you can do with the selection. 'Clear selection' removes all selected rows from the final selection. 'Invert selection' will include all non-selected rows to the final selection. When selection set has been finalized the user can click on 'Export selection' to obtain a csv file with all the configured information. At any case, the option 'Export all' allows the user to export the whole dataset of gene expression. Exported tables and their settings are unique per condition.
-
-# Analysis
-
-Analysis tab is the most essential as it is a toolkit for complete visualization of an RNA-Seq data experiment. The four visualizations provided include Differential expression, Clustering analysis, Correlation analysis and MDS/PCA analysis.
-
-## Differential Expression analysis
-
-Differential expression analysis means taking the normalised read count data and performing statistical analysis to discover quantitative changes in expression levels between experimental groups. For example, in a typical experiment statistical testing would bee used to decide whether, for a given gene, an observed difference in read counts is significant, that is, whether it is greater than what would be expected just due to natural random variation.
-
-### Pipeline settings
-
-General settings of the analysis include the following: First, the analysis pipeline that will be used. This only changes the tool that runs the analysis, which means there is a slight differentiation in the algorithm. However the results will not vary significantly. The three widely used tools that are included in the available options are DESeq, edgeR and voom. Further down, the user has to select which condition of the experiment will be used as control for the analysis, the multiple testing correction method and when will the selected filters (next tab) be applied to the results (before or after the normalization process). Last setting is the inclusion of the custom regions from the expression calculator to the analysis results. If the tick box is clicked the results will include expression measurements for the custom regions. Filtering settings, on the tab on the right will be applied to the analysis after it is complete, or beforehand, depending on the user's choice in the General settings tab.
- Basic gene filter options include Mean/Median expression, qualtile and known genes. If quantile gene filter is selected user will be prompted to fill in the desired percentile which will be used to filter genes. In the case of 'known genes' a drop-down list will appear with all the species specific genes. Users selections will restrict the results to only those genes selected. Additional filtering options include filtering a gene by its size in base-pairs and by specific biotype.
-
-### Results table
-
-When the analysis is complete an MA plot will appear in the central panel of SeqCVIBE along with the results table right below. The table contains four tabs, first of which is the 'Summary'. This contains all the basic information about the outcome of the analysis. It consists of the following columns: gene_name, the p-value of the findings for that gene, the false discovery rate, the expression ratio between different conditions of the experiment and lastly the mean and standard deviation counts for each condition. Second tab is the annotation tab. It provides a table with the genomic coordinates of each differentially expressed gene and its biotype description. Flags tab #################################################### . The last tab provides the option of combining all the aforementioned tables in one. Results table can be further configured with the 'Results table settings' panel. The user can control which significant gene hits will show up by choosing a threshold for one of the following measures: p-value, FDR or fold change. Post analysis filtering is vailable on the 'Filters' tab which is next. A mix of gene_name, chromosome and biotype filters can be applied to further narrow down the results to something more meaningful to the user. Scale tab will allow for configuration of the measures used in the results table. By default, summary value components will be the gene counts, however RPKM and RPGM are also available. Similarly, the user might switch between natural and log2 count for the differential expression ratio, mean or median for averaging and sd, median absolute deviation or interquartile range for intra-sample deviation. The table can be fully or selectively exported, just like with the Expression viewer table.
-
-### Plot options
-
-The resulting MA plot will appear after the analysis is complete. If real time table update is ticked, selecting an area of the plot will immediately reduce the results table only to the genes of interest contained in that area. By default gray spots indicate a gene that is not differentially expressed, red ones indicate an overregulated gene while greens indicate a downregulated one. Colouring options are available for all three categories in the 'Plot colors' panel.
-
-## Clustering analysis
-
-Clustering analysis is a classification algorithm that aims to group the set of samples included in the final dataset in order to create a set of sample obects where each are similar within the same cluster and dissimilar to samples in other clusters. It helps visualizing the intra-sample diversity of the datasets and helps determine if each of the experiment conditions are separated in well-differentiated categories. Clusteringsettings allow for the customization of the resulting heatmap.
-
-### Gene settings
-
-Gene settings tab allows the user to control which genes will be used to produce the heatmap. They can either be custom genes/regions or a specified gene list or just the genes that were found to be differentially expressed (if a DE analysis has already ran. Next filter is the Clustering variable selection. The user has to choose one of the available variables that will be used to define the clusters of the analysis. An expression measurment filter is also available here, allowing for normalized counts vs RPKM vs RPGM measure or log2 expression scaling vs Natural coount.
-
-### Heatmap settings
-
-Heatmap settings determine the mathematical parameters of the visualization. The first choice defines the metric that will be used to define the clusters distance. Default option is the Euclidean distance. Right below the user gets to select the linkage function that will be used to provide the relevant dendrogram of the resulting clusters. The default here is Average linkage. The clustering dimensions can also be modified right below along with the plot colors. 
-
-## Correlation analysis
-
-Correlation analysis will give an insight on how strong the relation is between samples included in the dataset in terms of their specific gene expression measurements or between gene expression levels among samples. 
-
-### Settings
-
-Before starting the analysis the gene settings will have to be configured first. First option has to do with what set of expressed genes will be used to calculate the correlation metric. The user can select all genes with non-zero counts, which is usually not feasible due to the large number of genes that will delay the calculations significantly, all expressed genes, which requires a differential expression analysis to have already run, a custom gene list, or a custom selection of genes from the available drop-down box. Expression measurement settings will affect how the counts will be measured in the 'Data matrix' table below the correlation plot (see additional matrices). Correlation settings will determine the type of the expression correlation. 'Sample-wise' will correlate all samples based on their overall gene expression levels, 'Gene-wise' will correlate all genes given in the  input list provided and 'Reference gene-wise' will calculate the correlation based on a given reference gene of interest. Lastly, the correlation method can be selected next and can either be Pearson's or Spearman's. Finally the panel to the left is the color selection panel. There correlation intensity colors can be selected manually and the resulting plots can be exported in PNG or PDF format.
-
-### Additional matrices
-
-Right under the main correlation plot three additional supporting visualization will be displayed after a successfully complete correlation analysis. From left to right there's the MDS plot giving a quick look on how well differentiated the samples are based on the genes selected for correlation. The middle table is the correlation matrix which shows the relevant correlation measures for the selected samples. The last table is more of a supporting data matrix which demonstrates the gene expression measures for the selected genes. These threee visualizations combined can give a well-concentrated amount of information for the selected gene set.
-
-## MDS/PCA Analysis
-
-The goal of MDS Analysis analysis is to detect meaningful underlying dimensions that allow the user to explain observed similarities or dissimilarities (distances) between the investigated samples. Principal component analysis (PCA) is one of the commonly used statistical technique for finding patterns in data of high dimensions and expressing the data in such a way as to highlight their similarities and differences. 
-
-### Settings
-
-Gene settings here, as in previous analysis tabs, are related to gene set selection and what expression measure and scale will be used for determining the intra-sample distances and patterns. 'MDS/PCA' tab sets the variance projection method that will be used between the two. Based on this selection, the relevant settings will appear right below. MDS settings allow for the selection of the (dis)similarity metric and the number of dimensions to be included. PCA settings allow selecting whether to scale the values or center them. The resulting plots can be exported as R objects as well, appart from PNG or PDF.
-
-### Coordinate plotting
-
-Coordinate plotting sets which two principal components or coordinates will be used in the plot and in which axis. Additional settings further down enable point names in the resulting plot or highlighting of any set of genes that might be of interest.
-
-# Genome browser
-
-pending...
