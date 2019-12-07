@@ -97,7 +97,7 @@
 #~ }
 
 getProfile <- function(gene,flank,source,dataset,class,sumStat,config,
-    dbGene,trim=0.1,pathPrefix="",fromBam=FALSE,messageContainer=NULL,
+    dbGene,trim=0.1,fromBam=FALSE,pathPrefix="",messageContainer=NULL,
     progressFun=NULL,rc=NULL) {
     # Get coordinates
     coords <- getGeneCoordinatesForSpline(gene,dbGene,flank)
@@ -124,38 +124,38 @@ getProfile <- function(gene,flank,source,dataset,class,sumStat,config,
                 ind <- which(config$source==source & config$dataset==dataset 
                     & config$class==st)
                     
-                #preSubconf <- config[ind,]
-                #subconf <- file.path(pathPrefix,preSubconf$dataset,
-                #   preSubconf$class)
-                #names(subconf) <- as.character(preSubconf$sample_id)
-                #bamFile <- dir(subconf,pattern=paste0(names(subconf),".bam$"),
-                #   full.names=TRUE)
-                #bamIndex <- dir(subconf,pattern=paste0(names(subconf),
-                #   ".bam.bai$"),full.names=TRUE)
-                #theCoverage[[n]][[st]] <- cmclapply(seq_along(bamFile),
-                #function(bf,bi,coords) {
+                preSubconf <- config[ind,]
+                subconf <- file.path(pathPrefix,preSubconf$dataset,
+                   preSubconf$class)
+                bamFile <- dir(subconf,pattern=paste0(names(subconf),".bam$"),
+                   full.names=TRUE)
+                bamIndex <- dir(subconf,pattern=paste0(names(subconf),
+                   ".bam.bai$"),full.names=TRUE)
+                space <- seq_along(1:length(bamFile))
+                theCoverage[[n]][[st]] <- cmclapply(space,
+                function(i,bf,bi,coords) {
+                    bp <- ScanBamParam(which=coords)                
+                    reads <- unlist(grglist(readGAlignments(file=bf[i],
+                        index=bi[i],param=bp,with.which_label=TRUE)))
+                    seqlevels(reads) <- as.character(seqnames(coords))
+                    return(calcCoverage(reads,coords,assign.names=FALSE,
+                        verbose=FALSE)[[1]])
+                },bamFile,bamIndex,coords[n],rc=rc)
+
+                #subconf <- as.character(config$sample_dir[ind])
+                #names(subconf) <- as.character(config$sample_id[ind])
+                #theCoverage[[n]][[st]] <- cmclapply(subconf,function(x,coords) {
+                #    bamFile <- dir(x,pattern=paste0(names(subconf),".bam$"),
+                #        full.names=TRUE)
+                #    bamIndex <- dir(x,pattern=paste0(names(subconf),
+                #        ".bam.bai$"),full.names=TRUE)
                 #    bp <- ScanBamParam(which=coords)                
-                #    reads <- unlist(grglist(readGAlignments(file=bf,
-                #        index=bi,param=bp,with.which_label=TRUE)))
+                #    reads <- unlist(grglist(readGAlignments(file=bamFile,
+                #        index=bamIndex,param=bp,with.which_label=TRUE)))
                 #    seqlevels(reads) <- as.character(seqnames(coords))
                 #    return(calcCoverage(reads,coords,assign.names=FALSE,
                 #        verbose=FALSE)[[1]])
                 #},coords[n],rc=rc)
-
-                subconf <- as.character(config$sample_dir[ind])
-                names(subconf) <- as.character(config$sample_id[ind])
-                theCoverage[[n]][[st]] <- cmclapply(subconf,function(x,coords) {
-                    bamFile <- dir(x,pattern=paste0(names(subconf),".bam$"),
-                        full.names=TRUE)
-                    bamIndex <- dir(x,pattern=paste0(names(subconf),
-                        ".bam.bai$"),full.names=TRUE)
-                    bp <- ScanBamParam(which=coords)                
-                    reads <- unlist(grglist(readGAlignments(file=bamFile,
-                        index=bamIndex,param=bp,with.which_label=TRUE)))
-                    seqlevels(reads) <- as.character(seqnames(coords))
-                    return(calcCoverage(reads,coords,assign.names=FALSE,
-                        verbose=FALSE)[[1]])
-                },coords[n],rc=rc)
             }
         }
         
@@ -197,36 +197,35 @@ getProfile <- function(gene,flank,source,dataset,class,sumStat,config,
                 ind <- which(config$source==source & config$dataset==dataset 
                     & config$class==st)
                     
-                #preSubconf <- config[ind,]
-                #subconf <- file.path(pathPrefix,preSubconf$dataset,
-                #   preSubconf$class)
-                #names(subconf) <- as.character(preSubconf$sample_id)
-                #bwFile <- dir(subconf,pattern=paste0(names(subconf),".bigWig$"),
-                #   full.names=TRUE)
-                #theCoverage[[n]][[st]] <- cmclapply(seq_along(bwFile),
-                #function(bw,crds,sc) {
-                #   chr <- as.character(seqnames(crds))[1]
-                #   bwrle <- import.bw(bw,selection=BigWigSelection(crds),
-                #       as="RleList")
-                #   if (chr %in% names(bwrle))
-                #       return(bwrle[[chr]][start(crds):end(crds)])
-                #   else
-                #       return(NULL)
-                #},coords[n],subconf,rc=rc)
+                preSubconf <- config[ind,]
+                subconf <- file.path(pathPrefix,preSubconf$dataset,
+                   preSubconf$class)
+                bwFile <- dir(subconf,pattern=paste0(names(subconf),".bigWig$"),
+                   full.names=TRUE)
+                assign("bwFile",bwFile,envir=.GlobalEnv)
+                theCoverage[[n]][[st]] <- cmclapply(bwFile,function(bw,crds) {
+                   chr <- as.character(seqnames(crds))[1]
+                   bwrle <- import.bw(bw,selection=BigWigSelection(crds),
+                       as="RleList")
+                   if (chr %in% names(bwrle))
+                       return(bwrle[[chr]][start(crds):end(crds)])
+                   else
+                       return(NULL)
+                },coords[n],rc=rc)
                     
-                subconf <- as.character(config$track_dir[ind])
-                names(subconf) <- as.character(config$sample_id[ind])
-                theCoverage[[n]][[st]] <- cmclapply(names(subconf),
-                    function(x,crds,sc) {
-                        chr <- as.character(seqnames(crds))[1]
-                        bwFile <- file.path(sc[x],paste(x,"bigWig",sep="."))
-                        bwrle <- import.bw(bwFile,
-                            selection=BigWigSelection(crds),as="RleList")
-                        if (chr %in% names(bwrle))
-                            return(bwrle[[chr]][start(crds):end(crds)])
-                        else
-                            return(NULL)
-                },coords[n],subconf,rc=rc)
+                #subconf <- as.character(config$track_dir[ind])
+                #names(subconf) <- as.character(config$sample_id[ind])
+                #theCoverage[[n]][[st]] <- cmclapply(names(subconf),
+                #    function(x,crds,sc) {
+                #        chr <- as.character(seqnames(crds))[1]
+                #        bwFile <- file.path(sc[x],paste(x,"bigWig",sep="."))
+                #        bwrle <- import.bw(bwFile,
+                #            selection=BigWigSelection(crds),as="RleList")
+                #        if (chr %in% names(bwrle))
+                #            return(bwrle[[chr]][start(crds):end(crds)])
+                #        else
+                #            return(NULL)
+                #},coords[n],subconf,rc=rc)
             }
         }
     }
@@ -290,7 +289,8 @@ getProfile <- function(gene,flank,source,dataset,class,sumStat,config,
     ymin <- unlist(low,use.names=FALSE)
     ymax <- unlist(high,use.names=FALSE)
     
-    position=unlist(lapply(1:length(coords),function(i,h,co) {return(rep(start(co[i]):end(co[i]),h))},length(class),coords))
+    position <- unlist(lapply(1:length(coords),function(i,h,co) {
+        return(rep(start(co[i]):end(co[i]),h))},length(class),coords))
     ss <- locus <- vector("list",length(coords))
     names(ss) <- names(locus) <- names(fit)
     for (n in names(fit)) {
@@ -340,7 +340,7 @@ getProfile <- function(gene,flank,source,dataset,class,sumStat,config,
 
 getTrack <- function(refArea,customGene=NULL,source,dataset,class,sumStat,
     config,dbGene,dbExon,trim=0.1,fromBam=FALSE,classColours=NULL,
-    messageContainer=NULL,progressFun=NULL,rc=NULL) {
+    pathPrefix="",messageContainer=NULL,progressFun=NULL,rc=NULL) {
     # Check colours
     if (is.null(classColours) || length(classColours)<length(class)) {
         baseColours <- c("#B40000","#00B400","#0000B4","#B45200")
@@ -373,12 +373,15 @@ getTrack <- function(refArea,customGene=NULL,source,dataset,class,sumStat,
             }
         }
     }
-    # bsvMessage("*** TESTING: ",gene$gene_name)
-    if (length(gene)>0) {
-        names(gene) <- unlist(lapply(split(gene, as.factor(gene)),function(x) return(x$gene_name)))
+    
+    if (length(gene) > 0) {
+        names(gene) <- unlist(lapply(split(gene,
+            as.factor(gene)),function(x) return(x$gene_name)))
         # Get a GRangesList with requested gene strcuture 
-        labelHelper <- getGeneCoordinatesForSpline(as.list(split(gene, as.factor(gene))),dbGene)
-        geneList <- getGeneCoordinatesForTrack(as.list(split(gene, as.factor(gene))),dbGene,dbExon)
+        labelHelper <- getGeneCoordinatesForSpline(as.list(split(gene,
+            as.factor(gene))),dbGene)
+        geneList <- getGeneCoordinatesForTrack(as.list(split(gene,
+            as.factor(gene))),dbGene,dbExon)
     }
     else
         labelHelper <- geneList <- NULL
@@ -397,27 +400,46 @@ getTrack <- function(refArea,customGene=NULL,source,dataset,class,sumStat,
                 text <- paste("Calculating signal for ",st)
                 progressFun(detail=text)
             }
+            
             ind <- which(config$source==source & config$dataset==dataset 
                 & config$class==st)
-            subconf <- as.character(config$sample_dir[ind])
-            names(subconf) <- as.character(config$sample_id[ind])
-            theCoverage[[st]] <- cmclapply(subconf,function(x,coords) {
-                bam.file <- dir(x,pattern=paste0(names(subconf),".bam$"),full.names=TRUE)
-                bam.index <- dir(x,pattern=paste0(names(subconf),".bam.bai$"),full.names=TRUE)
-                bp <- ScanBamParam(which=coords)
-                reads <- unlist(grglist(readGAlignments(file=bam.file,
-                    index=bam.index,param=bp,with.which_label=TRUE)))
+            
+            preSubconf <- config[ind,]
+            subconf <- file.path(pathPrefix,preSubconf$dataset,
+               preSubconf$class)
+            bamFile <- dir(subconf,pattern=paste0(names(subconf),".bam$"),
+               full.names=TRUE)
+            bamIndex <- dir(subconf,pattern=paste0(names(subconf),
+               ".bam.bai$"),full.names=TRUE)
+            space <- seq_along(1:length(bamFile))
+            theCoverage[[st]] <- cmclapply(space,function(i,bf,bi,coords) {
+                bp <- ScanBamParam(which=coords)                
+                reads <- unlist(grglist(readGAlignments(file=bf[i],
+                    index=bi[i],param=bp,with.which_label=TRUE)))
                 seqlevels(reads) <- as.character(seqnames(coords))
                 return(calcCoverage(reads,coords,assign.names=FALSE,
                     verbose=FALSE)[[1]])
-            },area,rc=rc)
+            },bamFile,bamIndex,area,rc=rc)
+            
+            #subconf <- as.character(config$sample_dir[ind])
+            #names(subconf) <- as.character(config$sample_id[ind])
+            #theCoverage[[st]] <- cmclapply(subconf,function(x,coords) {
+            #    bam.file <- dir(x,pattern=paste0(names(subconf),".bam$"),full.names=TRUE)
+            #    bam.index <- dir(x,pattern=paste0(names(subconf),".bam.bai$"),full.names=TRUE)
+            #    bp <- ScanBamParam(which=coords)
+            #    reads <- unlist(grglist(readGAlignments(file=bam.file,
+            #        index=bam.index,param=bp,with.which_label=TRUE)))
+            #    seqlevels(reads) <- as.character(seqnames(coords))
+            #    return(calcCoverage(reads,coords,assign.names=FALSE,
+            #        verbose=FALSE)[[1]])
+            #},area,rc=rc)
         }
         
         # Normalize
-        fac.index <- which(config$source==source & config$dataset==dataset 
+        facIndex <- which(config$source==source & config$dataset==dataset 
             & config$class %in% class)
-        factors <- config$norm_factor[fac.index]
-        names(factors) <- as.character(config$sample_id[fac.index])
+        factors <- config$norm_factor[facIndex]
+        names(factors) <- as.character(config$sample_id[facIndex])
         for (status in names(theCoverage)) {
             bsvMessage("Normalizing ",status," coverage")
             bsvMessage("Normalizing ",status," coverage",
@@ -443,18 +465,34 @@ getTrack <- function(refArea,customGene=NULL,source,dataset,class,sumStat,
             }
             ind <- which(config$source==source & config$dataset==dataset 
                 & config$class==st)
-            sc <- as.character(config$track_dir[ind])
-            names(sc) <- as.character(config$sample_id[ind])
-            theCoverage[[st]] <- cmclapply(names(sc),function(x,crds,sc) {
+                
+            preSubconf <- config[ind,]
+            subconf <- file.path(pathPrefix,preSubconf$dataset,
+                preSubconf$class)
+            bwFile <- dir(subconf,pattern=paste0(names(subconf),".bigWig$"),
+                full.names=TRUE)
+            theCoverage[[st]] <- cmclapply(bwFile,function(bw,crds) {
                 chr <- as.character(seqnames(crds))[1]
-                    bw.file <- file.path(sc[x],paste(x,"bigWig",sep="."))
-                bwrle <- import.bw(bw.file,selection=BigWigSelection(crds),
+                bwrle <- import.bw(bw,selection=BigWigSelection(crds),
                     as="RleList")
                 if (chr %in% names(bwrle))
                     return(bwrle[[chr]][start(crds):end(crds)])
                 else
                     return(NULL)
-            },area,sc,rc=rc)
+            },area,rc=rc)    
+                
+            #sc <- as.character(config$track_dir[ind])
+            #names(sc) <- as.character(config$sample_id[ind])
+            #theCoverage[[st]] <- cmclapply(names(sc),function(x,crds,sc) {
+            #    chr <- as.character(seqnames(crds))[1]
+            #    bw.file <- file.path(sc[x],paste(x,"bigWig",sep="."))
+            #    bwrle <- import.bw(bw.file,selection=BigWigSelection(crds),
+            #        as="RleList")
+            #    if (chr %in% names(bwrle))
+            #        return(bwrle[[chr]][start(crds):end(crds)])
+            #    else
+            #        return(NULL)
+            #},area,sc,rc=rc)
         }
     }
     
@@ -665,12 +703,22 @@ getTrack <- function(refArea,customGene=NULL,source,dataset,class,sumStat,
     return(ggbio.track)
 }
 
-getCustomCounts <- function(coords,samples,config,messageContainer=NULL,
-    progressFun=NULL,rc=NULL) {
+getCustomCounts <- function(coords,samples,config,pathPrefix="",
+    messageContainer=NULL,progressFun=NULL,rc=NULL) {
     coords <- validGRangesFromGRanges(coords)
+    
     ind <- which(config$sample_id==samples)
-    subconf <- as.character(config$sample_dir[ind])
-    names(subconf) <- as.character(config$sample_id[ind])
+    #subconf <- as.character(config$sample_dir[ind])
+    #names(subconf) <- as.character(config$sample_id[ind])
+    preSubconf <- config[ind,]
+    subconf <- file.path(pathPrefix,preSubconf$dataset,preSubconf$class)
+    bamFile <- dir(subconf,pattern=paste0(names(subconf),".bam$"),
+       full.names=TRUE)
+    bamIndex <- dir(subconf,pattern=paste0(names(subconf),
+       ".bam.bai$"),full.names=TRUE)
+    names(bamFile) <- as.character(preSubconf$sample_id)
+    space <- seq_along(1:length(bamFile))
+    
     customCounts <- vector("list",length(coords))
     names(customCounts) <- names(coords)
     for (n in names(coords)) {
@@ -685,19 +733,31 @@ getCustomCounts <- function(coords,samples,config,messageContainer=NULL,
         # assign("subconf",subconf,envir = .GlobalEnv)
         # assign("config",config,envir = .GlobalEnv)
         # assign("samples",samples,envir = .GlobalEnv)
-        customCounts[[n]] <- unlist(cmclapply(seq_along(subconf),function(i,coord) {            
-            bam.file <- dir(subconf[i],pattern=paste0(samples[i],".bam$"),full.names=TRUE)
-            bam.index <- dir(subconf[i],pattern=paste0(samples[i],".bam.bai$"),full.names=TRUE)
-            # assign("x",x,envir = .GlobalEnv)
-            # assign("bam.file",bam.file,envir = .GlobalEnv)
-            bp <- ScanBamParam(which=coord)                
-            reads <- unlist(grglist(readGAlignments(file=bam.file,
-                index=bam.index,param=bp,with.which_label=TRUE)))
-            seqlevels(reads) <- as.character(seqnames(coords))
-            return(length(reads))
-        },coords[n],rc=rc))
-        names(customCounts[[n]]) <- names(subconf)
+        #customCounts[[n]] <- unlist(cmclapply(seq_along(subconf),
+        #function(i,coord) {            
+        #    bam.file <- dir(subconf[i],pattern=paste0(samples[i],".bam$"),
+        #        full.names=TRUE)
+        #    bam.index <- dir(subconf[i],pattern=paste0(samples[i],".bam.bai$"),
+        #        full.names=TRUE)
+        #    # assign("x",x,envir = .GlobalEnv)
+        #    # assign("bam.file",bam.file,envir = .GlobalEnv)
+        #    bp <- ScanBamParam(which=coord)                
+        #    reads <- unlist(grglist(readGAlignments(file=bam.file,
+        #        index=bam.index,param=bp,with.which_label=TRUE)))
+        #    seqlevels(reads) <- as.character(seqnames(coords))
+        #    return(length(reads))
+        #},coords[n],rc=rc))
+        #names(customCounts[[n]]) <- names(subconf)
         # assign("customCounts",customCounts,envir = .GlobalEnv)
+        
+        customCounts[[n]] <- unlist(cmclapply(space,function(i,bf,bi,coord) {            
+            bp <- ScanBamParam(which=coord)                
+            reads <- unlist(grglist(readGAlignments(file=bf[i],
+                index=bi[i],param=bp,with.which_label=TRUE)))
+            seqlevels(reads) <- as.character(seqnames(coord))
+            return(length(reads))
+        },bamFile,bamIndex,coords[n],rc=rc))
+        names(customCounts[[n]]) <- names(bamFile)
     }
     return(do.call("rbind",customCounts))
 }

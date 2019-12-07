@@ -179,6 +179,7 @@ expressionCalculatorTabPanelEventReactive <- function(input,output,session,
                     coords=customInputRegions,
                     samples=as.character(currentMetadata$final$sample_id),
                     config=currentMetadata$final,
+                    pathPrefix=appConfig$paths$data,
                     progressFun=updateProgress,
                     rc=RC
                 )},
