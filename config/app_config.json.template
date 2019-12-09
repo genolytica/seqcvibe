@@ -1,0 +1,11 @@
+{
+    "paths": {
+        "data": "/PATH/TO/SEQCVIBE_DATASETS",
+        "metadata": "config/metadata.sqlite"
+    },
+    "urls": {
+        "base": "http://seqcvibe.server/SYMLINK_TO_TRACKS",
+        "browser": "http://seqcvibe.server/SYMLINK_TO_BROWSER/index.html?",
+        "tracks": "http://seqcvibe.server/SYMLINK_TO_TRACKS/reference"
+    }
+}

@@ -56,7 +56,7 @@ dataSelectorTabPanel <- function() {
                         class="pull-right",
                         disabled(actionButton(
                             inputId="createDataset",
-                            label="Create dataset",
+                            label="Create sample set",
                             icon=icon("table"),
                             class="btn-sample-select"
                         ))
@@ -67,7 +67,7 @@ dataSelectorTabPanel <- function() {
     ),column(6,
         fluidRow(column(12,
             wellPanel(
-                h4("Current dataset"),
+                h4("Current sample set"),
                 fluidRow(column(12,
                     div(
                         class="small table-contaner",

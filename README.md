@@ -855,6 +855,12 @@ information in ```_auth0.yml```.
 You can find a template of the aforementioned configuration file in
 ```config/_auth0.yml.template```.
 
+**Note:** If you want to offer a more pleasant user experience, you may want to
+enable seamless Single Sign-On (SSO), otherwise, each time the user restores a
+session, Auth0 will ask for re-authentication or consent, depending on the time
+passed from last usage. You can find details on how to enable seamless SSO
+[here](https://auth0.com/docs/dashboard/guides/tenants/enable-sso-tenant).
+
 # TODO
 
 * Step of internal genome annotation building (i.e. ```genome/mm10/gene.rda```)

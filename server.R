@@ -4,7 +4,7 @@ library(auth0)
 # Load required libraries
 source("config/init_server_globals.R")
 
-#auth0_server(
+auth0_server(
 function(input,output,session) {
     # Load init packages script
     source("config/init_packages.R")
@@ -105,12 +105,43 @@ function(input,output,session) {
         }
     })
     
+    # Handle user logout
+    observe({
+        if (!is.null(session$userData$auth0_info)) {
+            if (req(input$preLogoutHelper) == "42") {
+                options(auth0_config_file="config/_auth0.yml")
+                showModal(modalDialog(
+                    title="Logout?",
+                    "Are you sure you want to log out from SeqCVIBE?",
+                    easyClose=FALSE,
+                    size="s",
+                    footer=tagList(
+                        actionButton("cancelLogout","Cancel",icon=icon("ban")),
+                        logoutButton(icon=icon("check"))
+                    )
+                ))
+            }
+        }
+    })
+    observeEvent(input$cancelLogout,{
+        if (!is.null(session$userData$auth0_info)) {
+            updateTextInput(session,"preLogoutHelper",value="0")
+            updateNavbarPage(session,"seqcnavbar",selected="Data selector")
+            removeModal()
+        }
+    })
+    
     onRestore(function(state) {
         query <- getQueryString()
         
         # If onRestore has fired, it means that query is not empty
         if (!is.null(query$code)) { # Fired with auth0, further check
             if (!is.null(query$`_state_id_`)) { # Then fire server script
+                # # Strip auth0 url data. Fixes a problem with auth0 
+                # re-authentication when restoring a session (which should not
+                # be happening anyway)
+                updateQueryString(paste0("?_state_id_=",query$`_state_id_`))
+                
                 shinyjs::show("spinnerContainer")
                 updateNavbarPage(session,"seqcnavbar",selected="Data selector")
                 
@@ -190,6 +221,12 @@ function(input,output,session) {
                     easyClose=TRUE,
                     size="s"
                 ))
+                #assign("state",state,envir=.GlobalEnv)
+                # This is the right way to make table show
+                updateTextInput(session,"dataSource",
+                    value=state$input$dataSource)
+                updateTextInput(session,"dataDataset",
+                    value=state$input$dataDataset)
             }
         })
     })
@@ -203,4 +240,4 @@ function(input,output,session) {
     })
 }
 #,info=auth0_info("config/_auth0.yml"))
-#,info=a0_info)
+,info=a0_info)

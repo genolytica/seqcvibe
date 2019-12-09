@@ -53,7 +53,7 @@ dataSelectorTabPanelEventReactive <- function(input,output,session,
                 dataSelectorMessages,
                 type="INFO",
                 msg=paste(getTime("INFO"),"Current source: ",s,
-                    ", Current dataset: ",d,", Classes: ", 
+                    ", Current sample set: ",d,", Classes: ", 
                     paste(currentMetadata$class,collapse=", "),
                     ", Total samples: ",nrow(currentMetadata$metadata),
                     sep="")

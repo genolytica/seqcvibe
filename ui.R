@@ -22,8 +22,8 @@ source("ui/helpTab/helpItemDoc.R")
 source("ui/helpTab/helpItemFaq.R")
 source("ui/helpTab/helpItemAbout.R")
 
-#auth0_ui(
-function(request) { 
+auth0_ui(
+function(request) {
     fluidPage(
     shinyjs::useShinyjs(),
     includeCSS("www/seqcvibe.css"),
@@ -65,7 +65,7 @@ function(request) {
                 // Logout button functionality
                 //$('a[href^=#tab-][href$=-8]').on('click',function() {
                 $('[data-value=Logout]').on('click',function() {
-                    window.location.href =  'https://fleming.eu.auth0.com/v2/logout?returnTo=http://www.fleming.gr&client_id=0iezxzzsfxVDWiE0XaXnYdkDsS91f1zF';
+                    Shiny.setInputValue('preLogoutHelper','42');
                 });
             },5)})"
         )),
@@ -143,7 +143,9 @@ function(request) {
                 aboutTabPanel()
             )
         ),
-        tabPanel("Logout",icon=icon("sign-out"))
+        tabPanel("Logout",icon=icon("sign-out"),
+            hidden(textInput("preLogoutHelper",label=""))
+        )
     ),
     tags$div(id="spinnerContainer",
         tags$div(class="spinner",
@@ -156,4 +158,4 @@ function(request) {
     )
 )}
 #,info=auth0_info("config/_auth0.yml"))
-#,info=a0_info)
+,info=a0_info)
