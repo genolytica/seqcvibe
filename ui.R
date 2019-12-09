@@ -22,7 +22,7 @@ source("ui/helpTab/helpItemDoc.R")
 source("ui/helpTab/helpItemFaq.R")
 source("ui/helpTab/helpItemAbout.R")
 
-auth0_ui(
+#auth0_ui(
 function(request) {
     fluidPage(
     shinyjs::useShinyjs(),
@@ -72,7 +72,7 @@ function(request) {
         tags$script(
             'Shiny.addCustomMessageHandler("clearUrl",',
             'function(msg) {',
-            '    history.pushState({}, "Page Title", "/");',
+            '    history.pushState({}, "Page Title", msg.path);',
             '});'
         )
     ),
@@ -158,4 +158,4 @@ function(request) {
     )
 )}
 #,info=auth0_info("config/_auth0.yml"))
-,info=a0_info)
+#,info=a0_info)

@@ -4,7 +4,7 @@ library(auth0)
 # Load required libraries
 source("config/init_server_globals.R")
 
-auth0_server(
+#auth0_server(
 function(input,output,session) {
     # Load init packages script
     source("config/init_packages.R")
@@ -170,7 +170,8 @@ function(input,output,session) {
                 })
             }
             else # Clear the URL (https://github.com/curso-r/auth0/issues/54)
-                session$sendCustomMessage("clearUrl",list())
+                session$sendCustomMessage("clearUrl",
+                    list(path=session$clientData$url_pathname))
                 # Does not completely fix...
         }
         else { # Just check _state_id_
@@ -213,7 +214,8 @@ function(input,output,session) {
             if (!is.null(allReactiveVars$currentMetadata$final) 
                 && length(query) > 0) {
                 shinyjs::hide("spinnerContainer")
-                session$sendCustomMessage("clearUrl",list())
+                session$sendCustomMessage("clearUrl",
+                    list(path=session$clientData$url_pathname))
                 showModal(modalDialog(HTML("The selected session has been ",
                     "restored! Remember To hit <strong>Clear Dataset</strong> ",
                     "if you want to start over!"),
@@ -240,4 +242,4 @@ function(input,output,session) {
     })
 }
 #,info=auth0_info("config/_auth0.yml"))
-,info=a0_info)
+#,info=a0_info)
