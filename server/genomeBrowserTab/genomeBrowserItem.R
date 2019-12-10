@@ -19,8 +19,8 @@ genomeBrowserTabPanelRenderUI <- function(output,session,allReactiveVars,
                 #metadata=currentMetadata$final,
                 metadata=metadata,
                 org=currentMetadata$genome,
-                urlBase=appConfig$urls$browser,
-                tracksBase=appConfig$urls$tracks
+                urlBase=APP_CONFIG$urls$browser,
+                tracksBase=APP_CONFIG$urls$tracks
             ),
             name="JBrowse",seamless=NA,
             height="800px",width="100%"

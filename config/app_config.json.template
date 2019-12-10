@@ -1,4 +1,8 @@
 {
+    "meta": {
+        "app_name": "SeqCVIBE",
+        "app_alias": "seqcvibe"
+    },
     "paths": {
         "data": "/PATH/TO/SEQCVIBE_DATASETS",
         "metadata": "config/metadata.sqlite"

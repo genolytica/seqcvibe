@@ -18,14 +18,18 @@ source("lib/util.R")
 # source("lib/queries.R")
 # QUERIES <- initQueries()
 
-appConfig <- fromJSON("config/app_config.json")
+APP_CONFIG <- fromJSON("config/app_config.json")
+IS_SERVER <- nzchar(Sys.getenv("SHINY_PORT"))
+
+APP_NAME <- APP_CONFIG$meta$app_name
+APP_ALIAS <- APP_CONFIG$meta$app_alias
 
 # If the symlink to the data directory is not in place, create it!
 if (!isTRUE(nzchar(Sys.readlink("tracks/data"),keepNA=TRUE)))
-    file.symlink(appConfig$paths$data,"tracks/data")
+    file.symlink(APP_CONFIG$paths$data,"tracks/data")
 
 # Load metadata SQLite
-metadata <- initDatabase(file.path(appConfig$paths$metadata))
+metadata <- initDatabase(file.path(APP_CONFIG$paths$metadata))
 
 ## Until we merge bookmarks with main db
 # Load Bookmarks SQLite
@@ -64,7 +68,7 @@ for (s in us) {
     names(dataFiles[[s]]) <- tmpD$dataset
     for (d in tmpD$dataset)
         dataFiles[[s]][[d]] <- 
-            file.path(appConfig$paths$data,d,paste0(d,".rda"))
+            file.path(APP_CONFIG$paths$data,d,paste0(d,".rda"))
 }
 
 # source("config/data_files.R")

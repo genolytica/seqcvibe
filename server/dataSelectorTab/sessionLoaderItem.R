@@ -59,11 +59,27 @@ sessionLoaderTabPanelEventReactive <- function(input,output,session,
                 "WHERE state_id='",st,"' AND session='",se,"'"))
             #print(paste0("DELETE FROM bookmarks ",
             #   "WHERE state_id='",st,"' AND session='",se,"'"))
-            ex <- unlink(file.path("shiny_bookmarks",st),recursive=TRUE,
+            bookDir <- ""
+            if (IS_SERVER) {
+                cands <- dir("/var/lib/shiny-server/bookmarks/shiny",
+                    pattern=APP_ALIAS,full.names=TRUE)
+                # In case we have many directories starting with APP_ALIAS, we
+                # do not know the mechanics of bookmark saving
+                for (can in cands) {
+                    # Try and locate the session
+                    sts <- dir(can)
+                    if (st %in% sts)
+                        bookDir <- file.path(can,st)
+                }
+            }
+            else
+                bookDir <- "shiny_bookmarks"
+            ex <- unlink(file.path(bookDir,st),recursive=TRUE,
                 force=TRUE)
-            if (ex==0 && nr > 0)
+            if (ex==0 && nr > 0) {
                 showNotification(paste0(getTime("SUCCESS:"),"Session deleted"),
                     duration=5,type='message')
+                removeModal()
                 #showModal(modalDialog(
                 #    title="Session deleted!",
                 #    "The selected session and all related analyses have been ",
@@ -73,6 +89,7 @@ sessionLoaderTabPanelEventReactive <- function(input,output,session,
                 #        modalButton("Dismiss",icon=icon("check"))
                 #    )
                 #))
+            }
             else
                 showModal(modalDialog(
                     title="Session not properly deleted!",

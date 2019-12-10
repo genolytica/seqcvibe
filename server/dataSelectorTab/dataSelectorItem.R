@@ -499,7 +499,7 @@ dataSelectorTabPanelObserve <- function(input,output,session,
     observeEvent(input$showFastqc, {
         d <- currentMetadata$dataset
         #addResourcePath(d,paste0(getwd(),"/data/",d))
-        reportPath <- paste0(appConfig$urls$base,"/data/",d,"/",
+        reportPath <- paste0(APP_CONFIG$urls$base,"/data/",d,"/",
             paste0(d,"_multiqc_report.html"))
         showModal(modalDialog(
             title=paste("Fastq sample quality control for dataset",d),
