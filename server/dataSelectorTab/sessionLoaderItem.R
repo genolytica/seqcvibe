@@ -35,13 +35,14 @@ sessionLoaderTabPanelEventReactive <- function(input,output,session,
     delSt <- reactiveVal()
     delSe <- reactiveVal()
     preDeleteSession <- eventReactive(input$deleteBM, {
-        str <- strsplit(input$deleteBM, "_")[[1]]
+        str <- strsplit(input$deleteBM$id, "_")[[1]]
         delSt(str[2])
         delSe(str[3])
         showModal(modalDialog(
             title="Confirm session delete!",
             "The selected session is about to be deleted. Are you sure? This ",
             "action cannot be undone!",
+            size="m",
             easyClose=FALSE,
             footer=tagList(
                 modalButton("Cancel",icon=icon("ban")),
@@ -187,7 +188,8 @@ sessionLoaderTabPanelRenderUI <- function(output,session,allReactiveVars,
                 'deleteSession_',paste0(tmpDf$state_id,"_",tmpDf$session),
                 label="Delete",icon=icon("minus-circle"),
                 class="btn-danger btn-xs",
-                onclick='Shiny.onInputChange(\"deleteBM\",this.id)')
+                onclick=paste0('Shiny.onInputChange(\"deleteBM\",',
+                    '{id: this.id,date: Date.now()})'))
             tmpDf$state_id <- paste0("<a href='",base,tmpDf$state_id,
                 "'>Restore</a>")
             tmpDf <- tmpDf[,c(1:3,5)]

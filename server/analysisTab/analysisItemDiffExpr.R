@@ -899,8 +899,8 @@ diffExprTabPanelReactive <- function(input,output,session,
         
         #maPlots$maPlot <- maplot.data
         maPlots$maPlot <- ggplot(data=maplot.data) + 
-            geom_point(aes(x=A,y=M,colour=Status,fill=Status,size=Status,
-                text=Gene)) +
+            geom_point(aes(x=A,y=M,colour=Status,fill=Status,size=Status)) +
+                #text=Gene)) +
             theme_bw() +
             xlab("\nAverage expression") +
             ylab("Fold change (log2)\n") +

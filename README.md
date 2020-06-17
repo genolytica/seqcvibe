@@ -32,6 +32,7 @@ Thus, the following are assumed for the deployment of SeqCVIBE application:
  * colourpicker
  * data.table
  * DESeq
+ * devtools
  * DT
  * EDASeq
  * edgeR
@@ -133,10 +134,10 @@ other ones. After this and still within R:
 
 ```
 pkgs <- c("biomaRt","GenomicRanges","jsonlite","colourpicker","data.table",
-    "DESeq","DT","EDASeq","edgeR","GenomicAlignments","GenomeInfoDb","ggplot2",
-    "ggbio","heatmaply","magrittr","metaseqR","openssl","plyr","rmarkdown",
-    "rmdformats","Rsamtools","RSQLite","rtracklayer","shiny","shinyBS",
-    "shinyjs","XML")
+    "DESeq","devtools","DT","EDASeq","edgeR","GenomicAlignments","GenomeInfoDb",
+    "ggplot2","ggbio","heatmaply","magrittr","metaseqR","openssl","plyr",
+    "rmarkdown","rmdformats","Rsamtools","RSQLite","rtracklayer","shiny",
+    "shinyBS","shinyjs","XML")
 
 BiocManager::install(pkgs)
 ```
@@ -520,6 +521,10 @@ and then paste the following (for our case):
 
 ```
 {
+    "meta": {
+        "app_name": "SeqCVIBE",
+        "app_alias": "seqcvibe"
+    },
     "paths": {
         "data": "/media/storage/pilot",
         "metadata": "config/metadata.sqlite"
@@ -655,10 +660,13 @@ Replace $HOME with the SeqCVIBE root directory below.
     RewriteEngine on
     RewriteCond %{HTTP:Upgrade} =websocket
     RewriteRule /(.*) ws://localhost:3838/$1 [P,L]
-    RewriteCond %{HTTP:Upgrade} !=websocket
-    RewriteRule /(.*) http://localhost:3838/$1 [P,L]
-    ProxyPass / http://localhost:3838/
-    ProxyPassReverse / http://localhost:3838/
+    ## The following lines are suggested by Shiny developers but in our case
+    ## it brakes JBrowse
+    #RewriteCond %{HTTP:Upgrade} !=websocket
+    #RewriteRule /(.*) http://localhost:3838/$1 [P,L]
+    ## If you host only Shiny apps
+    #ProxyPass / http://localhost:3838/
+    #ProxyPassReverse / http://localhost:3838/
     ProxyRequests Off
     
     ServerSignature Off
@@ -737,18 +745,10 @@ and then paste
     ProxyPreserveHost On
     ProxyPass /seqcvibe http://62.217.82.158:3838/seqcvibe
     ProxyPassReverse /seqcvibe http://62.217.82.158:3838/seqcvibe
-    ## If you want to do this through localhost - more guaranteed result
-    #ProxyPass /seqcvibe http://localhost:3838/seqcvibe
-    #ProxyPassReverse /seqcvibe http://localhost:3838/seqcvibe
-
+    
     RewriteEngine on
     RewriteCond %{HTTP:Upgrade} =websocket
     RewriteRule /(.*) ws://localhost:3838/$1 [P,L]
-    RewriteCond %{HTTP:Upgrade} !=websocket
-    RewriteRule /(.*) http://localhost:3838/$1 [P,L]
-    ProxyPass / http://localhost:3838/
-    ProxyPassReverse / http://localhost:3838/
-    ProxyRequests Off
     
     ServerSignature Off
 </VirtualHost>
@@ -860,6 +860,18 @@ enable seamless Single Sign-On (SSO), otherwise, each time the user restores a
 session, Auth0 will ask for re-authentication or consent, depending on the time
 passed from last usage. You can find details on how to enable seamless SSO
 [here](https://auth0.com/docs/dashboard/guides/tenants/enable-sso-tenant).
+
+**Important:** At present, ```auth0``` package is still in active development
+and therefore, we have identified a couple of bugs which prevented the Auth0
+authentication to work well with SeqCVIBE. We have corrected these bugs in a 
+fork of the original package and a PR to the author. Until it is fixed, the
+package can be used from our fork [here](https://github.com/pmoulos/auth0). 
+Thus, you have to install the ```auth0``` package from GitHub:
+
+```
+library(devtools)
+install_github("pmoulos/auth0")
+```
 
 # TODO
 

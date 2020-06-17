@@ -310,68 +310,68 @@ ggbiplot <- function(pcobj,choices=1:2,scale=1,pc.biplot=TRUE,obs.scale=1-scale,
 
     # Base plot
     g <- ggplot(data=df.u,aes(x=xvar,y=yvar)) #+ 
-		#xlab(u.axis.labs[1]) + 
-		#ylab(u.axis.labs[2]) #+ 
-		#coord_equal()
+        #xlab(u.axis.labs[1]) + 
+        #ylab(u.axis.labs[2]) #+ 
+        #coord_equal()
 
     if(var.axes) {
-		# Draw circle
-		if(circle) {
-			theta <- c(seq(-pi,pi,length = 50),seq(pi,-pi,length = 50))
-			circle <- data.frame(xvar = r*cos(theta),yvar = r*sin(theta))
-			g <- g + geom_path(data=circle,color=muted('white'),size=1/2,
-				alpha=1/3)
-		}
+        # Draw circle
+        if(circle) {
+            theta <- c(seq(-pi,pi,length = 50),seq(pi,-pi,length = 50))
+            circle <- data.frame(xvar = r*cos(theta),yvar = r*sin(theta))
+            g <- g + geom_path(data=circle,color=muted('white'),size=1/2,
+                alpha=1/3)
+        }
 
-		# Draw directions
-		g <- g +
-			geom_segment(data=df.v,aes(x=0,y=0,xend=xvar,yend=yvar),
-				arrow=arrow(length=unit(1/2,'picas')),color=muted('red'))
-	}
+        # Draw directions
+        g <- g +
+            geom_segment(data=df.v,aes(x=0,y=0,xend=xvar,yend=yvar),
+                arrow=arrow(length=unit(1/2,'picas')),color=muted('red'))
+    }
 
-	# Draw either labels or points
-	if(!is.null(df.u$labels)) {
-		if(!is.null(df.u$Condition)) {
-			g <- g + geom_text(aes(label=labels,color=Condition),
-				size=labels.size)
-		} 
-		else
-			g <- g + geom_text(aes(label=labels),size=labels.size)      
-	} 
-	else {
-		if(!is.null(df.u$Condition))
-			g <- g + geom_point(aes(color=Condition),alpha=alpha,size=2.5)
-		else
-			g <- g + geom_point(alpha=alpha,size=2.5)
-	}
+    # Draw either labels or points
+    if(!is.null(df.u$labels)) {
+        if(!is.null(df.u$Condition)) {
+            g <- g + geom_text(aes(label=labels,color=Condition),
+                size=labels.size)
+        } 
+        else
+            g <- g + geom_text(aes(label=labels),size=labels.size)      
+    } 
+    else {
+        if(!is.null(df.u$Condition))
+            g <- g + geom_point(aes(color=Condition),alpha=alpha,size=2.5)
+        else
+            g <- g + geom_point(alpha=alpha,size=2.5)
+    }
 
-	# Overlay a concentration ellipse if there are groups
-	if(!is.null(df.u$groups) && ellipse) {
-		theta <- c(seq(-pi,pi,length=50),seq(pi,-pi,length=50))
-		circle <- cbind(cos(theta),sin(theta))
+    # Overlay a concentration ellipse if there are groups
+    if(!is.null(df.u$groups) && ellipse) {
+        theta <- c(seq(-pi,pi,length=50),seq(pi,-pi,length=50))
+        circle <- cbind(cos(theta),sin(theta))
 
-		ell <- ddply(df.u,'Condition',function(x) {
-			if(nrow(x)<=2)
-				return(NULL)
-			sigma <- var(cbind(x$xvar,x$yvar))
-			mu <- c(mean(x$xvar),mean(x$yvar))
-			ed <- sqrt(qchisq(ellipse.prob,df=2))
-			data.frame(sweep(circle %*% chol(sigma)*ed,2,mu,FUN='+'),
-			groups=x$groups[1])
-		})
-		if (!is.null(ell) && nrow(ell)>0) {
-			names(ell)[1:2] <- c('xvar','yvar')
-			g <- g + geom_path(data=ell,aes(color=Condition,group=Condition))
-		}
-	}
+        ell <- ddply(df.u,'Condition',function(x) {
+            if(nrow(x)<=2)
+                return(NULL)
+            sigma <- var(cbind(x$xvar,x$yvar))
+            mu <- c(mean(x$xvar),mean(x$yvar))
+            ed <- sqrt(qchisq(ellipse.prob,df=2))
+            data.frame(sweep(circle %*% chol(sigma)*ed,2,mu,FUN='+'),
+            groups=x$groups[1])
+        })
+        if (!is.null(ell) && nrow(ell)>0) {
+            names(ell)[1:2] <- c('xvar','yvar')
+            g <- g + geom_path(data=ell,aes(color=Condition,group=Condition))
+        }
+    }
 
-	# Label the variable axes
-	if(var.axes) {
-		g <- g + 
-			geom_text(data=df.v,aes(label=varname,x=xvar,y=yvar,angle=angle,
-				hjust=hjust),color='darkred',size=varname.size)
-	}
-	return(g)
+    # Label the variable axes
+    if(var.axes) {
+        g <- g + 
+            geom_text(data=df.v,aes(label=varname,x=xvar,y=yvar,angle=angle,
+                hjust=hjust),color='darkred',size=varname.size)
+    }
+    return(g)
 }
 
 updateMessages <- function(messageContainer,type,msg,clear=FALSE) {
@@ -683,3 +683,159 @@ getTime <- function(type) {
 isEmpty <- function(x) {
     return(is.null(x) || x=="")
 }
+
+my_auth0_ui <- function(ui,info) {
+    if (missing(info)) info <- auth0_info()
+    
+    function(req) {
+        verify <- auth0:::has_auth_code(
+            shiny::parseQueryString(req$QUERY_STRING),info$state)
+        
+        if (!verify) {
+            if (grepl("error=unauthorized", req$QUERY_STRING)) {
+                redirect <- sprintf("location.replace(\"%s\");", logout_url())
+                shiny::tags$script(shiny::HTML(redirect))
+            } 
+            else {
+                params <- shiny::parseQueryString(req$QUERY_STRING)
+                
+                params$code <- NULL
+                params$state <- NULL
+
+                #query <- paste0("/?", paste(
+                query <- paste0("?",paste(mapply(paste,names(params),params,
+                    MoreArgs = list(sep = "=")),collapse="&"))
+              
+                if (!is.null(info$remote_url) && info$remote_url != "" 
+                    && !getOption("auth0_local")) {
+                    if (query == "?")
+                        redirect_uri <- info$remote_url
+                    else
+                        redirect_uri <- paste0(info$remote_url,query)
+                }
+                else {
+                    if (grepl("127.0.0.1", req$HTTP_HOST)) {
+                        redirect_uri <- paste0("http://",
+                            gsub("127.0.0.1","localhost",req$HTTP_HOST,
+                            req$PATH_INFO,query))
+                    } 
+                    else {
+                        redirect_uri <- paste0("http://",req$HTTP_HOST,
+                            req$PATH_INFO,query)
+                    }
+                }
+                redirect_uri <<- redirect_uri
+
+                url <- httr::oauth2.0_authorize_url(info$api,
+                    info$app(redirect_uri),scope=info$scope,state=info$state)
+                        
+                redirect <- sprintf("location.replace(\"%s\");", url)
+                shiny::tags$script(shiny::HTML(redirect))
+            }
+        }
+        else {
+            if (is.function(ui)) {
+                ui(req)
+            } else {
+                ui
+            }
+        }
+    }
+}
+
+#~ my_auth0_ui_with_log <- function(ui,info) {
+#~     if (missing(info)) info <- auth0_info()
+    
+#~     #stateQuery <<- NULL
+    
+#~     function(req) {
+#~         verify <- auth0:::has_auth_code(
+#~             shiny::parseQueryString(req$QUERY_STRING),info$state)
+        
+#~         if (!verify) {
+#~             if (grepl("error=unauthorized", req$QUERY_STRING)) {
+#~                 redirect <- sprintf("location.replace(\"%s\");", logout_url())
+#~                 shiny::tags$script(shiny::HTML(redirect))
+#~             } 
+#~             else {
+#~                 params <- shiny::parseQueryString(req$QUERY_STRING)
+                
+#~                 #cat(file="log.txt","\n\n########################\n",append=TRUE)
+#~                 #cat(file="log.txt","Pre-verification status\n",append=TRUE)
+#~                 #cat(file="log.txt","Verified: ",verify,"\n",append=TRUE)
+#~                 #cat(file="log.txt","Host: ",req$HTTP_HOST,"\n",append=TRUE)
+#~                 #cat(file="log.txt","Path: ",req$PATH_INFO,"\n",append=TRUE)
+#~                 #cat(file="log.txt","Query: ",req$QUERY_STRING,"\n",append=TRUE)
+#~                 #cat(file="log.txt","Param names: ",
+#~                 #    paste(names(params),sep=", "),"\n",append=TRUE)
+#~                 #cat(file="log.txt","Param values: ",toString(params),"\n",
+#~                 #    append=TRUE)
+                
+#~                 #stateQuery <<- req$QUERY_STRING
+                
+#~                 params$code <- NULL
+#~                 params$state <- NULL
+
+#~                 #query <- paste0("/?", paste(
+#~                 query <- paste0("?",paste(mapply(paste,names(params),params,
+#~                     MoreArgs = list(sep = "=")),collapse="&"))
+              
+#~                 #cat(file="log.txt","New query: ",query,"\n",append=TRUE)
+
+#~                 if (!is.null(info$remote_url) && info$remote_url != "" 
+#~                     && !getOption("auth0_local")) {
+#~                     if (query == "?")
+#~                         redirect_uri <- info$remote_url
+#~                     else
+#~                         redirect_uri <- paste0(info$remote_url,query)
+#~                 }
+#~                 else {
+#~                     if (grepl("127.0.0.1", req$HTTP_HOST)) {
+#~                         redirect_uri <- paste0("http://",
+#~                             gsub("127.0.0.1","localhost",req$HTTP_HOST,
+#~                             req$PATH_INFO,query))
+#~                     } 
+#~                     else {
+#~                         redirect_uri <- paste0("http://",req$HTTP_HOST,
+#~                             req$PATH_INFO,query)
+#~                     }
+#~                 }
+#~                 redirect_uri <<- redirect_uri
+
+#~                 #cat(file="log.txt","Redirection: ",redirect_uri,"\n",
+#~                 #    append=TRUE)
+
+#~                 url <- httr::oauth2.0_authorize_url(info$api,
+#~                     info$app(redirect_uri),scope=info$scope,state=info$state)
+                    
+#~                 #cat(file="log.txt","Auth URL: ",url,"\n",append=TRUE)
+#~                 #cat(file="log.txt","########################\n",append=TRUE)
+                    
+#~                 redirect <- sprintf("location.replace(\"%s\");", url)
+#~                 shiny::tags$script(shiny::HTML(redirect))
+#~             }
+#~         }
+#~         else {
+#~             if (is.function(ui)) {
+#~                 #cat(file="log.txt","\n\n########################\n",append=TRUE)
+#~                 #cat(file="log.txt","Post-verification status\n",append=TRUE)
+#~                 #cat(file="log.txt","Query: ",req$QUERY_STRING,"\n",append=TRUE)
+#~                 #cat(file="log.txt","Query ommited: ",stateQuery,"\n",
+#~                 #    append=TRUE)
+                
+#~                 #if (!is.null(stateQuery)) {
+#~                 #    req$QUERY_STRING <- paste0(stateQuery,"&",
+#~                 #        substr(req$QUERY_STRING,2,nchar(req$QUERY_STRING)))
+#~                 #    
+#~                 #    cat(file="log.txt","New query: ",req$QUERY_STRING,"\n",
+#~                 #        append=TRUE)
+#~                 #}
+#~                 #cat(file="log.txt","########################\n",append=TRUE)
+#~                 ui(req)
+#~             } else {
+#~                 ui
+#~             }
+#~         }
+#~     }
+#~ }
+

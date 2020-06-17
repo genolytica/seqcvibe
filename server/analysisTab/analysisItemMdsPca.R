@@ -54,11 +54,17 @@ mdsPcaTabPanelEventReactive <- function(input,output,session,
                     output$rnaMdsPcaSettingsError <- renderUI({div()})
                     g <- names(which(apply(currentPipelineOutput$flags,1,
                         function(x) all(x==0))))
+                    # FIXME in new version
+                    g <- intersect(g,rownames(D$counts))
+                    #
                 }
             },
             all = {
                 bad <- apply(D$norm,1,function(x) { return(all(x==0)) })
                 g <- genes[-which(bad)]
+                # FIXME in new version
+                g <- intersect(g,rownames(D$counts))
+                #
                 if (input$rnaCorrelateWhat=="refgene" 
                     && !isEmpty(input$rnaMdsPcaRefGene)) {
                         if (!(input$rnaMdsPcaRefGene %in% g))
@@ -158,8 +164,19 @@ mdsPcaTabPanelEventReactive <- function(input,output,session,
             pca = {
                 output$rnaMdsPcaSettingsError <- renderUI({div()})
                 tryCatch({
-                    pca.obj <- prcomp(t(tab),center=input$rnaPcaDoCenter,
-                        scale.=input$rnaPcaDoScale,tol=1e-9)
+                    if (nrow(tab) == 1) {
+                        output$rnaMdsPcaSettingsError <- renderUI({
+                            div(class="error-message",paste("PCA cannot be ",
+                                "performed with just one gene!",sep=""))
+                        })
+                        showNotification(paste0(getTime("ERROR:"),
+                            "PCA cannot be performed with just one gene!"),
+                            duration=5,type='error')
+                        return()
+                    }
+                    else
+                        pca.obj <- prcomp(t(tab),center=input$rnaPcaDoCenter,
+                            scale.=input$rnaPcaDoScale,tol=1e-9)
                 },
                 warning=function(w) {
                     currentDimRed$pcaScreePlot <- currentDimRed$pcaScoresPlot <-

@@ -87,19 +87,25 @@ function(input,output,session) {
         if (!is.null(session$userData$auth0_info)) {
             email <- session$userData$auth0_info$email
             name <- session$userData$auth0_info$name
-            qCheck <- paste0("SELECT COUNT(1) FROM users WHERE email='",
-                email,"'")
+            
+            cat(file="log.txt",email,"\n",append=TRUE)
+            cat(file="log.txt",name,"\n",append=TRUE)
+            
+            # name is the primary identifier of auth0
+            qCheck <- paste0("SELECT COUNT(1) FROM users WHERE name='",
+                name,"'")
             n <- dbGetQuery(metadata,qCheck)[1,1]
             if (n == 0) { # Create also the user in our local db
                 iQuery <- paste0("INSERT INTO users (email, name) ",
                     "VALUES ('",email,"',","'",name,"')")
                 #print(iQuery)
+                cat(file="log.txt",iQuery,"\n",append=TRUE)
                 nr <- dbExecute(metadata,iQuery)
             }
             
             # Then get the (new) user_id
             ii <- dbGetQuery(metadata,paste0("SELECT _id FROM users WHERE ",
-                "email='",email,"'"))[1,1]
+                "name='",name,"'"))[1,1]
             USER_ID(as.numeric(ii))
             #print(USER_ID())
         }
@@ -212,10 +218,11 @@ function(input,output,session) {
             # is not allowed if a dataset has not been created
             query <- getQueryString()
             if (!is.null(allReactiveVars$currentMetadata$final) 
-                && length(query) > 0) {
+                && !is.null(query[["_state_id_"]])) {
                 shinyjs::hide("spinnerContainer")
                 session$sendCustomMessage("clearUrl",
                     list(path=session$clientData$url_pathname))
+                updateQueryString("")
                 showModal(modalDialog(HTML("The selected session has been ",
                     "restored! Remember To hit <strong>Clear Dataset</strong> ",
                     "if you want to start over!"),

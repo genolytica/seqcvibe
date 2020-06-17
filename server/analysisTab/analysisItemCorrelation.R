@@ -41,6 +41,9 @@ correlationTabPanelEventReactive <- function(input,output,session,
                     output$rnaCorrelationSettingsError <- renderUI({div()})
                     g <- names(which(apply(currentPipelineOutput$flags,1,
                         function(x) all(x==0))))
+                    # FIXME in new version
+                    g <- intersect(g,rownames(D$counts))
+                    #
                 }
             },
             custom = {
@@ -59,6 +62,9 @@ correlationTabPanelEventReactive <- function(input,output,session,
             all = {
                 bad <- apply(D$norm,1,function(x) { return(all(x==0)) })
                 g <- genes[-which(bad)]
+                # FIXME in new version
+                g <- intersect(g,rownames(D$counts))
+                #
                 if (input$rnaCorrelateWhat=="refgene" 
                     && !isEmpty(input$rnaCorrelationRefGene)) {
                         if (!(input$rnaCorrelationRefGene %in% g))

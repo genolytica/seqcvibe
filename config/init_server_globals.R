@@ -28,6 +28,9 @@ APP_ALIAS <- APP_CONFIG$meta$app_alias
 if (!isTRUE(nzchar(Sys.readlink("tracks/data"),keepNA=TRUE)))
     file.symlink(APP_CONFIG$paths$data,"tracks/data")
 
+# Hack to fix SEVERAL httr problems (https://github.com/jeroen/curl/issues/156)
+httr::set_config(httr::config(http_version = 0))
+
 # Load metadata SQLite
 metadata <- initDatabase(file.path(APP_CONFIG$paths$metadata))
 

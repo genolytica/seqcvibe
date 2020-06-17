@@ -24,6 +24,7 @@ source("ui/helpTab/helpItemAbout.R")
 
 #auth0_ui(
 function(request) {
+    assign("request",request,envir=.GlobalEnv)
     fluidPage(
     shinyjs::useShinyjs(),
     includeCSS("www/seqcvibe.css"),
@@ -63,7 +64,6 @@ function(request) {
                     'to': 20
                 });
                 // Logout button functionality
-                //$('a[href^=#tab-][href$=-8]').on('click',function() {
                 $('[data-value=Logout]').on('click',function() {
                     Shiny.setInputValue('preLogoutHelper','42');
                 });
@@ -72,7 +72,9 @@ function(request) {
         tags$script(
             'Shiny.addCustomMessageHandler("clearUrl",',
             'function(msg) {',
-            '    history.pushState({}, "Page Title", msg.path);',
+            '    setTimeout(function() {',
+            '        history.pushState({}, "Page Title", msg.path);',
+            '     },msg.delay);',
             '});'
         )
     ),
